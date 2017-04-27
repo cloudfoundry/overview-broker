@@ -1,0 +1,26 @@
+html
+  head
+    title= title
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+  body
+    .container
+      .header.clearfix
+        h3 #{title} #[span.label.label-success.pull-right #{status}]
+      if !Object.keys(serviceInstances).length
+        p.text-warning No services running
+      else
+        p.text-primary #{Object.keys(serviceInstances).length} service(s) running
+        - var a = 0
+        each serviceData, serviceKey in serviceInstances
+          div.col-xs-12.col-sm-6
+            div.panel.panel-primary
+              div.panel-heading
+                h3.panel-title #{serviceKey}
+              div.panel-body
+                sub Created #{serviceData.timestamp}
+                p
+                pre(style={'background': 'none', 'border': 'none'}) #{JSON.stringify(serviceData, null, 2)}
+            - a+=1
+          if (a % 2) == 0
+            div.clearfix
+

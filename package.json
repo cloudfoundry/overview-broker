@@ -1,3 +1,4 @@
+
 {
   "name": "overview-broker",
   "version": "1.0.0",
@@ -13,7 +14,9 @@
     "express": "latest",
     "guid": "latest",
     "body-parser": "latest",
-    "express-validator": "latest"
+    "express-validator": "latest",
+    "pug": "latest",
+    "moment": "latest"
   },
   "devDependencies": {
     "mocha": "latest",

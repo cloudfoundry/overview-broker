@@ -8,6 +8,8 @@ app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(expressValidator());
 
+app.set('view engine', 'pug');
+
 var serviceBrokerInterface = new ServiceBrokerInterface();
 
 app.get('/v2/catalog', function(req, res) {

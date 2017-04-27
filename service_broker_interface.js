@@ -1,4 +1,5 @@
 var express = require('express'),
+    moment = require('moment'),
     ServiceBroker = require('./service_broker');
 
 class ServiceBrokerInterface {
@@ -39,6 +40,7 @@ class ServiceBrokerInterface {
         var serviceID = request.params.service_id;
         console.log('Creating service %s', serviceID);
         this.serviceInstances[serviceID] = {
+            timestamp: moment().toString(),
             serviceID: request.body.service_id,
             planID: request.body.plan_id,
             parameters: request.body.parameters,
@@ -124,13 +126,13 @@ class ServiceBrokerInterface {
 
     showDashboard(request, response) {
         var data = {
-            name: 'Service Broker Overview',
+            title: 'Service Broker Overview',
             status: 'running',
             api_version: request.header('X-Broker-Api-Version'),
             serviceInstances: this.serviceInstances,
             serviceBindings: this.serviceBindings
         };
-        response.json(data);
+        response.render('dashboard', data);
     }
 
 }
