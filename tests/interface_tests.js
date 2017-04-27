@@ -214,10 +214,6 @@ describe('Service Broker API', function() {
         it('should delete service binding', function(done) {
             request(server)
                 .delete('/v2/service_instances/' + serviceId + '/service_bindings/' + bindingId)
-                .send({
-                    service_id: serviceId,
-                    plan_id: planId
-                 })
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);

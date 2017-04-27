@@ -110,8 +110,6 @@ class ServiceBrokerInterface {
     deleteServiceBinding(request, response) {
         request.checkParams('service_id', 'Missing service_id').notEmpty();
         request.checkParams('binding_id', 'Missing binding_id').notEmpty();
-        request.checkBody('service_id', 'Missing service_id').notEmpty();
-        request.checkBody('plan_id', 'Missing plan_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
             response.status(400).send(errors);
