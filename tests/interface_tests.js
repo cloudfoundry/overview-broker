@@ -249,15 +249,7 @@ describe('Service Broker API', function() {
         it('should show dashboard', function(done) {
             request(server)
                 .get('/dashboard')
-                .expect(200)
-                .then(response => {
-                    should.exist(response.body);
-                    should.exist(response.body.status);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
+                .expect(200, done);
         });
 
     });
