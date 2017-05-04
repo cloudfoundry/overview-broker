@@ -10,6 +10,7 @@ class ServiceBrokerInterface {
     }
 
     getCatalog(request, response) {
+        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var data = {
             services: [
                 {
@@ -32,6 +33,7 @@ class ServiceBrokerInterface {
         request.checkBody('plan_id', 'Missing plan_id').notEmpty();
         request.checkBody('organization_guid', 'Missing organization_guid').notEmpty();
         request.checkBody('space_guid', 'Missing space_guid').notEmpty();
+        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
             response.status(400).send(errors);
@@ -41,6 +43,7 @@ class ServiceBrokerInterface {
         console.log('Creating service %s', serviceID);
         this.serviceInstances[serviceID] = {
             timestamp: moment().toString(),
+            api_version: request.header('X-Broker-Api-Version'),
             serviceID: request.body.service_id,
             planID: request.body.plan_id,
             parameters: request.body.parameters,
@@ -56,6 +59,7 @@ class ServiceBrokerInterface {
     updateServiceInstance(request, response) {
         request.checkParams('service_id', 'Missing service_id').notEmpty();
         request.checkBody('service_id', 'Missing service_id').notEmpty();
+        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
             response.status(400).send(errors);
@@ -63,6 +67,7 @@ class ServiceBrokerInterface {
         }
         var serviceID = request.params.service_id;
         console.log('Updating service %s', serviceID);
+        this.serviceInstances[serviceID].api_version = request.header('X-Broker-Api-Version'),
         this.serviceInstances[serviceID].serviceID = request.body.service_id;
         this.serviceInstances[serviceID].plan_id = request.body.plan_id;
         this.serviceInstances[serviceID].parameters = request.body.parameters;
@@ -73,6 +78,7 @@ class ServiceBrokerInterface {
         request.checkParams('service_id', 'Missing service_id').notEmpty();
         request.checkBody('service_id', 'Missing service_id').notEmpty();
         request.checkBody('plan_id', 'Missing plan_id').notEmpty();
+        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
             response.status(400).send(errors);
@@ -89,6 +95,7 @@ class ServiceBrokerInterface {
         request.checkParams('binding_id', 'Missing binding_id').notEmpty();
         request.checkBody('service_id', 'Missing service_id').notEmpty();
         request.checkBody('plan_id', 'Missing plan_id').notEmpty();
+        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
             response.status(400).send(errors);
@@ -98,6 +105,7 @@ class ServiceBrokerInterface {
         var bindingID = request.params.binding_id;
         console.log('Creating service binding %s for service %s', serviceID, bindingID);
         this.serviceInstances[serviceID]['bindings'][bindingID] = {
+            api_version: request.header('X-Broker-Api-Version'),
             service_id: request.body.service_id,
             plan_id: request.body.plan_id,
             app_guid: request.body.app_guid,
@@ -110,6 +118,7 @@ class ServiceBrokerInterface {
     deleteServiceBinding(request, response) {
         request.checkParams('service_id', 'Missing service_id').notEmpty();
         request.checkParams('binding_id', 'Missing binding_id').notEmpty();
+        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
             response.status(400).send(errors);
