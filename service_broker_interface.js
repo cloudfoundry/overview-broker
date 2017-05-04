@@ -1,39 +1,12 @@
 var express = require('express'),
     moment = require('moment'),
-    MongoClient = require('mongodb').MongoClient,
     ServiceBroker = require('./service_broker');
 
 class ServiceBrokerInterface {
 
     constructor() {
         this.serviceBroker = new ServiceBroker();
-        this.db = null;
-        this.serviceInstancesCollection = null;
-    }
-
-    setupDatabase(callback) {
-        var self = this;
-        MongoClient.connect('mongodb://mmcneeney:n$z3k4LHi5F32Z0Q@ds129610.mlab.com:29610/overview-broker', function(err, db) {
-            if (err) {
-                console.error('Error connecting to database: ' + err);
-                callback(false);
-                return;
-            }
-            self.db = db;
-            self.serviceInstancesCollection = db.collection('service-instances-' + process.env.NODE_ENV);
-            callback(true);
-        });
-    }
-
-    cleanupDatabase(callback) {
-        this.serviceInstancesCollection.remove({}, function(err, numberOfRemovedDocs) {
-            if (err) {
-                callback(err);
-                done();
-            }
-            console.log(numberOfRemovedDocs + ' docs removed');
-            callback();
-        });
+        this.serviceInstances = {};
     }
 
     getCatalog(request, response) {
@@ -66,34 +39,21 @@ class ServiceBrokerInterface {
             response.status(400).send(errors);
             return;
         }
-        var service_id = request.params.service_id;
-        console.log('Creating service %s', service_id);
-        this.serviceInstancesCollection.updateOne(
-        {
-            service_id: service_id
-        },
-        {
-            'timestamp': moment().toString(),
-            'api_version': request.header('X-Broker-Api-Version'),
-            'service_id': request.body.service_id,
-            'plan_id': request.body.plan_id,
-            'parameters': request.body.parameters,
-            'accepts_incomplete': request.body.requests_incomplete,
-            'organization_guid': request.body.organization_guid,
-            'space_guid': request.body.space_guid,
-            'context': request.body.context,
-            'bindings': []
-        },
-        {
-            upsert: true
-        },
-        function(err, result) {
-            if (err) {
-                response.status(500).send('Error updating database');
-                return;
-            }
-            response.json({});
-        });
+        var serviceID = request.params.service_id;
+        console.log('Creating service %s', serviceID);
+        this.serviceInstances[serviceID] = {
+            timestamp: moment().toString(),
+            api_version: request.header('X-Broker-Api-Version'),
+            serviceID: request.body.service_id,
+            planID: request.body.plan_id,
+            parameters: request.body.parameters,
+            accepts_incomplete: request.body.requests_incomplete,
+            organization_guid: request.body.organization_guid,
+            space_guid: request.body.space_guid,
+            context: request.body.context,
+            bindings: {}
+        };
+        response.json({});
     }
 
     updateServiceInstance(request, response) {
@@ -105,28 +65,13 @@ class ServiceBrokerInterface {
             response.status(400).send(errors);
             return;
         }
-        var service_id = request.params.service_id;
-        console.log('Updating service %s', service_id);
-        this.serviceInstancesCollection.updateOne(
-        {
-            service_id: service_id
-        },
-        {
-            'api_version': request.header('X-Broker-Api-Version'),
-            'service_id': request.body.service_id,
-            'plan_id': request.body.plan_id,
-            'parameters': request.body.parameters
-        },
-        {
-            upsert: true
-        },
-        function(err, result) {
-            if (err) {
-                response.status(500).send('Error updating database');
-                return;
-            }
-            response.json({});
-        });
+        var serviceID = request.params.service_id;
+        console.log('Updating service %s', serviceID);
+        this.serviceInstances[serviceID].api_version = request.header('X-Broker-Api-Version'),
+        this.serviceInstances[serviceID].serviceID = request.body.service_id;
+        this.serviceInstances[serviceID].plan_id = request.body.plan_id;
+        this.serviceInstances[serviceID].parameters = request.body.parameters;
+        response.json({});
     }
 
     deleteServiceInstance(request, response) {
@@ -139,19 +84,10 @@ class ServiceBrokerInterface {
             response.status(400).send(errors);
             return;
         }
-        var service_id = request.params.service_id;
-        console.log('Deleting service %s', service_id);
-        this.serviceInstancesCollection.deleteOne(
-        {
-            service_id: service_id
-        },
-        function(err, result) {
-            if (err) {
-                response.status(500).send('Error updating database');
-                return;
-            }
-            response.json({});
-        });
+        var serviceID = request.params.service_id;
+        console.log('Deleting service %s', serviceID);
+        delete this.serviceInstances[serviceID];
+        response.json({});
     }
 
     createServiceBinding(request, response) {
@@ -165,37 +101,18 @@ class ServiceBrokerInterface {
             response.status(400).send(errors);
             return;
         }
-        var service_id = request.params.service_id;
-        var binding_id = request.params.binding_id;
-        console.log('Creating service binding %s for service %s', service_id, binding_id);
-        this.serviceInstancesCollection.updateOne(
-        {
-            service_id: service_id
-        },
-        {
-            $push: {
-                'bindings': {
-                    binding_id: {
-                        'api_version': request.header('X-Broker-Api-Version'),
-                        'service_id': request.body.service_id,
-                        'plan_id': request.body.plan_id,
-                        'app_guid': request.body.app_guid,
-                        'bind_resource': request.body.bind_resource,
-                        'parameters': request.body.parameters
-                    }
-                }
-            }
-        },
-        {
-            upsert: true
-        },
-        function(err, result) {
-            if (err) {
-                response.status(500).send('Error updating database');
-                return;
-            }
-            response.json({});
-        });
+        var serviceID = request.params.service_id;
+        var bindingID = request.params.binding_id;
+        console.log('Creating service binding %s for service %s', serviceID, bindingID);
+        this.serviceInstances[serviceID]['bindings'][bindingID] = {
+            api_version: request.header('X-Broker-Api-Version'),
+            service_id: request.body.service_id,
+            plan_id: request.body.plan_id,
+            app_guid: request.body.app_guid,
+            bind_resource: request.body.bind_resource,
+            parameters: request.body.parameters
+        };
+        response.json({});
     }
 
     deleteServiceBinding(request, response) {
@@ -207,40 +124,22 @@ class ServiceBrokerInterface {
             response.status(400).send(errors);
             return;
         }
-        var service_id = request.params.service_id;
-        var binding_id = request.params.binding_id;
-        console.log('Deleting service binding %s for service %s', service_id, binding_id);
-        var binding = 'bindings.' + binding_id;
-        this.serviceInstancesCollection.updateOne(
-        {
-            service_id: service_id
-        },
-        {
-            $unset: { binding: '' }
-        },
-        function(err, result) {
-            if (err) {
-                response.status(500).send('Error updating database');
-                return;
-            }
-            response.json({});
-        });
+        var serviceID = request.params.service_id;
+        var bindingID = request.params.binding_id;
+        console.log('Deleting service binding %s for service %s', serviceID, bindingID);
+        delete this.serviceInstances[serviceID]['bindings'][bindingID];
+        response.json({});
     }
 
     showDashboard(request, response) {
-        this.serviceInstancesCollection.find({}).toArray(function(err, serviceInstances) {
-            if (err) {
-                response.status(500).send('Error fetching data');
-                return;
-            }
-            var data = {
-                title: 'Service Broker Overview',
-                status: 'running',
-                api_version: request.header('X-Broker-Api-Version'),
-                serviceInstances: serviceInstances
-            };
-            response.render('dashboard', data);
-        });
+        var data = {
+            title: 'Service Broker Overview',
+            status: 'running',
+            api_version: request.header('X-Broker-Api-Version'),
+            serviceInstances: this.serviceInstances,
+            serviceBindings: this.serviceBindings
+        };
+        response.render('dashboard', data);
     }
 
 }

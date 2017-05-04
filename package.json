@@ -16,8 +16,7 @@
     "body-parser": "latest",
     "express-validator": "latest",
     "pug": "latest",
-    "moment": "latest",
-    "mongodb": "latest"
+    "moment": "latest"
   },
   "devDependencies": {
     "mocha": "latest",
