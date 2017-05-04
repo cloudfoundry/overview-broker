@@ -2,10 +2,11 @@ var should = require('should'),
     assert = require('assert'),
     request = require('supertest'),
     Guid = require('guid'),
-    server = require('./../index');
+    app = require('./../app');
 
 describe('Service Broker API', function() {
 
+    var server = null;
     var serviceId = Guid.create();
     var planId = Guid.create();
     var bindingId = Guid.create();
@@ -15,8 +16,12 @@ describe('Service Broker API', function() {
 
     const apiVersion = '2.11'
 
-    beforeEach(function(done) {
-        done();
+    before(function(done) {
+        process.env.NODE_ENV = 'testing';
+        app.setup(function(err) {
+            server = app.server;
+            done(err);
+        });
     });
 
     describe('catalog', function() {
@@ -254,6 +259,48 @@ describe('Service Broker API', function() {
     });
 
     describe('dashboard', function() {
+
+        beforeEach(function(done) {
+            request(server)
+                .put('/v2/service_instances/' + serviceId)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: serviceId,
+                    plan_id: planId,
+                    parameters: {},
+                    accepts_incomplete: true,
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    (response.body).should.be.empty();
+                    request(server)
+                        .put('/v2/service_instances/' + serviceId + '/service_bindings/' + bindingId)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: serviceId,
+                            plan_id: planId,
+                            app_guid: appGuid,
+                            bind_resource: {},
+                            parameters: {}
+                         })
+                        .expect(200)
+                        .then(response => {
+                            should.exist(response.body);
+                            (response.body).should.be.empty();
+                            done();
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                })
+                .catch(error => {
+                    done(error);
+                });
+        })
 
         it('should show dashboard', function(done) {
             request(server)
