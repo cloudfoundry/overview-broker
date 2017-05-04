@@ -42,7 +42,6 @@ function setup(callback) {
         }
         var port = process.env.PORT || 3000;
         var server = app.listen(port, function() {
-            console.log('NODE_ENV: ' + process.env.NODE_ENV);
             console.log('Overview broker running on port ' + server.address().port);
             callback();
         });
