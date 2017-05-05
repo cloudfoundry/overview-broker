@@ -145,7 +145,12 @@ class ServiceBrokerInterface {
         var serviceId = request.params.service_id;
         var bindingID = request.params.binding_id;
         console.log('Deleting service binding %s for service %s', serviceId, bindingID);
-        delete this.serviceInstances[serviceId]['bindings'][bindingID];
+        try {
+            delete this.serviceInstances[serviceId]['bindings'][bindingID];
+        }
+        catch (e) {
+            // We must have lost this state
+        }
         response.json({});
         this.saveRequest(request);
         this.saveResponse({});
@@ -165,7 +170,7 @@ class ServiceBrokerInterface {
 
     saveRequest(request) {
         this.lastRequest = {
-            url: request.baseUrl,
+            url: request.url,
             query: request.query,
             body: request.body
         };

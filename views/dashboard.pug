@@ -22,6 +22,7 @@ html
             h3.panel-title Last Response
           div.panel-body
             pre(style={'background': 'none', 'border': 'none'}) #{JSON.stringify(lastResponse, null, 2)}
+        div.clearfix
       if Object.keys(serviceInstances).length
         - var a = 0
         each serviceData, serviceKey in serviceInstances
