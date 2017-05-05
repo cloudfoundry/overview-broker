@@ -1,9 +1,11 @@
-var Guid = require('guid');
+var Guid = require('guid'),
+    cfenv = require('cfenv');
 
 class ServiceBroker {
 
     constructor() {
-        this.name = 'overview-broker';
+        var space = cfenv.getAppEnv().app.space_name || 'test';
+        this.name = 'overview-broker-' + space;
         this.description = 'Provides an overview of any service instances and bindings that have been created by a platform.';
         this.id = Guid.create();
         this.bindable = true;
@@ -16,6 +18,7 @@ class ServiceBroker {
                 free: true
             }
         ];
+        console.log('Broker created (name: %s, id: %s)', this.name, this.id);
     }
 
     getName() {
