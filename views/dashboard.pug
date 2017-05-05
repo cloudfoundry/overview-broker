@@ -10,6 +10,19 @@ html
         p.text-warning No services running
       else
         p.text-primary #{Object.keys(serviceInstances).length} service(s) running
+      div.col-xs-12.col-sm-6
+        div.panel.panel-info
+          div.panel-heading
+            h3.panel-title Last Request
+          div.panel-body
+            pre(style={'background': 'none', 'border': 'none'}) #{JSON.stringify(lastRequest, null, 2)}
+      div.col-xs-12.col-sm-6
+        div.panel.panel-info
+          div.panel-heading
+            h3.panel-title Last Response
+          div.panel-body
+            pre(style={'background': 'none', 'border': 'none'}) #{JSON.stringify(lastResponse, null, 2)}
+      if Object.keys(serviceInstances).length
         - var a = 0
         each serviceData, serviceKey in serviceInstances
           div.col-xs-12.col-sm-6
