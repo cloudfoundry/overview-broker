@@ -81,8 +81,8 @@ class ServiceBrokerInterface {
 
     deleteServiceInstance(request, response) {
         request.checkParams('service_id', 'Missing service_id').notEmpty();
-        request.checkBody('service_id', 'Missing service_id').notEmpty();
-        request.checkBody('plan_id', 'Missing plan_id').notEmpty();
+        request.checkQuery('service_id', 'Missing service_id').notEmpty();
+        request.checkQuery('plan_id', 'Missing plan_id').notEmpty();
         request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var errors = request.validationErrors();
         if (errors) {

@@ -9,7 +9,7 @@ class ServiceBroker {
         this.description = 'Provides an overview of any service instances and bindings that have been created by a platform.';
         this.id = Guid.create();
         this.bindable = true;
-        this.tags = [];
+        this.tags = [ 'my-tag' ];
         this.plans = [
             {
                 id: Guid.create(),

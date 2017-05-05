@@ -6,14 +6,13 @@ var should = require('should'),
 
 describe('Service Broker API', function() {
 
-    var serviceId = Guid.create();
-    var planId = Guid.create();
-    var bindingId = Guid.create();
-    var organizationGuid = Guid.create();
-    var spaceGuid = Guid.create();
-    var appGuid = Guid.create();
-
-    const apiVersion = '2.11'
+    const serviceId = Guid.create();
+    const planId = Guid.create();
+    const bindingId = Guid.create();
+    const organizationGuid = Guid.create();
+    const spaceGuid = Guid.create();
+    const appGuid = Guid.create();
+    const apiVersion = '2.11';
 
     beforeEach(function(done) {
         done();
@@ -24,6 +23,7 @@ describe('Service Broker API', function() {
         it('should fetch the catalog', function(done) {
             request(server)
                 .get('/v2/catalog')
+                .set('X-Broker-Api-Version', apiVersion)
                 .expect(200)
                 .then(response => {
                     should.exist(response.body.services);
@@ -129,7 +129,7 @@ describe('Service Broker API', function() {
             request(server)
                 .delete('/v2/service_instances/' + serviceId)
                 .set('X-Broker-Api-Version', apiVersion)
-                .send({
+                .query({
                     service_id: serviceId,
                     plan_id: planId
                  })
@@ -226,6 +226,10 @@ describe('Service Broker API', function() {
             request(server)
                 .delete('/v2/service_instances/' + serviceId + '/service_bindings/' + bindingId)
                 .set('X-Broker-Api-Version', apiVersion)
+                .query({
+                    service_id: serviceId,
+                    binding_id: bindingId
+                })
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);
