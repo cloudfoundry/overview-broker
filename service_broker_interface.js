@@ -171,7 +171,7 @@ class ServiceBrokerInterface {
     saveRequest(request) {
         this.lastRequest = {
             url: request.url,
-            query: request.query,
+            method: request.method,
             body: request.body
         };
     }
