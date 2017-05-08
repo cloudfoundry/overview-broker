@@ -17,7 +17,8 @@
     "express-validator": "latest",
     "pug": "latest",
     "moment": "latest",
-    "cfenv": "latest"
+    "cfenv": "latest",
+    "request": "latest"
   },
   "devDependencies": {
     "mocha": "latest",

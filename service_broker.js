@@ -18,6 +18,7 @@ class ServiceBroker {
                 free: true
             }
         ];
+        this.storageKey = cfenv.getAppEnv().app.application_id || 'test';
         console.log('Broker created (name: %s, id: %s)', this.name, this.id);
     }
 
@@ -43,6 +44,10 @@ class ServiceBroker {
 
     getPlans() {
         return this.plans;
+    }
+
+    getStorageKey() {
+        return this.storageKey;
     }
 
 }

@@ -34,9 +34,16 @@ app.get('/dashboard', function(req, res) {
     serviceBrokerInterface.showDashboard(req, res);
 });
 
-var port = process.env.PORT || 3000;
-var server = app.listen(port, function() {
-    console.log('Overview broker running on port ' + server.address().port);
-});
+function start(callback) {
+    var port = process.env.PORT || 3000;
+    var server = app.listen(port, function() {
+        console.log('Overview broker running on port ' + server.address().port);
 
-module.exports = server;
+        // Initialise key value store
+        serviceBrokerInterface.init(function() {
+            callback(server);
+        });
+    });
+}
+
+exports.start = start;

@@ -1,14 +1,44 @@
 var express = require('express'),
     moment = require('moment'),
-    ServiceBroker = require('./service_broker');
+    ServiceBroker = require('./service_broker'),
+    KeyValueStore = require('./key_value_store');
 
 class ServiceBrokerInterface {
 
     constructor() {
         this.serviceBroker = new ServiceBroker();
+        this.keyValueStore = new KeyValueStore();
         this.serviceInstances = {};
         this.lastRequest = {};
         this.lastResponse = {};
+    }
+
+    init(callback) {
+        // Initialise key value store
+        this.keyValueStore.createStore(this.serviceBroker.getStorageKey(), function(success) {
+            if (!success) {
+                console.error('Error creating key value store; state will not be persistent');
+            }
+            callback();
+        });
+    }
+
+    loadData(callback) {
+        this.keyValueStore.loadData(function(data) {
+            if (!data) {
+                console.warn('Could not load state - data will be set to default');
+                return;
+            }
+            this.serviceInstances = data;
+        });
+    }
+
+    saveData(callback) {
+        this.keyValueStore.saveData(this.serviceInstances, function(success) {
+            if (!success) {
+                console.error('Error saving data to key value store');
+            }
+        });
     }
 
     getCatalog(request, response) {
@@ -34,6 +64,7 @@ class ServiceBrokerInterface {
         response.json(data);
         this.saveRequest(request);
         this.saveResponse(data);
+        this.saveData();
     }
 
     createServiceInstance(request, response) {
@@ -65,6 +96,7 @@ class ServiceBrokerInterface {
         response.json({});
         this.saveRequest(request);
         this.saveResponse({});
+        this.saveData();
     }
 
     updateServiceInstance(request, response) {
@@ -86,6 +118,7 @@ class ServiceBrokerInterface {
         response.json({});
         this.saveRequest(request);
         this.saveResponse({});
+        this.saveData();
     }
 
     deleteServiceInstance(request, response) {
@@ -104,6 +137,7 @@ class ServiceBrokerInterface {
         response.json({});
         this.saveRequest(request);
         this.saveResponse({});
+        this.saveData();
     }
 
     createServiceBinding(request, response) {
@@ -131,6 +165,7 @@ class ServiceBrokerInterface {
         response.json({});
         this.saveRequest(request);
         this.saveResponse({});
+        this.saveData();
     }
 
     deleteServiceBinding(request, response) {
@@ -154,6 +189,7 @@ class ServiceBrokerInterface {
         response.json({});
         this.saveRequest(request);
         this.saveResponse({});
+        this.saveData();
     }
 
     showDashboard(request, response) {
