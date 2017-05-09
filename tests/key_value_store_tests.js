@@ -5,29 +5,23 @@ var should = require('should'),
 describe('Key Value Store', function() {
 
     var keyValueStore = new KeyValueStore();
-    var key = 'test';
+    var key = process.env.NODE_ENV;
 
     // Cleanup before each test
-    before(function(done) {
+    beforeEach(function(done) {
         keyValueStore.saveData(key, {}, function(success) {
-            done();
-        });
-    })
-
-    it('should save data', function(done) {
-        keyValueStore.saveData(key, { foo: 'bar' }, function(success) {
             if (!success) {
-                done('Error saving data');
+                done('Failed to cleanup');
                 return;
             }
             done();
         });
     });
 
-    it('should load data', function(done) {
-        keyValueStore.loadData(key, function(data) {
-            if (!data) {
-                done('Error loading data');
+    it('should save data', function(done) {
+        keyValueStore.saveData(key, { foo: 'bar' }, function(success) {
+            if (!success) {
+                done('Error saving data');
                 return;
             }
             done();
@@ -52,8 +46,12 @@ describe('Key Value Store', function() {
     });
 
     // Cleanup after each test
-    beforeEach(function(done) {
+    afterEach(function(done) {
         keyValueStore.saveData(key, {}, function(success) {
+            if (!success) {
+                done('Failed to cleanup');
+                return;
+            }
             done();
         });
     });

@@ -4,7 +4,7 @@ var Guid = require('guid'),
 class ServiceBroker {
 
     constructor() {
-        var space = cfenv.getAppEnv().app.space_name || 'test';
+        var space = cfenv.getAppEnv().app.space_name || process.env.NODE_ENV;
         this.name = 'overview-broker-' + space;
         this.description = 'Provides an overview of any service instances and bindings that have been created by a platform.';
         this.id = Guid.create();
@@ -18,8 +18,8 @@ class ServiceBroker {
                 free: true
             }
         ];
-        this.storageKey = cfenv.getAppEnv().app.space_id || 'test';
-        console.log('Broker created (name: %s, id: %s)', this.name, this.id);
+        this.storageKey = cfenv.getAppEnv().app.space_id || process.env.NODE_ENV;;
+        console.log('Broker created (name: %s, id: %s, key: %s)', this.name, this.id, this.storageKey);
     }
 
     getName() {

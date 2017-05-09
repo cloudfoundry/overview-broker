@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "mocha --recursive tests"
+    "test": "NODE_ENV=testing mocha --recursive --timeout 5000 tests"
   },
   "author": "Matthew McNeeney <mmcneeney@pivotal.io>",
   "license": "ISC",

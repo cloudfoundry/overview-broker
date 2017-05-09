@@ -13,13 +13,27 @@ class ServiceBrokerInterface {
         this.lastResponse = {};
     }
 
+    initData(callback) {
+        this.loadData(callback);
+    }
+
     loadData(callback) {
+        var self = this;
+
+        // If we're not in production mode, clear any previous state
+        if (process.env.NODE_ENV != 'production') {
+            console.log('Clearing state as running in %s mode', process.env.NODE_ENV);
+            this.serviceInstances = {};
+            this.saveData(callback);
+            return;
+        }
+
+        // We're running in production, so we need to load any saved state
         this.keyValueStore.loadData(this.serviceBroker.getStorageKey(), function(data) {
-            if (!data) {
-                console.warn('Could not load state - data will be set to default');
-                return;
+            if (data) {
+                self.serviceInstances = data;
             }
-            this.serviceInstances = data;
+            callback(true);
         });
     }
 
@@ -27,6 +41,13 @@ class ServiceBrokerInterface {
         this.keyValueStore.saveData(this.serviceBroker.getStorageKey(), this.serviceInstances, function(success) {
             if (!success) {
                 console.error('Error saving data to key value store');
+                if (callback != null) {
+                    callback(false);
+                }
+                return;
+            }
+            if (callback != null) {
+                callback(true);
             }
         });
     }
@@ -51,10 +72,9 @@ class ServiceBrokerInterface {
                 }
             ]
         };
-        response.json(data);
         this.saveRequest(request);
         this.saveResponse(data);
-        this.saveData();
+        response.json(data);
     }
 
     createServiceInstance(request, response) {
@@ -83,10 +103,11 @@ class ServiceBrokerInterface {
             context: request.body.context,
             bindings: {},
         };
-        response.json({});
         this.saveRequest(request);
         this.saveResponse({});
-        this.saveData();
+        this.saveData(function(success) {
+            response.json({});
+        });
     }
 
     updateServiceInstance(request, response) {
@@ -105,10 +126,11 @@ class ServiceBrokerInterface {
         this.serviceInstances[serviceId].plan_id = request.body.plan_id;
         this.serviceInstances[serviceId].parameters = request.body.parameters;
         this.serviceInstances[serviceId].context = request.body.context;
-        response.json({});
         this.saveRequest(request);
         this.saveResponse({});
-        this.saveData();
+        this.saveData(function(success) {
+            response.json({});
+        });
     }
 
     deleteServiceInstance(request, response) {
@@ -124,10 +146,11 @@ class ServiceBrokerInterface {
         var serviceId = request.params.service_id;
         console.log('Deleting service %s', serviceId);
         delete this.serviceInstances[serviceId];
-        response.json({});
         this.saveRequest(request);
         this.saveResponse({});
-        this.saveData();
+        this.saveData(function(success) {
+            response.json({});
+        });
     }
 
     createServiceBinding(request, response) {
@@ -152,10 +175,11 @@ class ServiceBrokerInterface {
             bind_resource: request.body.bind_resource,
             parameters: request.body.parameters
         };
-        response.json({});
         this.saveRequest(request);
         this.saveResponse({});
-        this.saveData();
+        this.saveData(function(success) {
+            response.json({});
+        });
     }
 
     deleteServiceBinding(request, response) {
@@ -176,10 +200,11 @@ class ServiceBrokerInterface {
         catch (e) {
             // We must have lost this state
         }
-        response.json({});
         this.saveRequest(request);
         this.saveResponse({});
-        this.saveData();
+        this.saveData(function(success) {
+            response.json({});
+        });
     }
 
     showDashboard(request, response) {
