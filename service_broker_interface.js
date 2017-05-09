@@ -13,18 +13,8 @@ class ServiceBrokerInterface {
         this.lastResponse = {};
     }
 
-    init(callback) {
-        // Initialise key value store
-        this.keyValueStore.createStore(this.serviceBroker.getStorageKey(), function(success) {
-            if (!success) {
-                console.error('Error creating key value store; state will not be persistent');
-            }
-            callback();
-        });
-    }
-
     loadData(callback) {
-        this.keyValueStore.loadData(function(data) {
+        this.keyValueStore.loadData(this.serviceBroker.getStorageKey(), function(data) {
             if (!data) {
                 console.warn('Could not load state - data will be set to default');
                 return;
@@ -34,7 +24,7 @@ class ServiceBrokerInterface {
     }
 
     saveData(callback) {
-        this.keyValueStore.saveData(this.serviceInstances, function(success) {
+        this.keyValueStore.saveData(this.serviceBroker.getStorageKey(), this.serviceInstances, function(success) {
             if (!success) {
                 console.error('Error saving data to key value store');
             }

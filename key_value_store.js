@@ -3,39 +3,32 @@ var request = require('request');
 class KeyValueStore {
 
     constructor() {
-        this.baseUrl = 'https://api.keyvalue.xyz';
-        this.storageUrl = null;
+        /* Using the same key for every deployed broker is very nasty, but
+         * we have no other way of holding on to the token, and you can't use
+         * the same token for different keys. Fun fun fun. */
+        this.baseUrl = 'https://api.keyvalue.xyz/94f6bbb1/overview_broker';
     }
 
-    createStore(keyName, callback) {
-        var self = this;
-        request({
-            url: this.baseUrl + '/new/' + keyName,
-            method: 'POST'
-        }, function(error, response, body) {
-            if (!error && response.statusCode == 200) {
-                self.storageUrl = response.body;
-                console.log('Key value store created (%s)', keyName);
-                callback(true);
-            }
-            else {
-                console.error(error);
-                callback(false);
-            }
-        });
-    }
-
-    loadData(callback) {
-        if (!this.storageUrl) {
+    loadData(key, callback) {
+        if (!this.baseUrl) {
             console.error('Missing key value store URL');
             return;
         }
         request({
-            url: this.storageUrl,
+            url: this.baseUrl,
             method: 'GET'
         }, function(error, response, body) {
             if (!error && response.statusCode == 200) {
-                callback(response.body);
+                if (response.body == '\n') {
+                    callback({});
+                    return;
+                }
+                var data = JSON.parse(response.body);
+                if (key) {
+                    callback(data[key]);
+                    return;
+                }
+                callback(data);
             }
             else {
                 console.error(error);
@@ -44,24 +37,32 @@ class KeyValueStore {
         });
     }
 
-    saveData(data, callback) {
-        if (!this.storageUrl) {
+    saveData(key, value, callback) {
+        var self = this;
+        if (!this.baseUrl) {
             console.error('Missing key value store URL');
             return;
         }
-        request({
-            url: this.storageUrl,
-            method: 'POST',
-            json: true,
-            body: data
-        }, function(error, response, body) {
-            if (!error && response.statusCode == 200) {
-                callback(true);
+        // Load data first in case it has been changed by another broker
+        this.loadData(null, function(data) {
+            if (!data) {
+                return;
             }
-            else {
-                console.error(error);
-                callback(false);
-            }
+            data[key] = value;
+            request({
+                url: self.baseUrl,
+                method: 'POST',
+                json: true,
+                body: data
+            }, function(error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    callback(true);
+                }
+                else {
+                    console.error(error);
+                    callback(false);
+                }
+            });
         });
     }
 

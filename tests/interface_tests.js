@@ -1,7 +1,7 @@
 var should = require('should'),
     request = require('supertest'),
     Guid = require('guid'),
-    server = require('./../index');
+    app = require('./../app');
 
 describe('Service Broker API', function() {
 
@@ -13,11 +13,11 @@ describe('Service Broker API', function() {
     const appGuid = Guid.create();
     const apiVersion = '2.11';
 
-    var app = null;
+    var server = null;
 
     before(function(done) {
-        server.start(function(appInstance) {
-            app = appInstance;
+        app.start(function(s) {
+            server = s;
             done();
         });
     });
@@ -25,7 +25,7 @@ describe('Service Broker API', function() {
     describe('catalog', function() {
 
         it('should fetch the catalog', function(done) {
-            request(app)
+            request(server)
                 .get('/v2/catalog')
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(200)
@@ -58,7 +58,7 @@ describe('Service Broker API', function() {
     describe('service instances', function() {
 
         it('should create service instance', function(done) {
-            request(app)
+            request(server)
                 .put('/v2/service_instances/' + serviceId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
@@ -82,7 +82,7 @@ describe('Service Broker API', function() {
         });
 
         it('should fail to create service instance without required parameters', function(done) {
-            request(app)
+            request(server)
                 .put('/v2/service_instances/' + serviceId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(400)
@@ -96,7 +96,7 @@ describe('Service Broker API', function() {
         });
 
         it('should update service instance', function(done) {
-            request(app)
+            request(server)
                 .patch('/v2/service_instances/' + serviceId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
@@ -116,7 +116,7 @@ describe('Service Broker API', function() {
         });
 
         it('should fail to update service instance without required parameters', function(done) {
-            request(app)
+            request(server)
                 .patch('/v2/service_instances/' + serviceId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(400)
@@ -130,7 +130,7 @@ describe('Service Broker API', function() {
         });
 
         it('should delete service instance', function(done) {
-            request(app)
+            request(server)
                 .delete('/v2/service_instances/' + serviceId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
@@ -149,7 +149,7 @@ describe('Service Broker API', function() {
         });
 
         it('should fail to delete service instance without required parameters', function(done) {
-            request(app)
+            request(server)
                 .delete('/v2/service_instances/' + serviceId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(400)
@@ -167,7 +167,7 @@ describe('Service Broker API', function() {
     describe('service bindings', function() {
 
         beforeEach(function(done) {
-            request(app)
+            request(server)
                 .put('/v2/service_instances/' + serviceId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
@@ -191,7 +191,7 @@ describe('Service Broker API', function() {
         });
 
         it('should create service binding', function(done) {
-            request(app)
+            request(server)
                 .put('/v2/service_instances/' + serviceId + '/service_bindings/' + bindingId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
@@ -213,7 +213,7 @@ describe('Service Broker API', function() {
         });
 
         it('should fail to create service binding without required parameters', function(done) {
-            request(app)
+            request(server)
                 .put('/v2/service_instances/' + serviceId + '/service_bindings/' + bindingId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(400)
@@ -227,7 +227,7 @@ describe('Service Broker API', function() {
         });
 
         it('should delete service binding', function(done) {
-            request(app)
+            request(server)
                 .delete('/v2/service_instances/' + serviceId + '/service_bindings/' + bindingId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
@@ -246,7 +246,7 @@ describe('Service Broker API', function() {
         });
 
         it('should fail to delete service binding without required parameters', function(done) {
-            request(app)
+            request(server)
                 .put('/v2/service_instances/' + serviceId + '/service_bindings/' + bindingId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(400)
@@ -264,7 +264,7 @@ describe('Service Broker API', function() {
     describe('dashboard', function() {
 
         it('should show dashboard', function(done) {
-            request(app)
+            request(server)
                 .get('/dashboard')
                 .expect(200, done);
         });
