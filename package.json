@@ -18,7 +18,8 @@
     "pug": "latest",
     "moment": "latest",
     "cfenv": "latest",
-    "request": "latest"
+    "request": "latest",
+    "keyvalue-xyz": "latest"
   },
   "devDependencies": {
     "mocha": "latest",
