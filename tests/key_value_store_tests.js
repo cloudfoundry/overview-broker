@@ -45,6 +45,12 @@ describe('Key Value Store', function() {
         });
     });
 
+    it('should update data', function(done) {
+        keyValueStore.updateData(function(error) {
+            done(error);
+        });
+    });
+
     // Cleanup after each test
     afterEach(function(done) {
         keyValueStore.saveData(key, {}, function(success) {

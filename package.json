@@ -19,7 +19,8 @@
     "moment": "latest",
     "cfenv": "latest",
     "request": "latest",
-    "keyvalue-xyz": "latest"
+    "keyvalue-xyz": "latest",
+    "cron": "latest"
   },
   "devDependencies": {
     "mocha": "latest",
