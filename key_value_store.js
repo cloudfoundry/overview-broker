@@ -17,16 +17,16 @@ class KeyValueStore {
         this.key = 'overview_broker';
         switch (process.env.NODE_ENV) {
             case 'testing':
-                this.token = 'bc10a56f';
+                this.token = '0bb06285';
                 break;
             case 'development':
-                this.token = '7f521549';
+                this.token = '1dfd9cce';
                 break;
             case 'production':
-                this.token = 'f5e9213c';
+                this.token = 'aa9b74d4';
                 break;
             default:
-                this.token = 'aab90650';
+                this.token = '6e958462';
                 break;
         }
 
