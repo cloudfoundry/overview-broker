@@ -6,7 +6,8 @@ html
   body
     .container
       .header.clearfix
-        h3 #{title} #[span.label.label-success.pull-right #{status}]
+        img(style={'height': '70px', 'margin-top': '15px'}, src='https://www.openservicebrokerapi.org/wp-content/uploads/2016/12/osbapi_logo_concept3_wtm.png', alt='Open Service Broker API')
+        h3 #{title}
       p
         small.text-muted This page refreshes automatically
       if !Object.keys(serviceInstances).length
@@ -37,6 +38,11 @@ html
                 sub Created #{serviceData.timestamp}
                 p
                 pre(style={'background': 'none', 'border': 'none'}) #{JSON.stringify(serviceData, null, 2)}
+                div(style={'float': 'right', 'height': '50px'})
+                  if serviceData.context.platform == 'kubernetes'
+                    img(style={'height': '50px'}, src='../images/kubernetes.png', alt='Kubernetes')
+                  else
+                    img(style={'height': '50px'}, src='../images/cloudfoundry.png', alt='Cloud Foundry')
             - a+=1
           if (a % 2) == 0
             div.clearfix

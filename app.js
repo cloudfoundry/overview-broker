@@ -33,6 +33,7 @@ app.delete('/v2/service_instances/:service_id/service_bindings/:binding_id', fun
 app.get('/dashboard', function(req, res) {
     serviceBrokerInterface.showDashboard(req, res);
 });
+app.use('/images', express.static('images'))
 
 function start(callback) {
     var port = process.env.PORT || 3000;
