@@ -39,7 +39,7 @@ html
                 p
                 pre(style={'background': 'none', 'border': 'none'}) #{JSON.stringify(serviceData, null, 2)}
                 div(style={'float': 'right', 'height': '50px'})
-                  if serviceData.context.platform == 'kubernetes'
+                  if serviceData.context != null && serviceData.context.platform == 'kubernetes'
                     img(style={'height': '50px'}, src='../images/kubernetes.png', alt='Kubernetes')
                   else
                     img(style={'height': '50px'}, src='../images/cloudfoundry.png', alt='Cloud Foundry')
