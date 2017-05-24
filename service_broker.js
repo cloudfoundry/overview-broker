@@ -19,6 +19,7 @@ class ServiceBroker {
             }
         ];
         this.storageKey = cfenv.getAppEnv().app.space_id || process.env.NODE_ENV;;
+        console.log(cfenv.getAppEnv());
         console.log('Broker created (name: %s, id: %s, key: %s)', this.name, this.id, this.storageKey);
     }
 

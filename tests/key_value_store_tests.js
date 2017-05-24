@@ -1,11 +1,24 @@
 var should = require('should'),
     Guid = require('guid'),
+    kvs = require('keyvalue-xyz'),
     KeyValueStore = require('./../key_value_store');
 
 describe('Key Value Store', function() {
 
-    var keyValueStore = new KeyValueStore();
-    var key = process.env.NODE_ENV;
+    var keyValueStore = null;
+    var key = 'testing';
+
+    before(function(done) {
+        // Generate a new token for testing
+        kvs.createToken(key, function(error, token) {
+            if (error) {
+                done(error);
+                return;
+            }
+            keyValueStore = new KeyValueStore(token, key);
+            done();
+        });
+    });
 
     // Cleanup before each test
     beforeEach(function(done) {

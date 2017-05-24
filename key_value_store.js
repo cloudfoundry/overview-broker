@@ -3,32 +3,9 @@ var kvs = require('keyvalue-xyz'),
 
 class KeyValueStore {
 
-    constructor() {
-        /*
-         * Using the same key for every deployed broker is very nasty, but
-         * we have no other way of holding on to the token, and you can't use
-         * the same token for different keys. Fun fun fun. The least we can
-         * do is use a different hardcoded token for each environment.
-         *
-         * To generate a new token:
-         *    $ curl -X POST https://api.keyvalue.xyz/new/overview_broker
-         */
-        this.token = null;
-        this.key = 'overview_broker';
-        switch (process.env.NODE_ENV) {
-            case 'testing':
-                this.token = '0bb06285';
-                break;
-            case 'development':
-                this.token = '1dfd9cce';
-                break;
-            case 'production':
-                this.token = 'aa9b74d4';
-                break;
-            default:
-                this.token = '6e958462';
-                break;
-        }
+    constructor(token, key) {
+        this.token = token;
+        this.key = key;
 
         /*
          * keyvalue.xyz keys are removed after 7 days of inactivity, so let's make sure we

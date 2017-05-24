@@ -1,13 +1,32 @@
 var express = require('express'),
     moment = require('moment'),
+    cfenv = require('cfenv'),
     ServiceBroker = require('./service_broker'),
     KeyValueStore = require('./key_value_store');
 
 class ServiceBrokerInterface {
 
     constructor() {
+        /*
+         * The following environmental variables should be set:
+         *    KV_TOKEN - the token used to set and get the key value pair
+         *    KV_KEY_NAME - the key name
+         */
+        this.token = cfenv.getAppEnv().app.KV_TOKEN || process.env.KV_TOKEN;
+        this.key = cfenv.getAppEnv().app.KV_KEY_NAME || process.env.KV_KEY_NAME;
+        if (!this.token) {
+            console.error('Missing environmental variable: KV_TOKEN. Aborting.');
+            process.exit(1);
+            return;
+        }
+        if (!this.key) {
+            console.error('Missing environmental variable: KV_KEY_NAME. Aborting.');
+            process.exit(1);
+            return;
+        }
+
         this.serviceBroker = new ServiceBroker();
-        this.keyValueStore = new KeyValueStore();
+        this.keyValueStore = new KeyValueStore(this.token, this.key);
         this.serviceInstances = {};
         this.lastRequest = {};
         this.lastResponse = {};
@@ -29,7 +48,7 @@ class ServiceBrokerInterface {
         }
 
         // We're running in production, so we need to load any saved state
-        this.keyValueStore.loadData(this.serviceBroker.getStorageKey(), function(data) {
+        this.keyValueStore.loadData(this.key, function(data) {
             if (data) {
                 self.serviceInstances = data;
             }
@@ -38,7 +57,7 @@ class ServiceBrokerInterface {
     }
 
     saveData(callback) {
-        this.keyValueStore.saveData(this.serviceBroker.getStorageKey(), this.serviceInstances, function(success) {
+        this.keyValueStore.saveData(this.key, this.serviceInstances, function(success) {
             if (!success) {
                 console.error('Error saving data to key value store');
                 if (callback != null) {
