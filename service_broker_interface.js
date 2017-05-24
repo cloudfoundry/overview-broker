@@ -178,7 +178,7 @@ class ServiceBrokerInterface {
         this.saveRequest(request);
         this.saveResponse({});
         this.saveData(function(success) {
-            response.json({});
+            response.json({"credentials": {"username": "admin","password": "secret"}});
         });
     }
 
