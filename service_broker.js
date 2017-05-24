@@ -18,7 +18,7 @@ class ServiceBroker {
                 free: true
             }
         ];
-        this.storageKey = process.env.NODE_ENV;;
+        this.storageKey = process.env.KV_KEY_NAME;
         console.log('Broker created (name: %s, id: %s, key: %s, token: %s)', this.name, this.id, this.storageKey, process.env.KV_TOKEN);
     }
 
