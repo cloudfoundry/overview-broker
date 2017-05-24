@@ -13,7 +13,7 @@ npm install
 npm start
 ```
 
-Overview Broker supports persistence using the free [keyvalue.xyz](https://keyvalue.xyz/) service. To enable persistence, you need to provide two environment variables:
+Overview Broker provides persistence using the free [keyvalue.xyz](https://keyvalue.xyz/) service. For the broker to start up successfully, you need to provide two environment variables:
 * `KV_TOKEN`: the [token](https://github.com/kvaas/docs/blob/master/REST%20API.md#post-newkey) used to set and get the key value pair
 * `KV_KEY_NAME`: the key name
 
