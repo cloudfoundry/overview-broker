@@ -223,7 +223,8 @@ class ServiceBrokerInterface {
         this.lastRequest = {
             url: request.url,
             method: request.method,
-            body: request.body
+            body: request.body,
+            headers: request.headers
         };
     }
 
