@@ -6,7 +6,7 @@ html
     .container
       .header.clearfix
         img(style={'margin-top': '15px'}, src='../images/openservicebrokerapi.png', alt='Open Service Broker API')
-        h3 #{title}
+        h3 #{title} #[button.btn.btn-default(style={'float': 'right'}, onclick='location.reload()') Refresh]
       p
         if persistenceMode
           small.label.label-success Persistence enabled
