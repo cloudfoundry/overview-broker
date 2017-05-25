@@ -84,6 +84,8 @@ applications:
   memory: 512M
   disk_quota: 512M
   host: overview
+  health-check-type: http
+  health-check-http-endpoint: /dashboard
   env:
     ENABLE_PERSISTENCE: true
     KV_KEY_NAME: <key-name>
