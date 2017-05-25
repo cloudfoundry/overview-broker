@@ -12,7 +12,7 @@ class KeyValueStore {
          * update our data at least once a day so it hangs around forever.
          *    https://github.com/kvaas/docs/blob/master/Limits.md
          */
-        new CronJob('0 0 * * *', function() {
+        new CronJob('5 10 * * *', function() {
             this.updateData(function(error) {});
         });
     }
