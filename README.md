@@ -79,6 +79,7 @@ You can also use an application manifest to deploy the broker to Cloud Foundry. 
 ```yaml
 applications:
 - name: overview-broker
+  buildpack: https://github.com/cloudfoundry/nodejs-buildpack
   instances: 1
   memory: 512M
   disk_quota: 512M
