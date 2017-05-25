@@ -4,7 +4,7 @@ var should = require('should'),
     kvs = require('keyvalue-xyz'),
     app = require('./../app');
 
-describe('Service Broker API', function() {
+describe('Service Broker Interface', function() {
 
     const serviceId = Guid.create();
     const planId = Guid.create();
@@ -17,20 +17,15 @@ describe('Service Broker API', function() {
     var server = null;
 
     before(function(done) {
-        // Set required env vars
-        process.env.KV_KEY_NAME = 'testing';
-        console.log('creating token');
-        kvs.createToken(process.env.KV_KEY_NAME, function(error, token) {
-            if (error) {
-                done(error);
-                return;
-            }
-            process.env.KV_TOKEN = token;
-            app.start(function(s) {
-                server = s;
-                done();
-            });
+        app.start(function(s) {
+            server = s;
+            done();
         });
+    });
+
+    after(function(done) {
+        server.close();
+        done();
     });
 
     describe('catalog', function() {

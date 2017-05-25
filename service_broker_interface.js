@@ -7,26 +7,24 @@ var express = require('express'),
 class ServiceBrokerInterface {
 
     constructor() {
-        /*
-         * The following environmental variables should be set:
-         *    KV_TOKEN - the token used to set and get the key value pair
-         *    KV_KEY_NAME - the key name
-         */
-        this.token = cfenv.getAppEnv().app.KV_TOKEN || process.env.KV_TOKEN;
-        this.key = cfenv.getAppEnv().app.KV_KEY_NAME || process.env.KV_KEY_NAME;
-        if (!this.token) {
-            console.error('Missing environmental variable: KV_TOKEN. Aborting.');
-            process.exit(1);
-            return;
+        // Check if persistence mode is enabled
+        this.persistenceMode = cfenv.getAppEnv().app.ENABLE_PERSISTENCE || process.env.ENABLE_PERSISTENCE;
+        if (this.persistenceMode) {
+            this.token = cfenv.getAppEnv().app.KV_TOKEN || process.env.KV_TOKEN;
+            this.key = cfenv.getAppEnv().app.KV_KEY_NAME || process.env.KV_KEY_NAME;
+            if (!this.token) {
+                console.error('Missing environmental variable: KV_TOKEN. Aborting.');
+                process.exit(1);
+                return;
+            }
+            if (!this.key) {
+                console.error('Missing environmental variable: KV_KEY_NAME. Aborting.');
+                process.exit(1);
+                return;
+            }
+            this.keyValueStore = new KeyValueStore(this.token, this.key);
         }
-        if (!this.key) {
-            console.error('Missing environmental variable: KV_KEY_NAME. Aborting.');
-            process.exit(1);
-            return;
-        }
-
         this.serviceBroker = new ServiceBroker();
-        this.keyValueStore = new KeyValueStore(this.token, this.key);
         this.serviceInstances = {};
         this.lastRequest = {};
         this.lastResponse = {};
@@ -37,26 +35,32 @@ class ServiceBrokerInterface {
     }
 
     loadData(callback) {
-        var self = this;
-
-        // If we're not in production mode, clear any previous state
-        if (process.env.NODE_ENV == 'testing' || process.env.NODE_ENV == 'development') {
-            console.log('Clearing state as running in %s mode', process.env.NODE_ENV);
-            this.serviceInstances = {};
-            this.saveData(callback);
+        // If persistence mode is disabled, do nothing
+        if (!this.persistenceMode) {
+            callback(true);
             return;
         }
 
-        // We're running in production, so we need to load any saved state
+        // If we're not in production mode, do nothing
+        if (process.env.NODE_ENV == 'testing' || process.env.NODE_ENV == 'development') {
+            callback(true);
+            return;
+        }
+
+        // We're running in production mode with persistence enabled, so we need to load any saved state
+        var self = this;
         this.keyValueStore.loadData(this.key, function(data) {
-            if (data) {
-                self.serviceInstances = data;
-            }
+            self.serviceInstances = data || {};
             callback(true);
         });
     }
 
     saveData(callback) {
+        // If persistence mode is disabled, do nothing
+        if (!this.persistenceMode) {
+            callback(true);
+            return;
+        }
         this.keyValueStore.saveData(this.key, this.serviceInstances, function(success) {
             if (!success) {
                 console.error('Error saving data to key value store');
