@@ -5,7 +5,7 @@ class ServiceBroker {
 
     constructor() {
         var space = cfenv.getAppEnv().app.space_name || Guid.create();
-        this.name = 'overview-broker-' + space;
+        this.name = 'overview-broker';
         this.description = 'Provides an overview of any service instances and bindings that have been created by a platform.';
         this.id = Guid.create();
         this.bindable = true;

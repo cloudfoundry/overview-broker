@@ -40,7 +40,7 @@ class ServiceBrokerInterface {
         var self = this;
 
         // If we're not in production mode, clear any previous state
-        if (process.env.NODE_ENV != 'production') {
+        if (process.env.NODE_ENV == 'testing' || process.env.NODE_ENV == 'development') {
             console.log('Clearing state as running in %s mode', process.env.NODE_ENV);
             this.serviceInstances = {};
             this.saveData(callback);
