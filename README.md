@@ -75,5 +75,19 @@ If you now go ahead and create a new service instance, the instance should appea
 cf create-service overview-broker default my-broker
 ```
 
+You can also use an application manifest to deploy the broker to Cloud Foundry. Create a new file in the root of the repository called `manifest.yml`, add the following contents (ensure you update the environmental variables), and then simply run `cf push`.
+```yaml
+applications:
+- name: overview-broker
+  instances: 1
+  memory: 512M
+  disk_quota: 512M
+  host: overview
+  env:
+    ENABLE_PERSISTENCE: true
+    KV_KEY_NAME: <key-name>
+    KV_TOKEN: <token>
+```
+
 #### Kubernetes
 
