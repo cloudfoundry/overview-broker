@@ -39,11 +39,17 @@ html
               div.panel-heading
                 h3.panel-title #{serviceKey}
               div.panel-body
-                sub Created #{serviceData.timestamp}
+                sub Created #{serviceData.created}
+                if serviceData.last_update
+                  sub Last Update #{serviceData.last_update}
                 p
-                pre(style={'background': 'none', 'border': 'none'}) #{JSON.stringify(serviceData, null, 2)}
+                - var serviceDataToDisplay = JSON.parse(JSON.stringify(serviceData))
+                - JSON.stringify(serviceDataToDisplay)
+                - delete serviceDataToDisplay['created']
+                - delete serviceDataToDisplay['last_updated']
+                pre(style={'background': 'none', 'border': 'none'}) #{JSON.stringify(serviceDataToDisplay, null, 2)}
                 div(style={'float': 'right', 'height': '50px'})
-                  if serviceData.context != null && serviceData.context.platform == 'kubernetes'
+                  if serviceDataToDisplay.context != null && serviceDataToDisplay.context.platform == 'kubernetes'
                     img(src='../images/kubernetes.png', alt='Kubernetes')
                   else
                     img(src='../images/cloudfoundry.png', alt='Cloud Foundry')

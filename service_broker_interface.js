@@ -115,10 +115,10 @@ class ServiceBrokerInterface {
         var serviceId = request.params.service_id;
         console.log('Creating service %s', serviceId);
         this.serviceInstances[serviceId] = {
-            timestamp: moment().toString(),
+            created: moment().toString(),
             api_version: request.header('X-Broker-Api-Version'),
-            serviceId: request.body.service_id,
-            planId: request.body.plan_id,
+            service_id: request.body.service_id,
+            plan_id: request.body.plan_id,
             parameters: request.body.parameters,
             accepts_incomplete: request.body.requests_incomplete,
             organization_guid: request.body.organization_guid,
@@ -145,10 +145,11 @@ class ServiceBrokerInterface {
         var serviceId = request.params.service_id;
         console.log('Updating service %s', serviceId);
         this.serviceInstances[serviceId].api_version = request.header('X-Broker-Api-Version'),
-        this.serviceInstances[serviceId].serviceId = request.body.service_id;
+        this.serviceInstances[serviceId].service_id = request.body.service_id;
         this.serviceInstances[serviceId].plan_id = request.body.plan_id;
         this.serviceInstances[serviceId].parameters = request.body.parameters;
         this.serviceInstances[serviceId].context = request.body.context;
+        this.serviceInstances[serviceId].last_updated = moment().toString();
         this.saveRequest(request);
         this.saveResponse({});
         this.saveData(function(success) {
