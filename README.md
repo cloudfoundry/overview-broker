@@ -1,7 +1,13 @@
 # Overview Broker
 [![Build Status](https://travis-ci.org/mattmcneeney/overview-broker.svg?branch=master)](https://travis-ci.org/mattmcneeney/overview-broker)
 
-A simple service broker conforming to the [Open Service Broker API specification](https://github.com/openservicebrokerapi/servicebroker/) that hosts a dashboard showing information on service instances and bindings created by any platform the broker is registered with.
+![Open Service Broker API](images/openservicebrokerapi.png)
+
+A simple service broker conforming to the [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker/) specification that hosts a dashboard showing information on service instances and bindings created by any platform the broker is registered with.
+
+The [Open Service Broker API](https://www.openservicebrokerapi.org/) project allows developers, ISVs, and SaaS vendors a single, simple, and elegant way to deliver services to applications running within cloud native platforms such as Cloud Foundry, OpenShift, and Kubernetes. The project includes individuals from Fujitsu, Google, IBM, Pivotal, RedHat and SAP.
+
+---
 
 ### Installation
 ```bash
@@ -13,8 +19,19 @@ npm install
 npm start
 ```
 
+### Tests
+
+To run the test suite:
+```bash
+npm test
+```
+
+---
+
+### Enable persistence
+
 Overview Broker can provide persistence using the free [keyvalue.xyz](https://keyvalue.xyz/) service. For the broker to start up successfully in persistence mode, you must provide the following environment variables:
-* `ENABLE_PERSISTENCE`: set to `true`
+* `ENABLE_PERSISTENCE`: `true`
 * `KV_TOKEN`: the [token](https://github.com/kvaas/docs/blob/master/REST%20API.md#post-newkey) used to set and get the key value pair
 * `KV_KEY_NAME`: the key name
 
@@ -25,13 +42,7 @@ https://api.keyvalue.xyz/TOKEN/KEY_NAME
 ```
 
 You should then set `KV_TOKEN` to `TOKEN` and `KV_KEY_NAME` to `KEY_NAME`.
-
-### Tests
-
-To run the test suite:
-```bash
-npm test
-```
+Note that the generated token can only be used to get and set the provided key name.
 
 ---
 
@@ -63,7 +74,6 @@ If you now go ahead and create a new service instance, the instance should appea
 ```bash
 cf create-service overview-broker default my-broker
 ```
-
 
 #### Kubernetes
 
