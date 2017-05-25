@@ -36,3 +36,22 @@ To run the test suite:
 ```bash
 npm test
 ```
+
+---
+
+### Cloud Foundry
+
+To register the broker in a Cloud Foundry environment, the following commands should be run:
+```bash
+cf create-service-broker --space-scoped overview-broker admin password <url-of-deployed-broker>
+```
+
+The overview broker dashboard is will then be accessible at `https://<url-of-deployed-broker>/dashboard`.
+If you then create a new service instance you will be able to see the instance in the dashboard.
+```bash
+cf create-service overview-broker default my-broker
+```
+
+
+### Kubernetes
+
