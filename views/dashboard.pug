@@ -1,7 +1,6 @@
 html
   head
     title= title
-    meta(http-equiv='refresh' content='5')
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
   body
     .container
@@ -9,9 +8,12 @@ html
         img(style={'margin-top': '15px'}, src='../images/openservicebrokerapi.png', alt='Open Service Broker API')
         h3 #{title}
       p
-        small.text-muted This page refreshes automatically
+        if persistenceMode
+          small.label.label-success Persistence enabled
+        else
+          small.label.label-default Persistence disabled
       if !Object.keys(serviceInstances).length
-        p.text-warning No services running
+        p.text-primary No services running
       else
         p.text-primary #{Object.keys(serviceInstances).length} service(s) running
       div.col-xs-12.col-sm-6

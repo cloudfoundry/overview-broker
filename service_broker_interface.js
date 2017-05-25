@@ -8,7 +8,7 @@ class ServiceBrokerInterface {
 
     constructor() {
         // Check if persistence mode is enabled
-        this.persistenceMode = cfenv.getAppEnv().app.ENABLE_PERSISTENCE || process.env.ENABLE_PERSISTENCE;
+        this.persistenceMode = (cfenv.getAppEnv().app.ENABLE_PERSISTENCE || process.env.ENABLE_PERSISTENCE) != null;
         if (this.persistenceMode) {
             this.token = cfenv.getAppEnv().app.KV_TOKEN || process.env.KV_TOKEN;
             this.key = cfenv.getAppEnv().app.KV_KEY_NAME || process.env.KV_KEY_NAME;
@@ -234,6 +234,7 @@ class ServiceBrokerInterface {
         var data = {
             title: 'Service Broker Overview',
             status: 'running',
+            persistenceMode: this.persistenceMode,
             api_version: request.header('X-Broker-Api-Version'),
             serviceInstances: this.serviceInstances,
             lastRequest: this.lastRequest,
