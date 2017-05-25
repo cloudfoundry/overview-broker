@@ -128,8 +128,11 @@ class ServiceBrokerInterface {
         };
         this.saveRequest(request);
         this.saveResponse({});
+        var dashboardUrl = this.serviceBroker.getDashboardUrl();
         this.saveData(function(success) {
-            response.json({});
+            response.json({
+                dashboard_url: dashboardUrl
+            });
         });
     }
 

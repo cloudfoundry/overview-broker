@@ -79,7 +79,8 @@ describe('Service Broker Interface', function() {
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);
-                    (response.body).should.be.empty();
+                    response.body.should.be.type('object');
+                    response.body.should.have.property('dashboard_url');
                     done();
                 })
                 .catch(error => {
@@ -188,7 +189,6 @@ describe('Service Broker Interface', function() {
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);
-                    (response.body).should.be.empty();
                     done();
                 })
                 .catch(error => {

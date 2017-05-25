@@ -1,11 +1,14 @@
 html
   head
     title= title
+    style
+      include style.css
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
   body
     .container
-      .header.clearfix
-        img(style={'margin-top': '15px'}, src='../images/openservicebrokerapi.png', alt='Open Service Broker API')
+      .header.clearfix(style={'padding-top': '15px'})
+        img.spin(src='../images/openservicebrokerapi-logo.png', alt='Open Service Broker API Logo')
+        img(src='../images/openservicebrokerapi-text.png', alt='Open Service Broker API')
         h3 #{title} #[button.btn.btn-default(style={'float': 'right'}, onclick='location.reload()') Refresh]
       p
         if persistenceMode

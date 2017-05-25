@@ -19,6 +19,7 @@ class ServiceBroker {
             }
         ];
         this.storageKey = process.env.KV_KEY_NAME;
+        this.dashboardUrl = cfenv.getAppEnv().url;
         console.log('Broker created\n   Name: %s\n   ID: %s\n   Persistence: %s', this.name, this.id, (process.env.ENABLE_PERSISTENCE ? 'Enabled' : 'Disabled'));
     }
 
@@ -48,6 +49,10 @@ class ServiceBroker {
 
     getStorageKey() {
         return this.storageKey;
+    }
+
+    getDashboardUrl() {
+        return this.dashboardUrl;
     }
 
 }
