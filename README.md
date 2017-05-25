@@ -48,7 +48,7 @@ Note that the generated token can only be used to get and set the provided key n
 
 ### Platforms
 
-#### Cloud Foundry
+#### Cloud Foundry 
 
 First you will need to deploy the broker as an application:
 ```bash

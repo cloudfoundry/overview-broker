@@ -19,7 +19,7 @@ class ServiceBroker {
             }
         ];
         this.storageKey = process.env.KV_KEY_NAME;
-        console.log('Broker created (name: %s, id: %s, key: %s, token: %s)', this.name, this.id, this.storageKey, process.env.KV_TOKEN);
+        console.log('Broker created\n   Name: %s\n   ID: %s\n   Persistence: %s', this.name, this.id, (process.env.ENABLE_PERSISTENCE ? 'Enabled' : 'Disabled'));
     }
 
     getName() {
