@@ -17,14 +17,16 @@ html
       div.col-xs-12.col-sm-6
         div.panel.panel-info
           div.panel-heading
-            h3.panel-title Last Request
-          div.panel-body
+            h3.panel-title
+              a(data-toggle="collapse", href="#request") Last Request
+          div#request.panel-body.panel-collapse.collapse
             pre(style={'background': 'none', 'border': 'none'}) #{JSON.stringify(lastRequest, null, 2)}
       div.col-xs-12.col-sm-6
         div.panel.panel-info
           div.panel-heading
-            h3.panel-title Last Response
-          div.panel-body
+            h3.panel-title
+              a(data-toggle="collapse", href="#response") Last Response
+          div#response.panel-body.panel-collapse.collapse
             pre(style={'background': 'none', 'border': 'none'}) #{JSON.stringify(lastResponse, null, 2)}
       div.clearfix
       if Object.keys(serviceInstances).length
@@ -46,4 +48,5 @@ html
             - a+=1
           if (a % 2) == 0
             div.clearfix
-
+    script(src='https://code.jquery.com/jquery-3.2.1.slim.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
