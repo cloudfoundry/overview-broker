@@ -75,6 +75,16 @@ If you now go ahead and create a new service instance, the instance should appea
 cf create-service overview-broker simple my-broker
 ```
 
+You can give your service a specific name in the dashboard by providing the `name` configuration parameter:
+```bash
+cf create-service overview-broker simple my-broker -c '{ "name": "My Broker" }'
+```
+
+Or, if you like all the colours of the rainbow...
+```bash
+cf create-service overview-broker simple my-broker -c '{ "rainbow": true }'
+```
+
 You can also use an application manifest to deploy the broker to Cloud Foundry. Create a new file in the root of the repository called `manifest.yml`, add the following contents (ensure you update the environmental variables), and then simply run `cf push`.
 ```yaml
 applications:
