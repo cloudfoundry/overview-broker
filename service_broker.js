@@ -1,5 +1,4 @@
-var Guid = require('guid'),
-    cfenv = require('cfenv'),
+var cfenv = require('cfenv'),
     validate = require ('jsonschema').validate;
 
 class ServiceBroker {
@@ -7,18 +6,18 @@ class ServiceBroker {
     constructor() {
         this.name = 'overview-broker';
         this.description = 'Provides an overview of any service instances and bindings that have been created by a platform.';
-        this.id = Guid.create().value;
+        this.id = '27068e11-6853-0892-fc7f-13fe7a8dc5bd';
         this.bindable = true;
-        this.tags = [ 'my-tag' ];
+        this.tags = [ 'overview-broker' ];
         this.plans = [
             {
-                id: Guid.create().value,
+                id: 'b2bbb243-372d-570c-28d6-f708a1a5d83b',
                 name: 'simple',
                 description: 'A very simple plan.',
                 free: true
             },
             {
-                id: Guid.create().value,
+                id: 'b3c9e1fb-3e37-fcb8-be0a-df68d95c40b0',
                 name: 'complex',
                 description: 'A more complicated plan.',
                 free: true,

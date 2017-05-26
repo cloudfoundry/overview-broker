@@ -1,5 +1,4 @@
 var should = require('should'),
-    Guid = require('guid'),
     kvs = require('keyvalue-xyz'),
     KeyValueStore = require('./../key_value_store');
 
