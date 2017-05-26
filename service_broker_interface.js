@@ -329,6 +329,15 @@ class ServiceBrokerInterface {
         response.render('dashboard', data);
     }
 
+    clean(request, response) {
+        this.serviceInstances = {};
+        this.lastRequest = {};
+        this.lastResponse = {};
+        this.saveData(function(success) {
+            response.json({});
+        });
+    }
+
     saveRequest(request) {
         this.lastRequest = {
             url: request.url,

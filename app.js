@@ -35,6 +35,9 @@ function start(callback) {
     app.get('/dashboard', function(req, res) {
         serviceBrokerInterface.showDashboard(req, res);
     });
+    app.post('/admin/clean', function(req, res) {
+        serviceBrokerInterface.clean(req, res);
+    });
     app.use('/images', express.static('images'))
 
     var port = process.env.PORT || 3000;
