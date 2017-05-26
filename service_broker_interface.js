@@ -223,8 +223,8 @@ class ServiceBrokerInterface {
         // Validate serviceId and planId
         var plan = this.serviceBroker.getPlanForService(request.query.service_id, request.query.plan_id);
         if (!plan) {
-            response.status(400).send('Could not find service %s, plan %s', request.query.service_id, request.query.plan_id);
-            return;
+            // Just throw a warning in case the broker was restarted so the IDs changed
+            console.warn('Could not find service %s, plan %s', request.query.service_id, request.query.plan_id);
         }
 
         var serviceInstanceId = request.params.instance_id;

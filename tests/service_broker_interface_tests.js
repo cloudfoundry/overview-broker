@@ -270,42 +270,6 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should fail to delete service instance with invalid serviceId', function(done) {
-            request(server)
-                .delete('/v2/service_instances/' + instanceId)
-                .set('X-Broker-Api-Version', apiVersion)
-                .query({
-                    service_id: Guid.create().value,
-                    plan_id: simplePlanId
-                 })
-                .expect(400)
-                .then(response => {
-                    should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-        it('should fail to delete service instance with invalid planId', function(done) {
-            request(server)
-                .delete('/v2/service_instances/' + instanceId)
-                .set('X-Broker-Api-Version', apiVersion)
-                .query({
-                    service_id: brokerServiceId,
-                    plan_id: Guid.create().value
-                 })
-                .expect(400)
-                .then(response => {
-                    should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
     });
 
     describe('service bindings', function() {
