@@ -88,17 +88,32 @@ class ServiceBroker {
 
     getSchema() {
         return {
-            '$schema': 'http://json-schema.org/draft-04/schema#',
-            'additionalProperties': false,
-            'type': 'object',
-            'properties': {
-                'password': {
-                    'type': 'string',
-                    'minLength': 6,
-                    'maxLength': 20
+            $schema: 'http://json-schema.org/draft-04/schema#',
+            additionalProperties: false,
+            type: 'object',
+            properties: {
+                rainbow: {
+                    type: 'boolean',
+                    default: false
                 },
+                name: {
+                    type: 'string',
+                    minLength: 1,
+                    maxLength: 30
+                },
+                config: {
+                    type: 'object',
+                    properties: {
+                        'url': {
+                            type: 'string'
+                        },
+                        'port': {
+                            type: 'integer'
+                        }
+                    }
+                }
             },
-            'required': [ 'password' ]
+            required: [ 'name' ]
         }
     }
 

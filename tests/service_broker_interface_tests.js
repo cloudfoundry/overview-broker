@@ -497,8 +497,8 @@ describe('Service Broker Interface', function() {
 
     describe('service instance paramter validation', function() {
 
-        let validParameters = { password: 'abcde12345' };
-        let invalidParameters = { password: 'abc' };
+        let validParameters = { name: 'special-broker' };
+        let invalidParameters = { foo: 'bar' };
 
         it('should create service instance with valid parameters', function(done) {
             request(server)
@@ -631,8 +631,8 @@ describe('Service Broker Interface', function() {
 
     describe('service binding parameter validation', function() {
 
-        let validParameters = { password: 'abcde12345' };
-        let invalidParameters = { password: 'abc' };
+        let validParameters = { name: 'special-broker' };
+        let invalidParameters = { foo: 'bar' };
 
         beforeEach(function(done) {
             request(server)

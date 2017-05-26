@@ -144,7 +144,7 @@ class ServiceBrokerInterface {
             api_version: request.header('X-Broker-Api-Version'),
             service_id: request.body.service_id,
             plan_id: request.body.plan_id,
-            parameters: request.body.parameters,
+            parameters: request.body.parameters || {},
             accepts_incomplete: request.body.requests_incomplete,
             organization_guid: request.body.organization_guid,
             space_guid: request.body.space_guid,
@@ -286,7 +286,7 @@ class ServiceBrokerInterface {
         this.saveRequest(request);
         this.saveResponse({});
         this.saveData(function(success) {
-            response.json({ 'credentials': { 'username': 'admin', 'password': 'secret' } });
+            response.json({ credentials: { username: 'admin', password: 'password' } });
         });
     }
 

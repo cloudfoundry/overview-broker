@@ -39,8 +39,11 @@ html
         each serviceData, serviceKey in serviceInstances
           div.col-xs-12.col-sm-6
             div.panel.panel-primary
-              div.panel-heading
-                h3.panel-title #{serviceKey}
+              div.panel-heading(class=`${serviceData.parameters.rainbow ? "rainbow" : ""}`)
+                if serviceData.parameters.name
+                  h3.panel-title #{serviceData.parameters.name}
+                else
+                  h3.panel-title #{serviceKey}
               div.panel-body
                 sub Created #{serviceData.created}
                 if serviceData.last_update
