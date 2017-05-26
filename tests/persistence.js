@@ -6,29 +6,44 @@ var should = require('should'),
 
 describe('Persistence', function() {
 
-    const serviceId = Guid.create();
-    const planId = Guid.create();
-    const bindingId = Guid.create();
-    const organizationGuid = Guid.create();
-    const spaceGuid = Guid.create();
-    const appGuid = Guid.create();
+    const instanceId = Guid.create().value;
+    const bindingId = Guid.create().value;
+    const organizationGuid = Guid.create().value;
+    const spaceGuid = Guid.create().value;
+    const appGuid = Guid.create().value;
     const apiVersion = '2.11';
 
     var server = null;
+    var brokerServiceId = null;
+    var simplePlanId = null;
+    var complexPlanId = null;
 
     before(function(done) {
         // Set required env vars
         process.env.ENABLE_PERSISTENCE = true;
         process.env.KV_KEY_NAME = 'testing';
-        console.log('creating token');
         kvs.createToken(process.env.KV_KEY_NAME, function(error, token) {
             if (error) {
                 done(error);
                 return;
             }
             process.env.KV_TOKEN = token;
-            app.start(function(s) {
+            app.start(function(s, sbInterface) {
                 server = s;
+                var serviceBroker = sbInterface.getServiceBroker();
+                brokerServiceId = serviceBroker.getID();
+                serviceBroker.getPlans().forEach(function(plan) {
+                    switch (plan.name) {
+                        case 'simple':
+                            simplePlanId = plan.id;
+                            break;
+                        case 'complex':
+                            complexPlanId = plan.id;
+                            break;
+                        default:
+                            break;
+                    }
+                });
                 done();
             });
         });
@@ -46,11 +61,11 @@ describe('Persistence', function() {
 
         it('should create service instance', function(done) {
             request(server)
-                .put('/v2/service_instances/' + serviceId)
+                .put('/v2/service_instances/' + instanceId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
-                    service_id: serviceId,
-                    plan_id: planId,
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
                     parameters: {},
                     accepts_incomplete: true,
                     organization_guid: organizationGuid,
@@ -71,11 +86,11 @@ describe('Persistence', function() {
 
         it('should update service instance', function(done) {
             request(server)
-                .patch('/v2/service_instances/' + serviceId)
+                .patch('/v2/service_instances/' + instanceId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
-                    service_id: serviceId,
-                    plan_id: planId,
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
                     parameters: {}
                  })
                 .expect(200)
@@ -91,11 +106,11 @@ describe('Persistence', function() {
 
         it('should delete service instance', function(done) {
             request(server)
-                .delete('/v2/service_instances/' + serviceId)
+                .delete('/v2/service_instances/' + instanceId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
-                    service_id: serviceId,
-                    plan_id: planId
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId
                  })
                 .expect(200)
                 .then(response => {
@@ -114,11 +129,11 @@ describe('Persistence', function() {
 
         beforeEach(function(done) {
             request(server)
-                .put('/v2/service_instances/' + serviceId)
+                .put('/v2/service_instances/' + instanceId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
-                    service_id: serviceId,
-                    plan_id: planId,
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
                     parameters: {},
                     accepts_incomplete: true,
                     organization_guid: organizationGuid,
@@ -137,11 +152,11 @@ describe('Persistence', function() {
 
         it('should create service binding', function(done) {
             request(server)
-                .put('/v2/service_instances/' + serviceId + '/service_bindings/' + bindingId)
+                .put('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
-                    service_id: serviceId,
-                    plan_id: planId,
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
                     app_guid: appGuid,
                     bind_resource: {},
                     parameters: {}
@@ -162,11 +177,11 @@ describe('Persistence', function() {
 
         it('should delete service binding', function(done) {
             request(server)
-                .delete('/v2/service_instances/' + serviceId + '/service_bindings/' + bindingId)
+                .delete('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
-                    service_id: serviceId,
-                    binding_id: bindingId
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId
                 })
                 .expect(200)
                 .then(response => {

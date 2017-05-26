@@ -1,21 +1,36 @@
 var Guid = require('guid'),
-    cfenv = require('cfenv');
+    cfenv = require('cfenv'),
+    validate = require ('jsonschema').validate;
 
 class ServiceBroker {
 
     constructor() {
-        var space = cfenv.getAppEnv().app.space_name || Guid.create();
         this.name = 'overview-broker';
         this.description = 'Provides an overview of any service instances and bindings that have been created by a platform.';
-        this.id = Guid.create();
+        this.id = Guid.create().value;
         this.bindable = true;
         this.tags = [ 'my-tag' ];
         this.plans = [
             {
-                id: Guid.create(),
-                name: 'default',
-                description: 'One plan to rule them all.',
+                id: Guid.create().value,
+                name: 'simple',
+                description: 'A very simple plan.',
                 free: true
+            },
+            {
+                id: Guid.create().value,
+                name: 'complex',
+                description: 'A more complicated plan.',
+                free: true,
+                schemas: {
+                    service_instance: {
+                        create: this.getSchema(),
+                        update: this.getSchema()
+                    },
+                    service_binding: {
+                        create: this.getSchema()
+                    }
+                }
             }
         ];
         this.storageKey = process.env.KV_KEY_NAME;
@@ -53,6 +68,50 @@ class ServiceBroker {
 
     getDashboardUrl() {
         return this.dashboardUrl;
+    }
+
+    getPlans() {
+        return this.plans;
+    }
+
+    getPlanForService(serviceId, planId) {
+        if (serviceId != this.id) {
+            return null;
+        }
+        for (var i = 0; i < this.plans.length; i++) {
+            if (planId == this.plans[i].id) {
+                return this.plans[i];
+            }
+        }
+        return null;
+    }
+
+    getSchema() {
+        return {
+            '$schema': 'http://json-schema.org/draft-04/schema#',
+            'additionalProperties': false,
+            'type': 'object',
+            'properties': {
+                'password': {
+                    'type': 'string',
+                    'minLength': 6,
+                    'maxLength': 20
+                },
+            },
+            'required': [ 'password' ]
+        }
+    }
+
+    validateParameters(schema, parameters) {
+        var result = validate(parameters, schema);
+        if (!result.valid) {
+            console.log('Validation failed: ' + result.errors);
+            return result.errors;
+        }
+        else {
+            console.log('Validation succeeded');
+            return null;
+        }
     }
 
 }

@@ -3,7 +3,7 @@ var should = require('should'),
     kvs = require('keyvalue-xyz'),
     KeyValueStore = require('./../key_value_store');
 
-describe('Key Value Store', function() {
+describe.skip('Key Value Store', function() {
 
     var keyValueStore = null;
     var key = 'testing';

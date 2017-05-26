@@ -72,7 +72,7 @@ The overview broker dashboard should now be accessible at `https://<url-of-deplo
 
 If you now go ahead and create a new service instance, the instance should appear live in the dashboard:
 ```bash
-cf create-service overview-broker default my-broker
+cf create-service overview-broker simple my-broker
 ```
 
 You can also use an application manifest to deploy the broker to Cloud Foundry. Create a new file in the root of the repository called `manifest.yml`, add the following contents (ensure you update the environmental variables), and then simply run `cf push`.

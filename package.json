@@ -20,7 +20,8 @@
     "cfenv": "latest",
     "request": "latest",
     "keyvalue-xyz": "latest",
-    "cron": "latest"
+    "cron": "latest",
+    "jsonschema": "latest"
   },
   "devDependencies": {
     "mocha": "latest",

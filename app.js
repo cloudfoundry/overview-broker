@@ -2,7 +2,8 @@ var express = require('express'),
     app = express(),
     bodyParser = require('body-parser'),
     expressValidator = require('express-validator'),
-    ServiceBrokerInterface = require('./service_broker_interface');
+    ServiceBrokerInterface = require('./service_broker_interface'),
+    serviceBrokerInterface = null;
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
@@ -11,24 +12,24 @@ app.use(expressValidator());
 app.set('view engine', 'pug');
 
 function start(callback) {
-    var serviceBrokerInterface = new ServiceBrokerInterface();
+    serviceBrokerInterface = new ServiceBrokerInterface();
 
     app.get('/v2/catalog', function(req, res) {
         serviceBrokerInterface.getCatalog(req, res);
     });
-    app.put('/v2/service_instances/:service_id', function(req, res) {
+    app.put('/v2/service_instances/:instance_id', function(req, res) {
         serviceBrokerInterface.createServiceInstance(req, res);
     });
-    app.patch('/v2/service_instances/:service_id', function(req, res) {
+    app.patch('/v2/service_instances/:instance_id', function(req, res) {
         serviceBrokerInterface.updateServiceInstance(req, res);
     });
-    app.delete('/v2/service_instances/:service_id', function(req, res) {
+    app.delete('/v2/service_instances/:instance_id', function(req, res) {
         serviceBrokerInterface.deleteServiceInstance(req, res);
     });
-    app.put('/v2/service_instances/:service_id/service_bindings/:binding_id', function(req, res) {
+    app.put('/v2/service_instances/:instance_id/service_bindings/:binding_id', function(req, res) {
         serviceBrokerInterface.createServiceBinding(req, res);
     });
-    app.delete('/v2/service_instances/:service_id/service_bindings/:binding_id', function(req, res) {
+    app.delete('/v2/service_instances/:instance_id/service_bindings/:binding_id', function(req, res) {
         serviceBrokerInterface.deleteServiceBinding(req, res);
     });
     app.get('/dashboard', function(req, res) {
@@ -47,7 +48,7 @@ function start(callback) {
                 process.exit(1);
                 return;
             }
-            callback(server);
+            callback(server, serviceBrokerInterface);
         });
     });
 }
