@@ -120,8 +120,8 @@ class ServiceBroker {
     validateParameters(schema, parameters) {
         var result = validate(parameters, schema);
         if (!result.valid) {
-            console.log('Validation failed: ' + result.errors);
-            return result.errors;
+            console.log('Validation failed: ' + result.errors.toString());
+            return result.errors.toString();
         }
         else {
             console.log('Validation succeeded');
