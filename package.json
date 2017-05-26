@@ -9,6 +9,7 @@
     "test": "NODE_ENV=testing mocha --recursive --timeout 10000 tests"
   },
   "author": "Matthew McNeeney <mmcneeney@pivotal.io>",
+  "repository": "https://github.com/mattmcneeney/overview-broker",
   "license": "ISC",
   "dependencies": {
     "express": "latest",
