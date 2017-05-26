@@ -690,16 +690,19 @@ describe('Service Broker Interface', function() {
 
     });
 
-    describe('clean', function(done) {
-        request(server)
-            .get('/admin/clean')
-            .expect(200)
-            .then(response => {
-                done();
-            })
-            .catch(error => {
-                done(error)
-            });
+    describe('clean', function() {
+
+        it('should succeed', function(done) {
+            request(server)
+                .post('/admin/clean')
+                .expect(200)
+                .then(response => {
+                    done();
+                })
+                .catch(error => {
+                    done(error)
+                });
+        });
     });
 
 });
