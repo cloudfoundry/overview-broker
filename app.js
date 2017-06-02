@@ -13,7 +13,9 @@ app.set('view engine', 'pug');
 
 function start(callback) {
     serviceBrokerInterface = new ServiceBrokerInterface();
-
+    app.get('/', function(req, res) {
+        res.redirect(303, '/dashboard');
+    });
     app.get('/v2/catalog', function(req, res) {
         serviceBrokerInterface.getCatalog(req, res);
     });
