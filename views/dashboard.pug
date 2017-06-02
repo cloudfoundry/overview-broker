@@ -6,22 +6,23 @@ html
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
   body
     .container
-      .header.clearfix(style={'padding-top': '15px'})
-        img.spin(src='../images/openservicebrokerapi-logo.png', alt='Open Service Broker API Logo')
-        img(src='../images/openservicebrokerapi-text.png', alt='Open Service Broker API')
-        h3 #{title}
-        div(style={'float': 'right'})
-          button.btn.btn-danger(style={'margin-right': '5px'} onclick='jQuery.post("/admin/clean", function() { location.reload(); })') Clean
-          button.btn.btn-default(onclick='location.reload()') Refresh
-      p
-        if persistenceMode
-          small.label.label-success Persistence enabled
+      .header.clearfix(style={'margin-top': '15px'})
+        div.col-xs-12
+          img.spin(src='../images/openservicebrokerapi-logo.png', alt='Open Service Broker API Logo')
+          img(src='../images/openservicebrokerapi-text.png', alt='Open Service Broker API')
+        div.col-xs-12.col-sm-6
+          h3 #{title}
+        div.col-xs-12.col-sm-6(style={'padding-top': '18px'})
+          span.pull-right
+            button.btn.btn-danger(style={'margin-right': '5px'} onclick='jQuery.post("/admin/clean", function() { location.reload(); })') Clean
+            button.btn.btn-default(onclick='location.reload()') Refresh
+      div.col-xs-12
+        mixin persistenceLabel
+          span.label.label-primary(style={'margin-left': '5px'}) persistence #{ persistenceMode ? 'enabled' : 'disabled' }
+        if !Object.keys(serviceInstances).length
+          p.text-primary No services running #[+persistenceLabel]
         else
-          small.label.label-default Persistence disabled
-      if !Object.keys(serviceInstances).length
-        p.text-primary No services running
-      else
-        p.text-primary #{Object.keys(serviceInstances).length} service(s) running
+          p.text-primary #{Object.keys(serviceInstances).length} service(s) running #[+persistenceLabel]
       div.col-xs-12.col-sm-6
         div.panel.panel-info
           div.panel-heading
