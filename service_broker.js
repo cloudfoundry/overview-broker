@@ -23,11 +23,17 @@ class ServiceBroker {
                 free: true,
                 schemas: {
                     service_instance: {
-                        create: this.getSchema(),
-                        update: this.getSchema()
+                        create: {
+                            parameters: this.getSchema()
+                        },
+                        update: {
+                            parameters: this.getSchema()
+                        }
                     },
                     service_binding: {
-                        create: this.getSchema()
+                        create: {
+                            parameters: this.getSchema()
+                        }
                     }
                 }
             }
