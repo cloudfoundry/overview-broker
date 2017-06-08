@@ -123,7 +123,7 @@ class ServiceBrokerInterface {
         // Validate any configuration parameters if we have a schema
         var schema = null;
         try {
-            schema = plan.schemas.service_instance.create;
+            schema = plan.schemas.service_instance.create.parameters;
         }
         catch (e) {
             // No schema to validate with
@@ -181,7 +181,7 @@ class ServiceBrokerInterface {
         // Validate any configuration parameters if we have a schema
         var schema = null;
         try {
-            schema = plan.schemas.service_instance.update;
+            schema = plan.schemas.service_instance.update.parameters;
         }
         catch (e) {
             // No schema to validate with
@@ -259,7 +259,7 @@ class ServiceBrokerInterface {
         // Validate any configuration parameters if we have a schema
         var schema = null;
         try {
-            schema = plan.schemas.service_binding.create;
+            schema = plan.schemas.service_binding.create.parameters;
         }
         catch (e) {
             // No schema to validate with
