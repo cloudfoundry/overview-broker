@@ -63,7 +63,6 @@ describe('Service Broker Interface', function() {
                     should.exist(services[0].plan_updateable);
                     should.exist(services[0].plans);
                     var plans = services[0].plans;
-                    plans.should.have.length(2);
                     should.exist(plans[0].id);
                     should.exist(plans[0].name);
                     should.exist(plans[0].description);
