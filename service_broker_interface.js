@@ -76,12 +76,6 @@ class ServiceBrokerInterface {
     }
 
     getCatalog(request, response) {
-        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            response.status(400).send(errors);
-            return;
-        }
         var data = {
             services: [
                 {

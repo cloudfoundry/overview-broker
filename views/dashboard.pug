@@ -14,7 +14,8 @@ html
           h3 #{title}
         div.col-xs-12.col-sm-6(style={'padding-top': '18px'})
           span.pull-right
-            button.btn.btn-danger(style={'margin-right': '5px'} onclick='jQuery.post("/admin/clean", function() { location.reload(); })') Clean
+            a.btn.btn-link(style={'margin-right': '5px'}, href='/v2/catalog', target='_blank') View catalog
+            button.btn.btn-danger(style={'margin-right': '5px'}, onclick='jQuery.post("/admin/clean", function() { location.reload(); })') Clean
             button.btn.btn-default(onclick='location.reload()') Refresh
       div.col-xs-12
         mixin persistenceLabel
