@@ -76,19 +76,7 @@ class ServiceBrokerInterface {
     }
 
     getCatalog(request, response) {
-        var data = {
-            services: [
-                {
-                    name: this.serviceBroker.getName(),
-                    description: this.serviceBroker.getDescription(),
-                    id: this.serviceBroker.getID(),
-                    tags: this.serviceBroker.getTags(),
-                    bindable: this.serviceBroker.getBindable(),
-                    plan_updateable: true,
-                    plans: this.serviceBroker.getPlans()
-                }
-            ]
-        };
+        var data = this.serviceBroker.getCatalog();
         this.saveRequest(request);
         this.saveResponse(data);
         response.json(data);
@@ -318,7 +306,8 @@ class ServiceBrokerInterface {
             api_version: request.header('X-Broker-Api-Version'),
             serviceInstances: this.serviceInstances,
             lastRequest: this.lastRequest,
-            lastResponse: this.lastResponse
+            lastResponse: this.lastResponse,
+            catalog: this.serviceBroker.getCatalog()
         };
         response.render('dashboard', data);
     }

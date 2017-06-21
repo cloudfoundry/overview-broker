@@ -5,67 +5,84 @@ var fs = require('fs'),
 class ServiceBroker {
 
     constructor() {
-        this.name = 'overview-broker';
-        this.description = 'Provides an overview of any service instances and bindings that have been created by a platform.';
-        this.id = '27068e11-6853-0892-fc7f-13fe7a8dc5bd';
-        this.bindable = true;
-        this.tags = [ 'overview-broker' ];
-        this.plans = this.generatePlans();
+        this.catalog = {
+            services: [
+                {
+                    name: 'overview-broker',
+                    description: 'Provides an overview of any service instances and bindings that have been created by a platform.',
+                    id: '27068e11-6853-0892-fc7f-13fe7a8dc5bd',
+                    tags: [ 'overview-broker' ],
+                    bindable: true,
+                    plan_updateable: true,
+                    plans: this.generatePlans()
+                }
+            ]
+        };
         this.storageKey = process.env.KV_KEY_NAME;
         this.dashboardUrl = cfenv.getAppEnv().url + '/dashboard';
-        console.log('Broker created\n   Name: %s\n   ID: %s\n   Persistence: %s', this.name, this.id, (process.env.ENABLE_PERSISTENCE ? 'Enabled' : 'Disabled'));
+        console.log(
+            'Broker created\n   Name: %s\n   ID: %s\n   Persistence: %s',
+            this.catalog.services[0].name,
+            this.catalog.services[0].id,
+            (process.env.ENABLE_PERSISTENCE ? 'Enabled' : 'Disabled')
+        );
     }
 
-    getName() {
-        return this.name;
-    }
-
-    getDescription() {
-        return this.description;
-    }
-
-    getID() {
-        return this.id;
-    }
-
-    getBindable() {
-        return this.bindable;
-    }
-
-    getTags() {
-        return this.tags;
-    }
-
-    getPlans() {
-        return this.plans;
-    }
-
-    getStorageKey() {
-        return this.storageKey;
+    getCatalog() {
+        return this.catalog;
     }
 
     getDashboardUrl() {
         return this.dashboardUrl;
     }
 
-    getPlans() {
-        return this.plans;
-    }
-
-    getPlanForService(serviceId, planId) {
-        if (serviceId != this.id) {
-            return null;
-        }
-        for (var i = 0; i < this.plans.length; i++) {
-            if (planId == this.plans[i].id) {
-                return this.plans[i];
+    getService(serviceId) {
+        for (var i = 0; i < this.catalog.services.length; i++) {
+            if (serviceId == this.catalog.services[i].id) {
+                return this.catalog.services[i];
             }
         }
         return null;
     }
 
-    getSchema() {
-        return {
+    getPlanForService(serviceId, planId) {
+        var service = this.getService(serviceId);
+        if (!service) {
+            return null;
+        }
+        for (var i = 0; i < service.plans.length; i++) {
+            if (planId == service.plans[i].id) {
+                return service.plans[i];
+            }
+        }
+        return null;
+    }
+
+    validateParameters(schema, parameters) {
+        var result = validate(parameters, schema);
+        if (!result.valid) {
+            console.log('Validation failed: ' + result.errors.toString());
+            return result.errors.toString();
+        }
+        else {
+            console.log('Validation succeeded');
+            return null;
+        }
+    }
+
+    generatePlans() {
+        var plans = [];
+
+        // Add a very simple plan
+        plans.push({
+            id: 'b2bbb243-372d-570c-28d6-f708a1a5d83b',
+            name: 'simple',
+            description: 'A very simple plan.',
+            free: true
+        });
+
+        // Add a complex plan with a schema
+        var complexPlanSchema = {
             $schema: 'http://json-schema.org/draft-04/schema#',
             additionalProperties: false,
             type: 'object',
@@ -92,33 +109,7 @@ class ServiceBroker {
                 }
             },
             required: [ 'name' ]
-        }
-    }
-
-    validateParameters(schema, parameters) {
-        var result = validate(parameters, schema);
-        if (!result.valid) {
-            console.log('Validation failed: ' + result.errors.toString());
-            return result.errors.toString();
-        }
-        else {
-            console.log('Validation succeeded');
-            return null;
-        }
-    }
-
-    generatePlans() {
-        var plans = [];
-
-        // Add a very simple plan
-        plans.push({
-            id: 'b2bbb243-372d-570c-28d6-f708a1a5d83b',
-            name: 'simple',
-            description: 'A very simple plan.',
-            free: true
-        });
-
-        // Add a complex plan with schemas
+        };
         plans.push({
             id: 'b3c9e1fb-3e37-fcb8-be0a-df68d95c40b0',
             name: 'complex',
@@ -127,15 +118,15 @@ class ServiceBroker {
             schemas: {
                 service_instance: {
                     create: {
-                        parameters: this.getSchema()
+                        parameters: complexPlanSchema
                     },
                     update: {
-                        parameters: this.getSchema()
+                        parameters: complexPlanSchema
                     }
                 },
                 service_binding: {
                     create: {
-                        parameters: this.getSchema()
+                        parameters: complexPlanSchema
                     }
                 }
             }

@@ -22,8 +22,8 @@ describe('Service Broker Interface', function() {
         app.start(function(s, sbInterface) {
             server = s;
             var serviceBroker = sbInterface.getServiceBroker();
-            brokerServiceId = serviceBroker.getID();
-            serviceBroker.getPlans().forEach(function(plan) {
+            brokerServiceId = serviceBroker.getCatalog().services[0].id;
+            serviceBroker.getCatalog().services[0].plans.forEach(function(plan) {
                 switch (plan.name) {
                     case 'simple':
                         simplePlanId = plan.id;

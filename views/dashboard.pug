@@ -14,7 +14,6 @@ html
           h3 #{title}
         div.col-xs-12.col-sm-6(style={'padding-top': '18px'})
           span.pull-right
-            a.btn.btn-link(style={'margin-right': '5px'}, href='/v2/catalog', target='_blank') View catalog
             button.btn.btn-danger(style={'margin-right': '5px'}, onclick='jQuery.post("/admin/clean", function() { location.reload(); })') Clean
             button.btn.btn-default(onclick='location.reload()') Refresh
       div.col-xs-12
@@ -24,20 +23,27 @@ html
           p.text-primary No services running #[+persistenceLabel]
         else
           p.text-primary #{Object.keys(serviceInstances).length} service(s) running #[+persistenceLabel]
+      div.col-xs-12
+        div.panel.panel-info
+          div.panel-heading
+            h3.panel-title
+              a(data-toggle='collapse', href='#catalog') Catalog
+          div#catalog.panel-body.panel-collapse.collapse
+            pre(style={'background': 'none', 'border': 'none', 'height': '400px' }) #{JSON.stringify(catalog, null, 2)}
       div.col-xs-12.col-sm-6
         div.panel.panel-info
           div.panel-heading
             h3.panel-title
               a(data-toggle='collapse', href='#request') Last Request
           div#request.panel-body.panel-collapse.collapse
-            pre(style={'background': 'none', 'border': 'none'}) #{JSON.stringify(lastRequest, null, 2)}
+            pre(style={'background': 'none', 'border': 'none', 'height': '400px'}) #{JSON.stringify(lastRequest, null, 2)}
       div.col-xs-12.col-sm-6
         div.panel.panel-info
           div.panel-heading
             h3.panel-title
               a(data-toggle='collapse', href='#response') Last Response
           div#response.panel-body.panel-collapse.collapse
-            pre(style={'background': 'none', 'border': 'none'}) #{JSON.stringify(lastResponse, null, 2)}
+            pre(style={'background': 'none', 'border': 'none', 'height': '400px'}) #{JSON.stringify(lastResponse, null, 2)}
       div.clearfix
       if Object.keys(serviceInstances).length
         - var a = 0
