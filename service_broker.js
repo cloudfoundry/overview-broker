@@ -37,12 +37,9 @@ class ServiceBroker {
     }
 
     getService(serviceId) {
-        for (var i = 0; i < this.catalog.services.length; i++) {
-            if (serviceId == this.catalog.services[i].id) {
-                return this.catalog.services[i];
-            }
-        }
-        return null;
+        return this.catalog.services.find(function(service) {
+            return service.id == serviceId;
+        });
     }
 
     getPlanForService(serviceId, planId) {
@@ -50,12 +47,9 @@ class ServiceBroker {
         if (!service) {
             return null;
         }
-        for (var i = 0; i < service.plans.length; i++) {
-            if (planId == service.plans[i].id) {
-                return service.plans[i];
-            }
-        }
-        return null;
+        return service.plans.find(function(plan) {
+            return plan.id == planId;
+        });
     }
 
     validateParameters(schema, parameters) {
