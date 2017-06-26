@@ -3,4 +3,4 @@ kind: Broker
 metadata:
   name: overview-broker
 spec:
-  url: http://192.168.99.100:31288
+  url: <URL>
