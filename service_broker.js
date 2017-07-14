@@ -93,10 +93,10 @@ class ServiceBroker {
                 config: {
                     type: 'object',
                     properties: {
-                        'url': {
+                        url: {
                             type: 'string'
                         },
-                        'port': {
+                        port: {
                             type: 'integer'
                         }
                     }
