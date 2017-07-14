@@ -140,6 +140,14 @@ class ServiceBroker {
                     service_instance: {
                         create: {
                             parameters: schema
+                        },
+                        update: {
+                            parameters: schema
+                        }
+                    },
+                    service_binding: {
+                        create: {
+                            parameters: schema
                         }
                     }
                 }
