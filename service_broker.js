@@ -83,12 +83,21 @@ class ServiceBroker {
             properties: {
                 rainbow: {
                     type: 'boolean',
-                    default: false
+                    default: false,
+                    description: 'Follow the rainbow'
                 },
                 name: {
                     type: 'string',
                     minLength: 1,
-                    maxLength: 30
+                    maxLength: 30,
+                    default: 'This is a default string',
+                    description: 'The name of the broker'
+                },
+                color: {
+                    type: 'string',
+                    enum: [ 'red', 'amber', 'green' ],
+                    default: 'green',
+                    description: 'Your favourite color'
                 },
                 config: {
                     type: 'object',

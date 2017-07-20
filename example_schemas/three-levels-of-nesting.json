@@ -12,7 +12,7 @@
               "type": "object",
               "properties": {
                 "qux": {
-                  "type": "string" 
+                  "type": "string"
                 }
               }
             }
