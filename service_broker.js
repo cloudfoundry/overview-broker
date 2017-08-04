@@ -32,6 +32,20 @@ class ServiceBroker {
         return this.catalog;
     }
 
+    setCatalog(data) {
+        console.log(data);
+        try {
+            var catalogData = JSON.parse(data);
+            this.catalog = catalogData;
+            console.log('catalog updated');
+            console.log(this.catalog.services[0].name);
+            return null;
+        }
+        catch (e) {
+            return e;
+        }
+    }
+
     getDashboardUrl() {
         return this.dashboardUrl;
     }
@@ -79,7 +93,6 @@ class ServiceBroker {
         var complexPlanSchema = {
             $schema: 'http://json-schema.org/draft-04/schema#',
             additionalProperties: false,
-            type: 'object',
             properties: {
                 rainbow: {
                     type: 'boolean',
@@ -136,31 +149,33 @@ class ServiceBroker {
         });
 
         // Load example schemas and generate a plan for each
-        var exampleSchemas = fs.readdirSync('example_schemas');
-        for (var i = 0; i < exampleSchemas.length; i++) {
-            var name = exampleSchemas[i].split('.json')[0];
-            var schema = require('./example_schemas/' + name);
-            plans.push({
-                id: name,
-                name: name,
-                description: name.replace(/-/g, ' '),
-                free: true,
-                schemas: {
-                    service_instance: {
-                        create: {
-                            parameters: schema
+        if (process.env.DISABLE_EXAMPLE_SCHEMAS === undefined) {
+            var exampleSchemas = fs.readdirSync('example_schemas');
+            for (var i = 0; i < exampleSchemas.length; i++) {
+                var name = exampleSchemas[i].split('.json')[0];
+                var schema = require('./example_schemas/' + name);
+                plans.push({
+                    id: name,
+                    name: name,
+                    description: name.replace(/-/g, ' '),
+                    free: true,
+                    schemas: {
+                        service_instance: {
+                            create: {
+                                parameters: schema
+                            },
+                            update: {
+                                parameters: schema
+                            }
                         },
-                        update: {
-                            parameters: schema
-                        }
-                    },
-                    service_binding: {
-                        create: {
-                            parameters: schema
+                        service_binding: {
+                            create: {
+                                parameters: schema
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
 
         // All plans generated

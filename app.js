@@ -40,6 +40,9 @@ function start(callback) {
     app.post('/admin/clean', function(req, res) {
         serviceBrokerInterface.clean(req, res);
     });
+    app.post('/admin/updateCatalog', function(req, res) {
+        serviceBrokerInterface.updateCatalog(req, res);
+    });
     app.use('/images', express.static('images'));
 
     var port = process.env.PORT || 3000;

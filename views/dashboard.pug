@@ -27,9 +27,10 @@ html
         div.panel.panel-info
           div.panel-heading
             h3.panel-title
-              a(data-toggle='collapse', href='#catalog') Catalog
-          div#catalog.panel-body.panel-collapse.collapse
-            pre(style={'background': 'none', 'border': 'none', 'height': '400px' }) #{JSON.stringify(catalog, null, 2)}
+              a(data-toggle='collapse', href='#catalog') Edit catalog
+          div#catalog.panel-body.panel-collapse.collapse(style={'padding': '0px'})
+            textarea(style={'background': '#002833', 'color': '#45D40C', 'font': '14px "Courier New";', 'line-height': '1.6em', 'padding': '15px', 'border': 'none', 'height': '800px', 'width': '100%' }) #{JSON.stringify(catalog, null, 2)}
+            button.btn.btn-default(style={'width': '100%', 'border-radius': '0px', 'color': 'white', 'background-color': '#f19600'}, onclick='jQuery.post("/admin/updateCatalog", { catalog: $("#catalog textarea").val() }, function() { location.reload(); })') Save
       div.col-xs-12.col-sm-6
         div.panel.panel-info
           div.panel-heading

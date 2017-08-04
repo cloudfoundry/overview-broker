@@ -321,6 +321,17 @@ class ServiceBrokerInterface {
         });
     }
 
+    updateCatalog(request, response) {
+        let data = request.body.catalog;
+        let error = this.serviceBroker.setCatalog(data);
+        if (error) {
+            console.error(error);
+            response.status(400).send('Error setting catalog data');
+            return;
+        }
+        response.json({});
+    }
+
     saveRequest(request) {
         this.lastRequest = {
             url: request.url,
