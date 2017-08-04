@@ -33,12 +33,9 @@ class ServiceBroker {
     }
 
     setCatalog(data) {
-        console.log(data);
         try {
             var catalogData = JSON.parse(data);
             this.catalog = catalogData;
-            console.log('catalog updated');
-            console.log(this.catalog.services[0].name);
             return null;
         }
         catch (e) {
@@ -69,11 +66,9 @@ class ServiceBroker {
     validateParameters(schema, parameters) {
         var result = validate(parameters, schema);
         if (!result.valid) {
-            console.log('Validation failed: ' + result.errors.toString());
             return result.errors.toString();
         }
         else {
-            console.log('Validation succeeded');
             return null;
         }
     }

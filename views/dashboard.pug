@@ -4,6 +4,7 @@ html
     style
       include style.css
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css')
   body
     .container
       .header.clearfix(style={'margin-top': '15px'})
@@ -30,7 +31,7 @@ html
               a(data-toggle='collapse', href='#catalog') Edit catalog
           div#catalog.panel-body.panel-collapse.collapse(style={'padding': '0px'})
             textarea(style={'background': '#002833', 'color': '#45D40C', 'font': '14px "Courier New";', 'line-height': '1.6em', 'padding': '15px', 'border': 'none', 'height': '800px', 'width': '100%' }) #{JSON.stringify(catalog, null, 2)}
-            button.btn.btn-default(style={'width': '100%', 'border-radius': '0px', 'color': 'white', 'background-color': '#f19600'}, onclick='jQuery.post("/admin/updateCatalog", { catalog: $("#catalog textarea").val() }, function() { location.reload(); })') Save
+            button.btn.btn-default(style={'width': '100%', 'border-radius': '0px', 'color': 'white', 'background-color': '#f19600'}, onclick='jQuery.post("/admin/updateCatalog", { catalog: $("#catalog textarea").val() }, function() { swal({ "title": "Yay", "text": "The catalog has been updated.", "type": "success"}, function() { location.reload(); }) }).fail(function() { swal({ "title": "Oops...", "text": "There is a problem with the catalog. Please check it and try again.", "type": "error" }) })') Save
       div.col-xs-12.col-sm-6
         div.panel.panel-info
           div.panel-heading
@@ -80,3 +81,4 @@ html
 
     script(src='https://code.jquery.com/jquery-3.2.1.min.js')
     script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.min.js')
