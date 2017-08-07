@@ -1,13 +1,5 @@
 'use strict';
 
-function extractServiceData(serviceData) {
-   var serviceDataToDisplay = JSON.parse(JSON.stringify(serviceData))
-   JSON.stringify(serviceDataToDisplay)
-   delete serviceDataToDisplay['created']
-   delete serviceDataToDisplay['last_updated']
-   return serviceDataToDisplay;
-}
-
 function updateCatalog() {
    jQuery.post('/admin/updateCatalog',
       {
