@@ -10,9 +10,6 @@ function updateCatalog() {
             title: 'Yay',
             text: 'The catalog has been updated.',
             type: 'success'
-         },
-         function() {
-            refreshPage()
          });
       }
    ).fail(function() {
