@@ -88,6 +88,7 @@ class ServiceBroker {
         var complexPlanSchema = {
             $schema: 'http://json-schema.org/draft-04/schema#',
             additionalProperties: false,
+            type: 'object',
             properties: {
                 rainbow: {
                     type: 'boolean',
