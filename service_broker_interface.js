@@ -25,7 +25,7 @@ class ServiceBrokerInterface {
             this.keyValueStore = new KeyValueStore(this.token, this.key);
         }
         this.serviceBroker = new ServiceBroker();
-        this.serviceInstances = { 'xxx': { 'parameters': {} } };
+        this.serviceInstances = {};
         this.lastRequest = {};
         this.lastResponse = {};
     }
