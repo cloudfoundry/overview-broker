@@ -25,7 +25,7 @@ class ServiceBrokerInterface {
             this.keyValueStore = new KeyValueStore(this.token, this.key);
         }
         this.serviceBroker = new ServiceBroker();
-        this.serviceInstances = {};
+        this.serviceInstances = { 'xxx': { 'parameters': {} } };
         this.lastRequest = {};
         this.lastResponse = {};
     }
@@ -300,7 +300,7 @@ class ServiceBrokerInterface {
 
     showDashboard(request, response) {
         var data = {
-            title: 'Service Broker Overview',
+            title: 'Overview Broker',
             status: 'running',
             persistenceMode: this.persistenceMode,
             api_version: request.header('X-Broker-Api-Version'),

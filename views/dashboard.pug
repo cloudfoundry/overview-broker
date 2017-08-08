@@ -13,17 +13,13 @@ html
           img(src='../images/openservicebrokerapi-text.png', alt='Open Service Broker API')
         div.col-xs-12.col-sm-6
           h3 #{title}
+          if persistence
+            p
+              span.label.label-success(style={'margin-left': '5px'}) persistence enabled
         div.col-xs-12.col-sm-6(style={'padding-top': '18px'})
           span.pull-right
             button.btn.btn-danger(style={'margin-right': '5px'}, onclick='cleanData()') Clean
             button.btn.btn-default(onclick='refreshPage()') Refresh
-      div.col-xs-12
-        mixin persistenceLabel
-          span.label.label-primary(style={'margin-left': '5px'}) persistence #{ persistenceMode ? 'enabled' : 'disabled' }
-        if !Object.keys(serviceInstances).length
-          p.text-primary No services running #[+persistenceLabel]
-        else
-          p.text-primary #{Object.keys(serviceInstances).length} service(s) running #[+persistenceLabel]
       div.col-xs-12
         div.panel.panel-info
           div.panel-heading
@@ -47,7 +43,8 @@ html
           div#response.panel-body.panel-collapse.collapse
             pre(style={'background': 'none', 'border': 'none', 'height': '400px'}) #{JSON.stringify(lastResponse, null, 2)}
       div.clearfix
-      if Object.keys(serviceInstances).length
+      - let numServices = Object.keys(serviceInstances).length
+      if numServices > 0
         - var a = 0
         each serviceData, serviceKey in serviceInstances
           div.col-xs-12.col-sm-6
