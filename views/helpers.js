@@ -12,10 +12,11 @@ function updateCatalog() {
             type: 'success'
          });
       }
-   ).fail(function() {
+   ).fail(function(error, data) {
+      console.log(error);
       swal({
          title: 'Oops...',
-         text: 'There is a problem with the catalog. Please check it and try again.',
+         text: 'There is a problem with the catalog. Please check it and try again.\n\n' + error.responseText,
          type: 'error'
       });
    });

@@ -39,7 +39,7 @@ class ServiceBroker {
             return null;
         }
         catch (e) {
-            return e;
+            return e.toString();
         }
     }
 
