@@ -84,6 +84,14 @@ class ServiceBroker {
             free: true
         });
 
+        // Add a plan to test async operations
+        plans.push({
+            id: '6cc1755b-e049-4637-8cd9-21d2acc909af',
+            name: 'async',
+            description: 'Use me to test asynchronous operations',
+            free: true
+        });
+
         // Add a complex plan with a schema
         var complexPlanSchema = {
             $schema: 'http://json-schema.org/draft-04/schema#',

@@ -17,6 +17,7 @@ describe('Service Broker Interface', function() {
     var brokerServiceId = null;
     var simplePlanId = null;
     var complexPlanId = null;
+    var asyncPlanId = null;
 
     before(function(done) {
         app.start(function(s, sbInterface) {
@@ -30,6 +31,9 @@ describe('Service Broker Interface', function() {
                         break;
                     case 'complex':
                         complexPlanId = plan.id;
+                        break;
+                    case 'async':
+                        asyncPlanId = plan.id;
                         break;
                     default:
                         break;
@@ -263,6 +267,44 @@ describe('Service Broker Interface', function() {
                 .then(response => {
                     should.exist(response.body);
                     done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should create asynchronously', function(done) {
+            request(server)
+                .put('/v2/service_instances/' + instanceId)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: asyncPlanId,
+                    parameters: {},
+                    accepts_incomplete: true,
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(202)
+                .then(response => {
+                    request(server)
+                        .get('/v2/service_instances/' + instanceId + '/last_operation')
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: asyncPlanId
+                         })
+                        .expect(200)
+                        .then(response => {
+                            should.exist(response.body);
+                            response.body.should.be.type('object');
+                            response.body.should.have.property('state');
+                            done();
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
                 })
                 .catch(error => {
                     done(error);

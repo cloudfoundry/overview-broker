@@ -133,9 +133,19 @@ class ServiceBrokerInterface {
             context: request.body.context,
             bindings: {},
         };
+
         this.saveRequest(request);
         this.saveResponse({});
         var dashboardUrl = this.serviceBroker.getDashboardUrl();
+
+        // If the plan is called 'async', then pretend to do an async create
+        if (plan.name == 'async') {
+            response.status(202).json({
+                dashboard_url: dashboardUrl
+            });
+            return;
+        }
+        // Else return the data synchronously
         this.saveData(function(success) {
             response.json({
                 dashboard_url: dashboardUrl
@@ -295,6 +305,12 @@ class ServiceBrokerInterface {
         this.saveResponse({});
         this.saveData(function(success) {
             response.json({});
+        });
+    }
+
+    getLastOperation(request, response) {
+        response.json({
+            state: 'succeeded'
         });
     }
 

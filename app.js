@@ -34,6 +34,9 @@ function start(callback) {
     app.delete('/v2/service_instances/:instance_id/service_bindings/:binding_id', function(req, res) {
         serviceBrokerInterface.deleteServiceBinding(req, res);
     });
+    app.get('/v2/service_instances/:instance_id/last_operation', function(req, res) {
+        serviceBrokerInterface.getLastOperation(req, res);
+    });
     app.get('/dashboard', function(req, res) {
         serviceBrokerInterface.showDashboard(req, res);
     });
