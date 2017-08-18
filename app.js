@@ -2,12 +2,14 @@ var express = require('express'),
     app = express(),
     bodyParser = require('body-parser'),
     expressValidator = require('express-validator'),
+    morgan = require('morgan'),
     ServiceBrokerInterface = require('./service_broker_interface'),
     serviceBrokerInterface = null;
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(expressValidator());
+app.use(morgan('combined'));
 
 app.set('view engine', 'pug');
 

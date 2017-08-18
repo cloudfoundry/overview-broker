@@ -1,4 +1,3 @@
-
 {
   "name": "overview-broker",
   "version": "1.0.0",
@@ -12,17 +11,18 @@
   "repository": "https://github.com/mattmcneeney/overview-broker",
   "license": "ISC",
   "dependencies": {
-    "express": "latest",
-    "guid": "latest",
     "body-parser": "latest",
-    "express-validator": "latest",
-    "pug": "latest",
-    "moment": "latest",
     "cfenv": "latest",
-    "request": "latest",
-    "keyvalue-xyz": "latest",
     "cron": "latest",
-    "jsonschema": "latest"
+    "express": "latest",
+    "express-validator": "latest",
+    "guid": "latest",
+    "jsonschema": "latest",
+    "keyvalue-xyz": "latest",
+    "moment": "latest",
+    "morgan": "^1.8.2",
+    "pug": "latest",
+    "request": "latest"
   },
   "devDependencies": {
     "mocha": "latest",
