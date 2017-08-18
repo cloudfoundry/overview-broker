@@ -309,9 +309,12 @@ class ServiceBrokerInterface {
     }
 
     getLastOperation(request, response) {
-        response.json({
+        var data = {
             state: 'succeeded'
-        });
+        };
+        this.saveRequest(request);
+        this.saveResponse(data);
+        response.json(data);
     }
 
     showDashboard(request, response) {
