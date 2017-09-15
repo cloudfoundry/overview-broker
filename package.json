@@ -22,7 +22,8 @@
     "moment": "latest",
     "morgan": "^1.8.2",
     "pug": "latest",
-    "request": "latest"
+    "request": "latest",
+    "sha256": "^0.2.0"
   },
   "devDependencies": {
     "mocha": "latest",

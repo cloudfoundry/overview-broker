@@ -1,5 +1,6 @@
 var fs = require('fs'),
     cfenv = require('cfenv'),
+    sha256 = require('sha256'),
     validate = require ('jsonschema').validate;
 
 class ServiceBroker {
@@ -8,9 +9,9 @@ class ServiceBroker {
         this.catalog = {
             services: [
                 {
-                    name: 'overview-broker',
+                    name: cfenv.getAppEnv().name,
                     description: 'Provides an overview of any service instances and bindings that have been created by a platform.',
-                    id: '27068e11-6853-0892-fc7f-13fe7a8dc5bd',
+                    id: sha256(cfenv.getAppEnv().name),
                     tags: [ 'overview-broker' ],
                     bindable: true,
                     plan_updateable: true,
@@ -78,7 +79,6 @@ class ServiceBroker {
 
         // Add a very simple plan
         plans.push({
-            id: 'b2bbb243-372d-570c-28d6-f708a1a5d83b',
             name: 'simple',
             description: 'A very simple plan.',
             free: true
@@ -86,7 +86,6 @@ class ServiceBroker {
 
         // Add a plan to test async operations
         plans.push({
-            id: '6cc1755b-e049-4637-8cd9-21d2acc909af',
             name: 'async',
             description: 'Use me to test asynchronous operations',
             free: true
@@ -131,7 +130,6 @@ class ServiceBroker {
             required: [ 'name' ]
         };
         plans.push({
-            id: 'b3c9e1fb-3e37-fcb8-be0a-df68d95c40b0',
             name: 'complex',
             description: 'A more complicated plan.',
             free: true,
@@ -159,7 +157,6 @@ class ServiceBroker {
                 var name = exampleSchemas[i].split('.json')[0];
                 var schema = require('./example_schemas/' + name);
                 plans.push({
-                    id: name,
                     name: name,
                     description: name.replace(/-/g, ' '),
                     free: true,
@@ -181,6 +178,11 @@ class ServiceBroker {
                 });
             }
         }
+
+        // Add an id to each plan
+        plans.forEach(function(plan) {
+            plan.id = sha256(cfenv.getAppEnv().name + '-' + plan.name);
+        });
 
         // All plans generated
         return plans;
