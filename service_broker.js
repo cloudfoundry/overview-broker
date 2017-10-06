@@ -11,7 +11,7 @@ class ServiceBroker {
                 {
                     name: cfenv.getAppEnv().name,
                     description: 'Provides an overview of any service instances and bindings that have been created by a platform.',
-                    id: sha256(cfenv.getAppEnv().name).trim(32),
+                    id: sha256(cfenv.getAppEnv().name).substring(0, 32),
                     tags: [ 'overview-broker' ],
                     bindable: true,
                     plan_updateable: true,
@@ -181,7 +181,7 @@ class ServiceBroker {
 
         // Add an id to each plan
         plans.forEach(function(plan) {
-            plan.id = sha256(cfenv.getAppEnv().name + '-' + plan.name).trim(32);
+            plan.id = sha256(cfenv.getAppEnv().name + '-' + plan.name).substring(0, 32);
         });
 
         // All plans generated
