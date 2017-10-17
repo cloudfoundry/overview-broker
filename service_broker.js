@@ -15,7 +15,27 @@ class ServiceBroker {
                     tags: [ 'overview-broker' ],
                     bindable: true,
                     plan_updateable: true,
-                    plans: this.generatePlans()
+                    plans: this.generatePlansForService(cfenv.getAppEnv().name)
+                },
+                {
+                    name: cfenv.getAppEnv().name + '-syslog-drain',
+                    description: 'Provides an example syslog drain service.',
+                    id: sha256(cfenv.getAppEnv().name + '-syslog-drain').substring(0, 32),
+                    tags: [ 'overview-broker' ],
+                    requires: [ 'syslog_drain' ],
+                    bindable: true,
+                    plan_updateable: true,
+                    plans: this.generatePlansForService(cfenv.getAppEnv().name + '-syslog-drain')
+                },
+                {
+                    name: cfenv.getAppEnv().name + '-volume-mount',
+                    description: 'Provides an example volume mount service.',
+                    id: sha256(cfenv.getAppEnv().name + '-volume-mount').substring(0, 32),
+                    tags: [ 'overview-broker' ],
+                    requires: [ 'volume_mount' ],
+                    bindable: true,
+                    plan_updateable: true,
+                    plans: this.generatePlansForService(cfenv.getAppEnv().name + '-volume-mount')
                 }
             ]
         };
@@ -74,7 +94,7 @@ class ServiceBroker {
         }
     }
 
-    generatePlans() {
+    generatePlansForService(serviceName) {
         var plans = [];
 
         // Add a very simple plan
@@ -150,8 +170,8 @@ class ServiceBroker {
             }
         });
 
-        // Load example schemas and generate a plan for each
-        if (process.env.DISABLE_EXAMPLE_SCHEMAS === undefined) {
+        // Load example schemas if requested and generate a plan for each
+        if (process.env.ENABLE_EXAMPLE_SCHEMAS === true) {
             var exampleSchemas = fs.readdirSync('example_schemas');
             for (var i = 0; i < exampleSchemas.length; i++) {
                 var name = exampleSchemas[i].split('.json')[0];
@@ -181,7 +201,7 @@ class ServiceBroker {
 
         // Add an id to each plan
         plans.forEach(function(plan) {
-            plan.id = sha256(cfenv.getAppEnv().name + '-' + plan.name).substring(0, 32);
+            plan.id = sha256(serviceName + '-' + plan.name).substring(0, 32);
         });
 
         // All plans generated

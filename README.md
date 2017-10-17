@@ -3,7 +3,7 @@
 
 ![Open Service Broker API](images/openservicebrokerapi.png)
 
-A simple service broker conforming to the [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker/) 
+A simple service broker conforming to the [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker/)
 specification that hosts a dashboard showing information on service instances
 and bindings created by any platform the broker is registered with.
 
@@ -121,7 +121,7 @@ instance information!
 ##### 1. Deploying the broker
 
 * If you want to deploy the broker on Kubernetes, you will first need to build an
-image for the container. If you're using 
+image for the container. If you're using
 [minikube](https://kubernetes.io/docs/getting-started-guides/minikube/), you
 don't need to push the image to a registry. Instead you can just build the
 image using the same Docker host as the minikube VM. To build a container using

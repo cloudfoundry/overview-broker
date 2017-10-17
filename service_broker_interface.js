@@ -242,9 +242,14 @@ class ServiceBrokerInterface {
         }
 
         // Validate serviceId and planId
+        var service = this.serviceBroker.getService(request.body.service_id);
+        if (!service) {
+           response.status(400).send('Could not find service ' + request.body.service_id);
+           return;
+        }
         var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
         if (!plan) {
-            response.status(400).send('Could not find service %s, plan %s', request.body.service_id, request.body.plan_id);
+            response.status(400).send('Could not find service/plan '  + request.body.service_id + '/' + request.body.plan_id);
             return;
         }
 
@@ -278,7 +283,32 @@ class ServiceBrokerInterface {
         this.saveRequest(request);
         this.saveResponse({});
         this.saveData(function(success) {
-            response.json({ credentials: { username: 'admin', password: 'password' } });
+            var data = {};
+            if (!service.requires || service.requires.length == 0) {
+               data = {
+                  credentials: {
+                     username: 'admin',
+                     password: 'password'
+                  }
+               };
+            }
+            else if (service.requires && service.requires.indexOf('syslog_drain') > -1) {
+               data = {
+                  syslog_drain_url: 'http://ladida'
+               };
+            }
+            else if (service.requires && service.requires.indexOf('volume_mount') > -1) {
+               data = {
+                  driver: 'nfs',
+                  container_dir: '/tmp',
+                  mode: 'r',
+                  device_type: 'shared',
+                  device: {
+                     volume_id: 1
+                  }
+               };
+            }
+            response.json(data);
         });
     }
 
