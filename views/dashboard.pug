@@ -3,6 +3,7 @@ html
     title= title
     style
       include style.css
+    link(rel='icon', href='/images/openservicebrokerapi-logo.png')
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
     link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css')
   body
@@ -12,7 +13,6 @@ html
           img.spin(src='../images/openservicebrokerapi-logo.png', alt='Open Service Broker API Logo')
           img(src='../images/openservicebrokerapi-text.png', alt='Open Service Broker API')
         div.col-xs-12.col-sm-6
-          h3 #{title}
           if persistence
             p
               span.label.label-success(style={'margin-left': '5px'}) persistence enabled
@@ -20,23 +20,23 @@ html
           span.pull-right
             button.btn.btn-danger(style={'margin-right': '5px'}, onclick='cleanData()') Clean
             button.btn.btn-default(onclick='refreshPage()') Refresh
-      div.col-xs-12
-        div.panel.panel-info
+      div.col-xs-12(style={'margin-top': '10px'})
+        div.panel.panel-default
           div.panel-heading
             h3.panel-title
               a(data-toggle='collapse', href='#catalog') Edit catalog
           div#catalog.panel-body.panel-collapse.collapse(style={'padding': '0px'})
-            textarea(style={'background': '#002833', 'color': '#45D40C', 'font': '14px "Courier New";', 'line-height': '1.6em', 'padding': '15px', 'border': 'none', 'height': '800px', 'width': '100%' }) #{JSON.stringify(catalog, null, 2)}
+            textarea(style={'background': '#002833', 'color': '#45D40C', 'font': '14px "Courier New";', 'line-height': '1.6em', 'padding': '15px', 'border': 'none', 'height': '60%', 'width': '100%' }) #{JSON.stringify(catalog, null, 2)}
             button.btn.btn-default(style={'width': '100%', 'border-radius': '0px', 'color': 'white', 'background-color': '#f19600'}, onclick='updateCatalog()') Save
       div.col-xs-12.col-sm-6
-        div.panel.panel-info
+        div.panel.panel-default
           div.panel-heading
             h3.panel-title
               a(data-toggle='collapse', href='#request') Last Request
           div#request.panel-body.panel-collapse.collapse
             pre(style={'background': 'none', 'border': 'none', 'height': '400px'}) #{JSON.stringify(lastRequest, null, 2)}
       div.col-xs-12.col-sm-6
-        div.panel.panel-info
+        div.panel.panel-default
           div.panel-heading
             h3.panel-title
               a(data-toggle='collapse', href='#response') Last Response
@@ -73,11 +73,14 @@ html
             - a+=1
           if (a % 2) == 0
             div.clearfix
+      else
+        div.col-xs-12(style={'margin-top': '50px', 'text-align': 'center'})
+          p No service instances have been provisioned
 
     include githubcorners.html
 
     script(src='https://code.jquery.com/jquery-3.2.1.min.js')
     script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js')
     script
       include helpers.js
