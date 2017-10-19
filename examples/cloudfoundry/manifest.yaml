@@ -5,5 +5,3 @@ applications:
   memory: 512M
   disk_quota: 512M
   random-route: true
-  health-check-type: http
-  health-check-http-endpoint: /health
