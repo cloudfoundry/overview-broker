@@ -2,6 +2,7 @@ var express = require('express'),
     app = express(),
     bodyParser = require('body-parser'),
     expressValidator = require('express-validator'),
+    basicAuth = require('express-basic-auth'),
     morgan = require('morgan'),
     ServiceBrokerInterface = require('./service_broker_interface'),
     serviceBrokerInterface = null;
@@ -18,6 +19,15 @@ function start(callback) {
     app.get('/', function(req, res) {
         res.redirect(303, '/dashboard');
     });
+
+    app.use(basicAuth({
+        users: { 'admin': 'password' }
+    }));
+
+    app.all('*', function(req, res, next) {
+        serviceBrokerInterface.checkRequest(req, res, next);
+    });
+
     app.get('/v2/catalog', function(req, res) {
         serviceBrokerInterface.getCatalog(req, res);
     });

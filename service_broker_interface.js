@@ -75,6 +75,19 @@ class ServiceBrokerInterface {
         });
     }
 
+    checkRequest(request, response, next) {
+        // Check for version header
+        console.log('checking request');
+        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
+        var errors = request.validationErrors();
+        if (errors) {
+            response.status(412).send(errors);
+            return;
+        }
+
+        next();
+    }
+
     getCatalog(request, response) {
         var data = this.serviceBroker.getCatalog();
         this.saveRequest(request);
@@ -88,7 +101,6 @@ class ServiceBrokerInterface {
         request.checkBody('plan_id', 'Missing plan_id').notEmpty();
         request.checkBody('organization_guid', 'Missing organization_guid').notEmpty();
         request.checkBody('space_guid', 'Missing space_guid').notEmpty();
-        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
             response.status(400).send(errors);
@@ -156,7 +168,6 @@ class ServiceBrokerInterface {
     updateServiceInstance(request, response) {
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         request.checkBody('service_id', 'Missing service_id').notEmpty();
-        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
             response.status(400).send(errors);
@@ -205,7 +216,6 @@ class ServiceBrokerInterface {
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         request.checkQuery('service_id', 'Missing service_id').notEmpty();
         request.checkQuery('plan_id', 'Missing plan_id').notEmpty();
-        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
             response.status(400).send(errors);
@@ -234,7 +244,6 @@ class ServiceBrokerInterface {
         request.checkParams('binding_id', 'Missing binding_id').notEmpty();
         request.checkBody('service_id', 'Missing service_id').notEmpty();
         request.checkBody('plan_id', 'Missing plan_id').notEmpty();
-        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
             response.status(400).send(errors);
@@ -315,7 +324,8 @@ class ServiceBrokerInterface {
     deleteServiceBinding(request, response) {
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         request.checkParams('binding_id', 'Missing binding_id').notEmpty();
-        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
+        request.checkQuery('service_id', 'Missing service_id').notEmpty();
+        request.checkQuery('plan_id', 'Missing plan_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
             response.status(400).send(errors);
