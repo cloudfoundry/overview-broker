@@ -39,7 +39,7 @@ function start(callback) {
 
     /* Authenticated routes */
     app.all('*', function(request, response, next) {
-        serviceBrokerInterface.checkrequestuest(request, response, next);
+        serviceBrokerInterface.checkRequest(request, response, next);
     });
     app.get('/v2/catalog', function(request, response) {
         serviceBrokerInterface.getCatalog(request, response);
