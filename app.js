@@ -16,49 +16,52 @@ app.set('view engine', 'pug');
 
 function start(callback) {
     serviceBrokerInterface = new ServiceBrokerInterface();
-    app.get('/', function(req, res) {
-        res.redirect(303, '/dashboard');
-    });
 
+    /* Unauthenticated routes */
+    app.get('/', function(request, response) {
+        response.redirect(303, '/dashboard');
+    });
+    app.get('/dashboard', function(request, response) {
+        serviceBrokerInterface.showDashboard(request, response);
+    });
+    app.post('/admin/clean', function(request, response) {
+        serviceBrokerInterface.clean(request, response);
+    });
+    app.post('/admin/updateCatalog', function(request, response) {
+        serviceBrokerInterface.updateCatalog(request, response);
+    });
+    app.use('/images', express.static('images'));
+
+    /* Check Basic Auth credentials */
     app.use(basicAuth({
         users: { 'admin': 'password' }
     }));
 
-    app.all('*', function(req, res, next) {
-        serviceBrokerInterface.checkRequest(req, res, next);
+    /* Authenticated routes */
+    app.all('*', function(request, response, next) {
+        serviceBrokerInterface.checkrequestuest(request, response, next);
     });
-
-    app.get('/v2/catalog', function(req, res) {
-        serviceBrokerInterface.getCatalog(req, res);
+    app.get('/v2/catalog', function(request, response) {
+        serviceBrokerInterface.getCatalog(request, response);
     });
-    app.put('/v2/service_instances/:instance_id', function(req, res) {
-        serviceBrokerInterface.createServiceInstance(req, res);
+    app.put('/v2/service_instances/:instance_id', function(request, response) {
+        serviceBrokerInterface.createServiceInstance(request, response);
     });
-    app.patch('/v2/service_instances/:instance_id', function(req, res) {
-        serviceBrokerInterface.updateServiceInstance(req, res);
+    app.patch('/v2/service_instances/:instance_id', function(request, response) {
+        serviceBrokerInterface.updateServiceInstance(request, response);
     });
-    app.delete('/v2/service_instances/:instance_id', function(req, res) {
-        serviceBrokerInterface.deleteServiceInstance(req, res);
+    app.delete('/v2/service_instances/:instance_id', function(request, response) {
+        serviceBrokerInterface.deleteServiceInstance(request, response);
     });
-    app.put('/v2/service_instances/:instance_id/service_bindings/:binding_id', function(req, res) {
-        serviceBrokerInterface.createServiceBinding(req, res);
+    app.put('/v2/service_instances/:instance_id/service_bindings/:binding_id', function(request, response) {
+        serviceBrokerInterface.createServiceBinding(request, response);
     });
-    app.delete('/v2/service_instances/:instance_id/service_bindings/:binding_id', function(req, res) {
-        serviceBrokerInterface.deleteServiceBinding(req, res);
+    app.delete('/v2/service_instances/:instance_id/service_bindings/:binding_id', function(request, response) {
+        serviceBrokerInterface.deleteServiceBinding(request, response);
     });
-    app.get('/v2/service_instances/:instance_id/last_operation', function(req, res) {
-        serviceBrokerInterface.getLastOperation(req, res);
+    app.get('/v2/service_instances/:instance_id/last_operation', function(request, response) {
+        serviceBrokerInterface.getLastOperation(request, response);
     });
-    app.get('/dashboard', function(req, res) {
-        serviceBrokerInterface.showDashboard(req, res);
-    });
-    app.post('/admin/clean', function(req, res) {
-        serviceBrokerInterface.clean(req, res);
-    });
-    app.post('/admin/updateCatalog', function(req, res) {
-        serviceBrokerInterface.updateCatalog(req, res);
-    });
-    app.use('/images', express.static('images'));
 
     var port = process.env.PORT || 3000;
     var server = app.listen(port, function() {

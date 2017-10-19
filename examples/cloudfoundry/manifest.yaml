@@ -6,4 +6,4 @@ applications:
   disk_quota: 512M
   random-route: true
   health-check-type: http
-  health-check-http-endpoint: /dashboard
+  health-check-http-endpoint: /health
