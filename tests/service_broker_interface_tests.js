@@ -1,15 +1,15 @@
 var should = require('should'),
     request = require('supertest'),
-    Guid = require('guid'),
+    uuidv4 = require('uuid/v4'),
     app = require('./../app');
 
 describe('Service Broker Interface', function() {
 
-    const instanceId = Guid.create().value;
-    const bindingId = Guid.create().value;
-    const organizationGuid = Guid.create().value;
-    const spaceGuid = Guid.create().value;
-    const appGuid = Guid.create().value;
+    const instanceId = uuidv4();
+    const bindingId = uuidv4();
+    const organizationGuid = uuidv4();
+    const spaceGuid = uuidv4();
+    const appGuid = uuidv4();
     const apiVersion = '2.11';
 
     var server = null;
@@ -134,7 +134,7 @@ describe('Service Broker Interface', function() {
                 .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
-                    service_id: Guid.create().value,
+                    service_id: uuidv4(),
                     plan_id: simplePlanId,
                     parameters: {},
                     accepts_incomplete: true,
@@ -159,7 +159,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: Guid.create().value,
+                    plan_id: uuidv4(),
                     parameters: {},
                     accepts_incomplete: true,
                     organization_guid: organizationGuid,
@@ -218,7 +218,7 @@ describe('Service Broker Interface', function() {
                 .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
-                    service_id: Guid.create().value,
+                    service_id: uuidv4(),
                     plan_id: simplePlanId,
                     parameters: {}
                  })
@@ -239,7 +239,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: Guid.create().value,
+                    plan_id: uuidv4(),
                     parameters: {}
                  })
                 .expect(400)
@@ -402,7 +402,7 @@ describe('Service Broker Interface', function() {
                 .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
-                    service_id: Guid.create().value,
+                    service_id: uuidv4(),
                     plan_id: simplePlanId,
                     app_guid: appGuid,
                     bind_resource: {},
@@ -425,7 +425,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: Guid.create().value,
+                    plan_id: uuidv4(),
                     app_guid: appGuid,
                     bind_resource: {},
                     parameters: {}
@@ -481,7 +481,7 @@ describe('Service Broker Interface', function() {
                 .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
-                    service_id: Guid.create().value,
+                    service_id: uuidv4(),
                     plan_id: simplePlanId
                 })
                 .expect(400)
@@ -501,7 +501,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
-                    plan_id: Guid.create().value
+                    plan_id: uuidv4()
                 })
                 .expect(400)
                 .then(response => {

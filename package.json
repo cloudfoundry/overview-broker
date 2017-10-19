@@ -17,7 +17,7 @@
     "express": "latest",
     "express-basic-auth": "^1.1.2",
     "express-validator": "latest",
-    "guid": "latest",
+    "uuid": "latest",
     "jsonschema": "latest",
     "moment": "latest",
     "morgan": "^1.8.2",
