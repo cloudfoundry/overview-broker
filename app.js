@@ -4,17 +4,22 @@ var express = require('express'),
     expressValidator = require('express-validator'),
     basicAuth = require('express-basic-auth'),
     morgan = require('morgan'),
+    Logger = require('./logger'),
     ServiceBrokerInterface = require('./service_broker_interface'),
     serviceBrokerInterface = null;
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(expressValidator());
-app.use(morgan('combined'));
+
+if (process.env.NODE_ENV != 'testing') {
+    app.use(morgan('combined'));
+}
 
 app.set('view engine', 'pug');
 
 function start(callback) {
+    logger = new Logger();
     serviceBrokerInterface = new ServiceBrokerInterface();
 
     /* Unauthenticated routes */
@@ -65,7 +70,7 @@ function start(callback) {
 
     var port = process.env.PORT || 3000;
     var server = app.listen(port, function() {
-        console.log('Overview broker running on port ' + server.address().port);
+        logger.debug(`Overview broker running on port ${server.address().port}`);
         callback(server, serviceBrokerInterface);
     });
 }

@@ -1,12 +1,14 @@
 var express = require('express'),
     moment = require('moment'),
     cfenv = require('cfenv'),
+    Logger = require('./logger'),
     ServiceBroker = require('./service_broker');
 
 class ServiceBrokerInterface {
 
     constructor() {
         this.serviceBroker = new ServiceBroker();
+        this.logger = new Logger();
         this.serviceInstances = {};
         this.lastRequest = {};
         this.lastResponse = {};
@@ -18,7 +20,6 @@ class ServiceBrokerInterface {
 
     checkRequest(request, response, next) {
         // Check for version header
-        console.log('checking request');
         request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
@@ -73,7 +74,7 @@ class ServiceBrokerInterface {
 
         // Create the service
         var serviceInstanceId = request.params.instance_id;
-        console.log('Creating service %s', serviceInstanceId);
+        this.logger.debug(`Creating service ${serviceInstanceId}`);
         this.serviceInstances[serviceInstanceId] = {
             created: moment().toString(),
             api_version: request.header('X-Broker-Api-Version'),
@@ -137,7 +138,7 @@ class ServiceBrokerInterface {
         }
 
         var serviceInstanceId = request.params.instance_id;
-        console.log('Updating service %s', serviceInstanceId);
+        this.logger.debug(`Updating service ${serviceInstanceId}`);
         this.serviceInstances[serviceInstanceId].api_version = request.header('X-Broker-Api-Version'),
         this.serviceInstances[serviceInstanceId].service_id = request.body.service_id;
         this.serviceInstances[serviceInstanceId].plan_id = request.body.plan_id;
@@ -167,7 +168,7 @@ class ServiceBrokerInterface {
         }
 
         var serviceInstanceId = request.params.instance_id;
-        console.log('Deleting service %s', serviceInstanceId);
+        this.logger.debug(`Deleting service ${serviceInstanceId}`);
         delete this.serviceInstances[serviceInstanceId];
         this.saveRequest(request);
         this.saveResponse({});
@@ -188,12 +189,12 @@ class ServiceBrokerInterface {
         // Validate serviceId and planId
         var service = this.serviceBroker.getService(request.body.service_id);
         if (!service) {
-           response.status(400).send('Could not find service ' + request.body.service_id);
+           response.status(400).send(`Could not find service ${request.body.service_id}`);
            return;
         }
         var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
         if (!plan) {
-            response.status(400).send('Could not find service/plan '  + request.body.service_id + '/' + request.body.plan_id);
+            response.status(400).send(`Could not find service/plan ${request.body.service_id}/${request.body.plan_id}`);
             return;
         }
 
@@ -214,9 +215,9 @@ class ServiceBrokerInterface {
         }
 
         var serviceInstanceId = request.params.instance_id;
-        var bindingID = request.params.binding_id;
-        console.log('Creating service binding %s for service %s', serviceInstanceId, bindingID);
-        this.serviceInstances[serviceInstanceId]['bindings'][bindingID] = {
+        var bindingId = request.params.binding_id;
+        this.logger.debug(`Creating service binding ${bindingId} for service ${serviceInstanceId}`);
+        this.serviceInstances[serviceInstanceId]['bindings'][bindingId] = {
             api_version: request.header('X-Broker-Api-Version'),
             service_id: request.body.service_id,
             plan_id: request.body.plan_id,
@@ -266,10 +267,10 @@ class ServiceBrokerInterface {
         }
 
         var serviceInstanceId = request.params.instance_id;
-        var bindingID = request.params.binding_id;
-        console.log('Deleting service binding %s for service %s', serviceInstanceId, bindingID);
+        var bindingId = request.params.binding_id;
+        this.logger.debug(`Deleting service binding ${bindingId} for service ${serviceInstanceId}`);
         try {
-            delete this.serviceInstances[serviceInstanceId]['bindings'][bindingID];
+            delete this.serviceInstances[serviceInstanceId]['bindings'][bindingId];
         }
         catch (e) {
             // We must have lost this state

@@ -1,11 +1,13 @@
 var fs = require('fs'),
     cfenv = require('cfenv'),
     sha256 = require('sha256'),
-    validate = require ('jsonschema').validate;
+    validate = require ('jsonschema').validate,
+    Logger = require('./logger');
 
 class ServiceBroker {
 
     constructor() {
+        this.logger = new Logger();
         this.catalog = {
             services: [
                 {
@@ -40,11 +42,7 @@ class ServiceBroker {
             ]
         };
         this.dashboardUrl = cfenv.getAppEnv().url + '/dashboard';
-        console.log(
-            'Broker created\n   Name: %s\n   ID: %s\n',
-            this.catalog.services[0].name,
-            this.catalog.services[0].id
-        );
+        logger.debug(`Broker created (name: ${this.catalog.services[0].name}, id: ${this.catalog.services[0].id})`);
     }
 
     getCatalog() {
@@ -173,7 +171,7 @@ class ServiceBroker {
             var exampleSchemas = fs.readdirSync('example_schemas');
             for (var i = 0; i < exampleSchemas.length; i++) {
                 var name = exampleSchemas[i].split('.json')[0];
-                var schema = require('./example_schemas/' + name);
+                var schema = require(`./example_schemas/${name}`);
                 plans.push({
                     name: name,
                     description: name.replace(/-/g, ' '),
@@ -199,7 +197,7 @@ class ServiceBroker {
 
         // Add an id to each plan
         plans.forEach(function(plan) {
-            plan.id = sha256(serviceName + '-' + plan.name).substring(0, 32);
+            plan.id = sha256(`${serviceName}-${plan.name}`).substring(0, 32);
         });
 
         // All plans generated
