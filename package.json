@@ -19,7 +19,6 @@
     "express-validator": "latest",
     "guid": "latest",
     "jsonschema": "latest",
-    "keyvalue-xyz": "latest",
     "moment": "latest",
     "morgan": "^1.8.2",
     "pug": "latest",

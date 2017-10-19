@@ -66,16 +66,7 @@ function start(callback) {
     var port = process.env.PORT || 3000;
     var server = app.listen(port, function() {
         console.log('Overview broker running on port ' + server.address().port);
-
-        // Initialise data
-        serviceBrokerInterface.initData(function(success) {
-            if (!success) {
-                console.error('Error initialising data');
-                process.exit(1);
-                return;
-            }
-            callback(server, serviceBrokerInterface);
-        });
+        callback(server, serviceBrokerInterface);
     });
 }
 

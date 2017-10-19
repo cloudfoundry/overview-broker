@@ -1,7 +1,6 @@
 var should = require('should'),
     request = require('supertest'),
     Guid = require('guid'),
-    kvs = require('keyvalue-xyz'),
     app = require('./../app');
 
 describe('Service Broker Interface', function() {
@@ -19,11 +18,16 @@ describe('Service Broker Interface', function() {
     var complexPlanId = null;
     var asyncPlanId = null;
 
+    var brokerUsername = null;
+    var brokerPassword = null;
+
     before(function(done) {
         app.start(function(s, sbInterface) {
             server = s;
             var serviceBroker = sbInterface.getServiceBroker();
             brokerServiceId = serviceBroker.getCatalog().services[0].id;
+            brokerUsername = sbInterface.basicAuth.username;
+            brokerPassword = sbInterface.basicAuth.password;
             serviceBroker.getCatalog().services[0].plans.forEach(function(plan) {
                 switch (plan.name) {
                     case 'simple':
@@ -53,6 +57,7 @@ describe('Service Broker Interface', function() {
         it('should fetch the catalog', function(done) {
             request(server)
                 .get('/v2/catalog')
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(200)
                 .then(response => {
@@ -85,6 +90,7 @@ describe('Service Broker Interface', function() {
         it('should create service instance', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -110,6 +116,7 @@ describe('Service Broker Interface', function() {
         it('should fail to create service instance without required parameters', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(400)
                 .then(response => {
@@ -124,6 +131,7 @@ describe('Service Broker Interface', function() {
         it('should fail to create service instance without invalid serviceId', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: Guid.create().value,
@@ -147,6 +155,7 @@ describe('Service Broker Interface', function() {
         it('should fail to create service instance without invalid planId', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -170,6 +179,7 @@ describe('Service Broker Interface', function() {
         it('should update service instance', function(done) {
             request(server)
                 .patch('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -190,6 +200,7 @@ describe('Service Broker Interface', function() {
         it('should fail to update service instance without required parameters', function(done) {
             request(server)
                 .patch('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(400)
                 .then(response => {
@@ -204,6 +215,7 @@ describe('Service Broker Interface', function() {
         it('should fail to update service instance with invalid serviceId', function(done) {
             request(server)
                 .patch('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: Guid.create().value,
@@ -223,6 +235,7 @@ describe('Service Broker Interface', function() {
         it('should fail to update service instance with invalid planId', function(done) {
             request(server)
                 .patch('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -243,6 +256,7 @@ describe('Service Broker Interface', function() {
             console.log('Deleting service instance %s with params %s %s', instanceId, brokerServiceId, simplePlanId);
             request(server)
                 .delete('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
@@ -262,6 +276,7 @@ describe('Service Broker Interface', function() {
         it('should fail to delete service instance without required parameters', function(done) {
             request(server)
                 .delete('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(400)
                 .then(response => {
@@ -276,6 +291,7 @@ describe('Service Broker Interface', function() {
         it('should create asynchronously', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -290,6 +306,7 @@ describe('Service Broker Interface', function() {
                 .then(response => {
                     request(server)
                         .get('/v2/service_instances/' + instanceId + '/last_operation')
+                        .auth(brokerUsername, brokerPassword)
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
@@ -318,6 +335,7 @@ describe('Service Broker Interface', function() {
         beforeEach(function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -341,6 +359,7 @@ describe('Service Broker Interface', function() {
         it('should create service binding', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -366,6 +385,7 @@ describe('Service Broker Interface', function() {
         it('should fail to create service binding without required parameters', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(400)
                 .then(response => {
@@ -380,6 +400,7 @@ describe('Service Broker Interface', function() {
         it('should fail to create service binding with invalid serviceId', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: Guid.create().value,
@@ -401,6 +422,7 @@ describe('Service Broker Interface', function() {
         it('should fail to create service binding with invalid planId', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -422,6 +444,7 @@ describe('Service Broker Interface', function() {
         it('should delete service binding', function(done) {
             request(server)
                 .delete('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
@@ -441,6 +464,7 @@ describe('Service Broker Interface', function() {
         it('should fail to delete service binding without required parameters', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(400)
                 .then(response => {
@@ -455,6 +479,7 @@ describe('Service Broker Interface', function() {
         it('should fail to delete service binding with invalid serviceId', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: Guid.create().value,
@@ -473,6 +498,7 @@ describe('Service Broker Interface', function() {
         it('should fail to delete service binding with invalid planId', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
@@ -508,6 +534,7 @@ describe('Service Broker Interface', function() {
         it('should create service instance with valid parameters', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -533,6 +560,7 @@ describe('Service Broker Interface', function() {
         it('should fail to create service instance with invalid parameters', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -556,6 +584,7 @@ describe('Service Broker Interface', function() {
         it('should fail to create service instance with no parameters', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -578,6 +607,7 @@ describe('Service Broker Interface', function() {
         it('should update service instance with valid parameters', function(done) {
             request(server)
                 .patch('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -598,6 +628,7 @@ describe('Service Broker Interface', function() {
         it('should fail to update service instance with invalid parameters', function(done) {
             request(server)
                 .patch('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -617,6 +648,7 @@ describe('Service Broker Interface', function() {
         it('should fail to update service instance with no parameters', function(done) {
             request(server)
                 .patch('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -642,6 +674,7 @@ describe('Service Broker Interface', function() {
         beforeEach(function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -666,6 +699,7 @@ describe('Service Broker Interface', function() {
         it('should create service binding with valid parameters', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -691,6 +725,7 @@ describe('Service Broker Interface', function() {
         it('should fail to create service binding with invalid parameters', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
@@ -712,6 +747,7 @@ describe('Service Broker Interface', function() {
         it('should fail to create service binding with no parameters', function(done) {
             request(server)
                 .put('/v2/service_instances/' + instanceId + '/service_bindings/' + bindingId)
+                .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,

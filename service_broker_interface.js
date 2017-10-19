@@ -1,78 +1,19 @@
 var express = require('express'),
     moment = require('moment'),
     cfenv = require('cfenv'),
-    ServiceBroker = require('./service_broker'),
-    KeyValueStore = require('./key_value_store');
+    ServiceBroker = require('./service_broker');
 
 class ServiceBrokerInterface {
 
     constructor() {
-        // Check if persistence mode is enabled
-        this.persistenceMode = (cfenv.getAppEnv().app.ENABLE_PERSISTENCE || process.env.ENABLE_PERSISTENCE) != null;
-        if (this.persistenceMode) {
-            this.token = cfenv.getAppEnv().app.KV_TOKEN || process.env.KV_TOKEN;
-            this.key = cfenv.getAppEnv().app.KV_KEY_NAME || process.env.KV_KEY_NAME;
-            if (!this.token) {
-                console.error('Missing environmental variable: KV_TOKEN. Aborting.');
-                process.exit(1);
-                return;
-            }
-            if (!this.key) {
-                console.error('Missing environmental variable: KV_KEY_NAME. Aborting.');
-                process.exit(1);
-                return;
-            }
-            this.keyValueStore = new KeyValueStore(this.token, this.key);
-        }
         this.serviceBroker = new ServiceBroker();
         this.serviceInstances = {};
         this.lastRequest = {};
         this.lastResponse = {};
-    }
-
-    initData(callback) {
-        this.loadData(callback);
-    }
-
-    loadData(callback) {
-        // If persistence mode is disabled, do nothing
-        if (!this.persistenceMode) {
-            callback(true);
-            return;
-        }
-
-        // If we're not in production mode, do nothing
-        if (process.env.NODE_ENV == 'testing' || process.env.NODE_ENV == 'development') {
-            callback(true);
-            return;
-        }
-
-        // We're running in production mode with persistence enabled, so we need to load any saved state
-        var self = this;
-        this.keyValueStore.loadData(this.key, function(data) {
-            self.serviceInstances = data || {};
-            callback(true);
-        });
-    }
-
-    saveData(callback) {
-        // If persistence mode is disabled, do nothing
-        if (!this.persistenceMode) {
-            callback(true);
-            return;
-        }
-        this.keyValueStore.saveData(this.key, this.serviceInstances, function(success) {
-            if (!success) {
-                console.error('Error saving data to key value store');
-                if (callback != null) {
-                    callback(false);
-                }
-                return;
-            }
-            if (callback != null) {
-                callback(true);
-            }
-        });
+        this.basicAuth = {
+            username: 'admin',
+            password: 'password'
+        };
     }
 
     checkRequest(request, response, next) {
@@ -158,10 +99,8 @@ class ServiceBrokerInterface {
             return;
         }
         // Else return the data synchronously
-        this.saveData(function(success) {
-            response.json({
-                dashboard_url: dashboardUrl
-            });
+        response.json({
+            dashboard_url: dashboardUrl
         });
     }
 
@@ -207,9 +146,7 @@ class ServiceBrokerInterface {
         this.serviceInstances[serviceInstanceId].last_updated = moment().toString();
         this.saveRequest(request);
         this.saveResponse({});
-        this.saveData(function(success) {
-            response.json({});
-        });
+        response.json({});
     }
 
     deleteServiceInstance(request, response) {
@@ -234,9 +171,7 @@ class ServiceBrokerInterface {
         delete this.serviceInstances[serviceInstanceId];
         this.saveRequest(request);
         this.saveResponse({});
-        this.saveData(function(success) {
-            response.json({});
-        });
+        response.json({});
     }
 
     createServiceBinding(request, response) {
@@ -291,34 +226,32 @@ class ServiceBrokerInterface {
         };
         this.saveRequest(request);
         this.saveResponse({});
-        this.saveData(function(success) {
-            var data = {};
-            if (!service.requires || service.requires.length == 0) {
-               data = {
-                  credentials: {
-                     username: 'admin',
-                     password: 'password'
-                  }
-               };
-            }
-            else if (service.requires && service.requires.indexOf('syslog_drain') > -1) {
-               data = {
-                  syslog_drain_url: 'http://ladida'
-               };
-            }
-            else if (service.requires && service.requires.indexOf('volume_mount') > -1) {
-               data = {
-                  driver: 'nfs',
-                  container_dir: '/tmp',
-                  mode: 'r',
-                  device_type: 'shared',
-                  device: {
-                     volume_id: 1
-                  }
-               };
-            }
-            response.json(data);
-        });
+        var data = {};
+        if (!service.requires || service.requires.length == 0) {
+           data = {
+              credentials: {
+                 username: this.basicAuth.username,
+                 password: this.basicAuth.password
+              }
+           };
+        }
+        else if (service.requires && service.requires.indexOf('syslog_drain') > -1) {
+           data = {
+              syslog_drain_url: 'http://ladida'
+           };
+        }
+        else if (service.requires && service.requires.indexOf('volume_mount') > -1) {
+           data = {
+              driver: 'nfs',
+              container_dir: '/tmp',
+              mode: 'r',
+              device_type: 'shared',
+              device: {
+                 volume_id: 1
+              }
+           };
+        }
+        response.json(data);
     }
 
     deleteServiceBinding(request, response) {
@@ -343,9 +276,7 @@ class ServiceBrokerInterface {
         }
         this.saveRequest(request);
         this.saveResponse({});
-        this.saveData(function(success) {
-            response.json({});
-        });
+        response.json({});
     }
 
     getLastOperation(request, response) {
@@ -361,7 +292,6 @@ class ServiceBrokerInterface {
         var data = {
             title: 'Overview Broker',
             status: 'running',
-            persistenceMode: this.persistenceMode,
             api_version: request.header('X-Broker-Api-Version'),
             serviceInstances: this.serviceInstances,
             lastRequest: this.lastRequest,
@@ -375,9 +305,7 @@ class ServiceBrokerInterface {
         this.serviceInstances = {};
         this.lastRequest = {};
         this.lastResponse = {};
-        this.saveData(function(success) {
-            response.json({});
-        });
+        response.json({});
     }
 
     updateCatalog(request, response) {

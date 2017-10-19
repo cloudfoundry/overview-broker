@@ -39,31 +39,6 @@ npm test
 
 ---
 
-### Enabling persistence
-
-The Overview Broker can provide persistence using the free
-[keyvalue.xyz](https://keyvalue.xyz/) service. For the broker to start up
-successfully in persistence mode, you must provide the following environment
-variables:
-* `ENABLE_PERSISTENCE`: `true`
-* `KV_TOKEN`: the
-[token](https://github.com/kvaas/docs/blob/master/REST%20API.md#post-newkey)
-used to set and get the key value pair
-* `KV_KEY_NAME`: the key name
-
-You can create a new token (`KV_TOKEN`) using the following command. The token
-will be included in the response before the name of your key:
-```bash
-$ curl -X POST https://api.keyvalue.xyz/new/KEY_NAME
-https://api.keyvalue.xyz/TOKEN/KEY_NAME
-```
-
-You should then set `KV_TOKEN` to `TOKEN` and `KV_KEY_NAME` to `KEY_NAME`.
-Note that the generated token can only be used to get and set the provided key
-name.
-
----
-
 ### Platforms
 
 #### Cloud Foundry
@@ -74,14 +49,7 @@ name.
     ```bash
     cf push overview-broker --no-start
     ```
-* Then enable persistence mode if required:
-    ```bash
-    cf set-env overview-broker ENABLE_PERSISTENCE true
-    cf set-env overview-broker KV_TOKEN <TOKEN>
-    cf set-env overview-broker KV_KEY_NAME <KEY_NAME>
-    cf restage overview-broker
-    ```
-    You can also use an application manifest to deploy the broker as an
+* You can also use an application manifest to deploy the broker as an
     application:
     ```bash
     wget https://raw.githubusercontent.com/mattmcneeney/overview-broker/master/examples/cloudfoundry/manifest.yaml
@@ -140,11 +108,6 @@ the example [Dockerfile](/examples/kubernetes/Dockerfile) provided, run:
 which we want to run our `overview-broker` image:
     ```bash
     kubectl run overview-broker --image=overview-broker:v1 --port=8080 --env="PORT=8080"
-    ```
-    If you wish to enable persistence, you will have to pass the required
-    environmental variables when creating the deployment:
-    ```bash
-    kubectl run overview-broker --image=overview-broker:v1 --port=8080 --env="PORT=8080" --env="ENABLE_PERSISTENCE=true" --env="KV_KEY_NAME=<KEY_NAME>" --env="KV_TOKEN=<TOKEN>"
     ```
     You can check the deployment has succeeded by running `kubectl get deployments`
     and `kubectl get pods`.
