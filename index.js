@@ -1,4 +1,4 @@
-var app = require('./app');
+const app = require('./app');
 
 app.start(function() {
     // Ready!
