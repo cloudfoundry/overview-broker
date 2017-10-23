@@ -15,15 +15,15 @@
     "cfenv": "latest",
     "cron": "latest",
     "express": "latest",
-    "express-basic-auth": "^1.1.2",
+    "express-basic-auth": "latest",
     "express-validator": "latest",
     "uuid": "latest",
     "jsonschema": "latest",
     "moment": "latest",
-    "morgan": "^1.8.2",
+    "morgan": "latest",
     "pug": "latest",
     "request": "latest",
-    "sha256": "^0.2.0"
+    "sha256": "latest"
   },
   "devDependencies": {
     "mocha": "latest",
