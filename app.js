@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(expressValidator());
 
 if (process.env.NODE_ENV != 'testing') {
-    app.use(morgan('combined'));
+    app.use(morgan('tiny'));
 }
 
 app.set('view engine', 'pug');
