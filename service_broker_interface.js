@@ -13,8 +13,8 @@ class ServiceBrokerInterface {
         this.lastRequest = {};
         this.lastResponse = {};
         this.basicAuth = {
-            username: 'admin',
-            password: 'password'
+            username: process.env.BROKER_USERNAME || 'admin',
+            password: process.env.BROKER_PASSWORD || 'password'
         };
     }
 
