@@ -18,7 +18,7 @@ class ServiceBroker {
                     bindable: true,
                     plan_updateable: true,
                     plans: this.generatePlansForService(cfenv.getAppEnv().name),
-                    shareable: true
+                    metadata: { shareable: true }
                 },
                 {
                     name: cfenv.getAppEnv().name + '-syslog-drain',
@@ -29,7 +29,7 @@ class ServiceBroker {
                     bindable: true,
                     plan_updateable: true,
                     plans: this.generatePlansForService(cfenv.getAppEnv().name + '-syslog-drain'),
-                    shareable: true
+                    metadata: { shareable: true }
                 },
                 {
                     name: cfenv.getAppEnv().name + '-volume-mount',
@@ -40,7 +40,7 @@ class ServiceBroker {
                     bindable: true,
                     plan_updateable: true,
                     plans: this.generatePlansForService(cfenv.getAppEnv().name + '-volume-mount'),
-                    shareable: true
+                    metadata: { shareable: true }
                 }
             ]
         };
