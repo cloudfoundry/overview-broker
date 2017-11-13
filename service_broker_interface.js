@@ -12,9 +12,9 @@ class ServiceBrokerInterface {
         this.serviceInstances = {};
         this.lastRequest = {};
         this.lastResponse = {};
-        this.basicAuth = {
-            username: process.env.BROKER_USERNAME || 'admin',
-            password: process.env.BROKER_PASSWORD || 'password'
+        this.bindingCredentials = {
+            username: 'admin',
+            password: 'password'
         };
     }
 
@@ -230,10 +230,7 @@ class ServiceBrokerInterface {
         var data = {};
         if (!service.requires || service.requires.length == 0) {
            data = {
-              credentials: {
-                 username: this.basicAuth.username,
-                 password: this.basicAuth.password
-              }
+              credentials: this.bindingCredentials
            };
         }
         else if (service.requires && service.requires.indexOf('syslog_drain') > -1) {

@@ -38,8 +38,10 @@ function start(callback) {
     app.use('/images', express.static('images'));
 
     /* Check Basic Auth credentials */
+    var users = {};
+    users[process.env.BROKER_USERNAME || 'admin'] = process.env.BROKER_PASSWORD || 'password';
     app.use(basicAuth({
-        users: { 'admin': 'password' }
+        users: users
     }));
 
     /* Authenticated routes */
