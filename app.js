@@ -37,14 +37,13 @@ function start(callback) {
     });
     app.use('/images', express.static('images'));
 
-    /* Check Basic Auth credentials */
+    /* Authenticated routes (uses Basic Auth) */
     var users = {};
     users[process.env.BROKER_USERNAME || 'admin'] = process.env.BROKER_PASSWORD || 'password';
     app.use(basicAuth({
         users: users
     }));
 
-    /* Authenticated routes */
     app.all('*', function(request, response, next) {
         serviceBrokerInterface.checkRequest(request, response, next);
     });

@@ -26,8 +26,8 @@ describe('Service Broker Interface', function() {
             server = s;
             var serviceBroker = sbInterface.getServiceBroker();
             brokerServiceId = serviceBroker.getCatalog().services[0].id;
-            brokerUsername = sbInterface.basicAuth.username;
-            brokerPassword = sbInterface.basicAuth.password;
+            brokerUsername = process.env.BROKER_USERNAME || 'admin';
+            brokerPassword = process.env.BROKER_PASSWORD || 'password';
             serviceBroker.getCatalog().services[0].plans.forEach(function(plan) {
                 switch (plan.name) {
                     case 'simple':
@@ -316,7 +316,27 @@ describe('Service Broker Interface', function() {
                             should.exist(response.body);
                             response.body.should.be.type('object');
                             response.body.should.have.property('state');
-                            done();
+                            (response.body.state).should.equal('in progress');
+
+                            // The operation should finish after one second
+                            setTimeout(function() {
+                                request(server)
+                                    .get(`/v2/service_instances/${instanceId}/last_operation`)
+                                    .auth(brokerUsername, brokerPassword)
+                                    .set('X-Broker-Api-Version', apiVersion)
+                                    .send({
+                                       service_id: brokerServiceId,
+                                       plan_id: asyncPlanId
+                                    })
+                                    .expect(200)
+                                    .then(response => {
+                                        should.exist(response.body);
+                                        response.body.should.be.type('object');
+                                        response.body.should.have.property('state');
+                                        (response.body.state).should.equal('succeeded');
+                                        done();
+                                    });
+                            }, 1000);
                         })
                         .catch(error => {
                             done(error);

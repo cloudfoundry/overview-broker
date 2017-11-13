@@ -16,6 +16,8 @@ class ServiceBrokerInterface {
             username: 'admin',
             password: 'password'
         };
+        this.createsInProgress = {};
+        this.updatesInProgress = {};
     }
 
     checkRequest(request, response, next) {
@@ -97,8 +99,20 @@ class ServiceBrokerInterface {
             response.status(202).json({
                 dashboard_url: dashboardUrl
             });
+
+            // Set the end time for the operation to be one second from now
+            // unless an explicit delay was requested
+            var endTime = new Date();
+            if (request.body.parameters.delay) {
+               endTime.setSeconds(endTime.getSeconds() + request.body.parameters.delay);
+            }
+            else {
+               endTime.setSeconds(endTime.getSeconds() + 1);
+            }
+            this.createsInProgress[serviceInstanceId] = endTime;
             return;
         }
+
         // Else return the data synchronously
         response.json({
             dashboard_url: dashboardUrl
@@ -147,6 +161,25 @@ class ServiceBrokerInterface {
         this.serviceInstances[serviceInstanceId].last_updated = moment().toString();
         this.saveRequest(request);
         this.saveResponse({});
+
+        // If the plan is called 'async', then pretend to do an async update
+        if (plan.name == 'async') {
+            response.status(202).json({});
+
+            // Set the end time for the operation to be one second from now
+            // unless an explicit delay was requested
+            var endTime = new Date();
+            if (request.body.parameters.delay) {
+               endTime.setSeconds(endTime.getSeconds() + request.body.parameters.delay);
+            }
+            else {
+               endTime.setSeconds(endTime.getSeconds() + 1);
+            }
+            this.updatesInProgress[serviceInstanceId] = endTime;
+            return;
+        }
+
+        // Else return the data synchronously
         response.json({});
     }
 
@@ -278,9 +311,37 @@ class ServiceBrokerInterface {
     }
 
     getLastOperation(request, response) {
-        var data = {
-            state: 'succeeded'
-        };
+        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
+        var errors = request.validationErrors();
+        if (errors) {
+            response.status(400).send(errors);
+            return;
+        }
+
+        // We should know about the operation
+        var serviceInstanceId = request.params.instance_id;
+        var finishTime = this.createsInProgress[serviceInstanceId] || this.updatesInProgress[serviceInstanceId] || null;
+        // But if we don't, presume that the operation finished and we have forgotten about it
+        if (!finishTime) {
+           var data = { state: 'succeeded' };
+           response.json(data);
+           return;
+        }
+
+        // Check if the operation is still going
+        var data = {};
+        if (finishTime >= new Date()) {
+           data.state = 'in progress';
+           data.description = 'The operation is in progress...';
+        }
+        else {
+           data.state = 'succeeded';
+           data.description = 'The operation has finished!';
+
+           // Since it has finished, we should forget about the operation
+           delete this.createsInProgress[serviceInstanceId];
+           delete this.updatesInProgress[serviceInstanceId];
+        }
         this.saveRequest(request);
         this.saveResponse(data);
         response.json(data);
