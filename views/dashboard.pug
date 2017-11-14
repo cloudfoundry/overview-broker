@@ -81,7 +81,7 @@ html
                         JSON.stringify(serviceDataToDisplay)
                         delete serviceDataToDisplay['created']
                         delete serviceDataToDisplay['last_updated']
-                      pre(style={'background': 'none', 'border': 'none'}) !{syntaxHighlight(serviceDataToDisplay)}
+                      pre(style={'background': 'none', 'border': 'none', 'margin-bottom': '10px'}) !{syntaxHighlight(serviceDataToDisplay)}
                       div(style={'float': 'right', 'height': '50px'})
                         if serviceDataToDisplay.context != null && serviceDataToDisplay.context.platform == 'kubernetes'
                           img(src='../images/kubernetes.png', alt='Kubernetes')
