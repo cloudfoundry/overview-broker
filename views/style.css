@@ -9,17 +9,18 @@ h5 {
 pre {
     padding: 10px;
     margin: 0px;
+    color: #999;
 }
 
 .instance {
     background: #555;
     color: white;
 }
-.string { color: green; }
-.number { color: darkorange; }
-.boolean { color: blue; }
-.null { color: magenta; }
-.key { color: red; }
+.string { color: #690; }
+.number { color: #905; }
+.boolean { color: #905; }
+.null { color: #e90; }
+.key { color: #07a; }
 
 @keyframes spin {
     0% { transform: rotate(0deg); }
