@@ -1,49 +1,69 @@
 html
   head
     title= title
+    link(rel='icon', href='/images/openservicebrokerapi-logo.png')
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css')
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css')
     style
       include style.css
-    link(rel='icon', href='/images/openservicebrokerapi-logo.png')
-    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
-    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css')
   body
+    -
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
     .container
       .header.clearfix(style={'margin-top': '15px'})
-        div.col-xs-12
+        div.col-12
           img.spin(src='../images/openservicebrokerapi-logo.png', alt='Open Service Broker API Logo')
           img(src='../images/openservicebrokerapi-text.png', alt='Open Service Broker API')
-        div.col-xs-12(style={'padding-top': '18px'})
-          span.pull-right
+        div.col-12(style={'padding-top': '18px'})
+          span.float-right
             button.btn.btn-danger(style={'margin-right': '5px'}, onclick='cleanData()') Clean
-            button.btn.btn-default(onclick='refreshPage()') Refresh
-      div.col-xs-12(style={'margin-top': '10px'})
-        div.panel.panel-default
-          div.panel-heading
-            h3.panel-title
-              a(data-toggle='collapse', href='#catalog') Edit catalog
-          div#catalog.panel-body.panel-collapse.collapse(style={'padding': '0px'})
-            textarea(style={'background': '#002833', 'color': '#45D40C', 'font': '14px "Courier New";', 'line-height': '1.6em', 'padding': '15px', 'border': 'none', 'height': '60%', 'width': '100%' }) #{JSON.stringify(catalog, null, 2)}
-            button.btn.btn-default(style={'width': '100%', 'border-radius': '0px', 'color': 'white', 'background-color': '#f19600'}, onclick='updateCatalog()') Save
-      div.col-xs-12.col-sm-6
-        div.panel.panel-default
-          div.panel-heading
-            h3.panel-title
-              a(data-toggle='collapse', href='#request') Last Request
-          div#request.panel-body.panel-collapse.collapse
-            pre(style={'background': 'none', 'border': 'none', 'height': '400px'}) #{JSON.stringify(lastRequest, null, 2)}
-      div.col-xs-12.col-sm-6
-        div.panel.panel-default
-          div.panel-heading
-            h3.panel-title
-              a(data-toggle='collapse', href='#response') Last Response
-          div#response.panel-body.panel-collapse.collapse
-            pre(style={'background': 'none', 'border': 'none', 'height': '400px'}) #{JSON.stringify(lastResponse, null, 2)}
-      div.clearfix
+            button.btn.btn-secondary(onclick='refreshPage()') Refresh
+      div.row.mb-2
+        div.col(style={'margin-top': '10px'})
+          div.card
+            h6.card-header
+              a.text-primary(data-toggle='collapse', href='#catalog') Edit catalog
+            div#catalog.panel-body.panel-collapse.collapse(style={'padding': '0px'})
+              textarea(style={'background': '#333', 'color': '#fff', 'font': '14px "Courier New";', 'line-height': '1.6em', 'padding': '15px', 'border': 'none', 'height': '60%', 'width': '100%' }) #{JSON.stringify(catalog, null, 2)}
+              button.btn.btn-default(style={'width': '100%', 'border-radius': '0px', 'color': 'white', 'background-color': '#f19600'}, onclick='updateCatalog()') Save
+      div.row.mb-2
+        div.col-12.col-sm-6
+          div.card
+            h6.card-header
+              a.text-info(data-toggle='collapse', href='#request') Last Request
+            div#request.panel-body.panel-collapse.collapse
+              pre(style={'background': 'none', 'border': 'none', 'height': '400px'}) !{syntaxHighlight(lastRequest)}
+        div.col-12.col-sm-6
+          div.card
+            h6.card-header
+              a.text-info(data-toggle='collapse', href='#response') Last Response
+            div#response.panel-body.panel-collapse.collapse
+              pre(style={'background': 'none', 'border': 'none', 'height': '400px'}) !{syntaxHighlight(lastResponse)}
       - let numServices = Object.keys(serviceInstances).length
       if numServices > 0
         - var a = 0
         each serviceData, serviceKey in serviceInstances
-          div.col-xs-12.col-sm-6
+          div.col-12.col-sm-6
             div.panel.panel-primary
               div.panel-heading(class=`${serviceData.parameters.rainbow ? "rainbow" : ""}`)
                 if serviceData.parameters.name
@@ -70,13 +90,14 @@ html
           if (a % 2) == 0
             div.clearfix
       else
-        div.col-xs-12(style={'margin-top': '50px', 'text-align': 'center'})
+        div.col-12(style={'margin-top': '50px', 'text-align': 'center'})
           p No service instances have been provisioned
 
     include githubcorners.html
 
     script(src='https://code.jquery.com/jquery-3.2.1.min.js')
-    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js')
     script
       include helpers.js
