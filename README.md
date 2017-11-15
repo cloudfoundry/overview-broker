@@ -7,18 +7,16 @@ A simple service broker conforming to the [Open Service Broker API](https://gith
 specification that hosts a dashboard showing information on service instances
 and bindings created by any platform the broker is registered with.
 
-The broker supports has two plans: `simple` and `complex`. The `complex` plan
-has a schema that is used to validate configuration parameters that are provided
-when creating a service instance, updating a service instance or creating a
-service binding.
+Fun features this broker provides include:
+* Configuration parameter schemas for provision, update and create binding
+* Supports asynchronous provisioing, updating and creation of service bindings
+* Supports fetching service instances and bindings
 
 > The [Open Service Broker API](https://www.openservicebrokerapi.org/) project
 allows developers, ISVs, and SaaS vendors a single, simple, and elegant way to
 deliver services to applications running within cloud native platforms such as
 Cloud Foundry, OpenShift, and Kubernetes. The project includes individuals from
 Fujitsu, Google, IBM, Pivotal, RedHat and SAP.
-
----
 
 ### Installation
 ```bash
@@ -31,8 +29,6 @@ npm start
 ```
 
 ### Tests
-
-To run the test suite:
 ```bash
 npm test
 ```
