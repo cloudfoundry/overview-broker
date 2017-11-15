@@ -51,13 +51,13 @@ html
           div.card
             h6.card-header
               a.text-info(data-toggle='collapse', href='#request') Last Request
-            div#request.card-body.collapse
+            div#request.card-body.collapse(style={'padding': '0px'})
               pre(style={'background': 'none', 'border': 'none', 'height': '400px'}) !{syntaxHighlight(lastRequest)}
         div.col-12.col-sm-6
           div.card
             h6.card-header
               a.text-info(data-toggle='collapse', href='#response') Last Response
-            div#response.card-body.collapse
+            div#response.card-body.collapse(style={'padding': '0px'})
               pre(style={'background': 'none', 'border': 'none', 'height': '400px'}) !{syntaxHighlight(lastResponse)}
       - let numServices = Object.keys(serviceInstances).length
       if numServices > 0
@@ -65,26 +65,25 @@ html
             - var a = 0
             each serviceData, serviceKey in serviceInstances
               div.col-12.col-sm-6.mb-2
-                div.card
-                  div.card-header(class=`${serviceData.parameters.rainbow ? "rainbow" : "instance"}`)
+                div.card.instance
+                  div.card-header(class=`${serviceData.parameters.rainbow ? "rainbow" : ""}`)
                     h6 Service instance
                   div.card-body
-                    sub ID: #{serviceKey}
-                    sub Created: #{serviceData.created}
+                    p.text-muted ID: #{serviceKey}
+                    p.text-muted Created: #{serviceData.created}
                     if serviceData.last_update
-                      sub Last Update: #{serviceData.last_update}
-                    p
-                      -
-                        var serviceDataToDisplay = JSON.parse(JSON.stringify(serviceData))
-                        JSON.stringify(serviceDataToDisplay)
-                        delete serviceDataToDisplay['created']
-                        delete serviceDataToDisplay['last_updated']
-                      pre(style={'background': 'none', 'border': 'none', 'margin-bottom': '10px'}) !{syntaxHighlight(serviceDataToDisplay)}
-                      div(style={'float': 'right', 'height': '50px'})
-                        if serviceDataToDisplay.context != null && serviceDataToDisplay.context.platform == 'kubernetes'
-                          img(src='../images/kubernetes.png', alt='Kubernetes')
-                        else
-                          img(src='../images/cloudfoundry.png', alt='Cloud Foundry')
+                      p.text-muted Last Update: #{serviceData.last_update}
+                    -
+                      var serviceDataToDisplay = JSON.parse(JSON.stringify(serviceData))
+                      JSON.stringify(serviceDataToDisplay)
+                      delete serviceDataToDisplay['created']
+                      delete serviceDataToDisplay['last_updated']
+                    pre(style={'background': 'none', 'border': 'none', 'margin-bottom': '10px'}) !{syntaxHighlight(serviceDataToDisplay)}
+                    div.float-right
+                      if serviceDataToDisplay.context != null && serviceDataToDisplay.context.platform == 'kubernetes'
+                        img(src='../images/kubernetes.png', alt='Kubernetes')
+                      else
+                        img(src='../images/cloudfoundry.png', alt='Cloud Foundry')
                 - a+=1
               if (a % 2) == 0
                 div.clearfix

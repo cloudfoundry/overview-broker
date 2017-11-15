@@ -20,20 +20,30 @@ class ServiceBrokerInterface {
         this.instanceUpdatesInProgress = {};
         this.bindingCreatesInProgress = {};
 
-        // this.serviceInstances['b1daaff9-1430-4b20-9846-cb2ae0987861'] = {
-        //     service_id: '1',
-        //     plan_id: '1',
-        //     api_version: '2.13',
-        //     parameters: {},
-        //     context: { platform: 'cloudfoundry', space_guid: '15b5c1e9-5e2d-4afe-946a-4fbea279ccf8' }
-        // };
-        // this.serviceInstances['8aaf022d-ec8d-40aa-a22e-fa7f6c2b20f5'] = {
-        //     service_id: '1',
-        //     plan_id: '1',
-        //     api_version: '2.13',
-        //     parameters: {},
-        //     context: { platform: 'kubernetes', namespace: 'dev' }
-        // };
+        if (process.env.FAKE_DATA) {
+            this.showFakeData()
+        }
+    }
+
+    showFakeData() {
+        this.serviceInstances['b1daaff9-1430-4b20-9846-cb2ae0987861'] = {
+            created: moment().toString(),
+            last_updated: 'never',
+            service_id: '1',
+            plan_id: '1',
+            api_version: '2.13',
+            parameters: {},
+            context: { platform: 'cloudfoundry', space_guid: '15b5c1e9-5e2d-4afe-946a-4fbea279ccf8' }
+        };
+        this.serviceInstances['8aaf022d-ec8d-40aa-a22e-fa7f6c2b20f5'] = {
+            created: moment().toString(),
+            last_updated: 'never',
+            service_id: '1',
+            plan_id: '1',
+            api_version: '2.13',
+            parameters: {},
+            context: { platform: 'kubernetes', namespace: 'dev' }
+        };
     }
 
     checkRequest(request, response, next) {
@@ -105,6 +115,7 @@ class ServiceBrokerInterface {
 
         this.serviceInstances[serviceInstanceId] = {
             created: moment().toString(),
+            last_updated: 'never',
             api_version: request.header('X-Broker-Api-Version'),
             service_id: request.body.service_id,
             plan_id: request.body.plan_id,

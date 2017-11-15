@@ -10,17 +10,28 @@ pre {
     padding: 10px;
     margin: 0px;
     color: #999;
+    white-space: pre-wrap;
 }
 
-.instance {
+.instance p {
+    font-size: 10px;
+    margin-bottom: 0px;
+}
+
+.instance .card-header {
     background: #555;
     color: white;
 }
-.string { color: #690; }
-.number { color: #905; }
-.boolean { color: #905; }
-.null { color: #e90; }
-.key { color: #07a; }
+
+.instance img {
+    width: 100px;
+}
+
+pre .string { color: #690; }
+pre .number { color: #905; }
+pre .boolean { color: #905; }
+pre .null { color: #e90; }
+pre .key { color: #07a; }
 
 @keyframes spin {
     0% { transform: rotate(0deg); }
