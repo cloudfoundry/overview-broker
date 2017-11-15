@@ -71,7 +71,10 @@ function start(callback) {
         serviceBrokerInterface.deleteServiceBinding(request, response);
     });
     app.get('/v2/service_instances/:instance_id/last_operation', function(request, response) {
-        serviceBrokerInterface.getLastOperation(request, response);
+        serviceBrokerInterface.getLastServiceInstanceOperation(request, response);
+    });
+    app.get('/v2/service_instances/:instance_id/service_bindings/:binding_id/last_operation', function(request, response) {
+        serviceBrokerInterface.getLastServiceBindingOperation(request, response);
     });
     app.get('/v2/service_instances/:instance_id', function(request, response) {
         serviceBrokerInterface.getServiceInstance(request, response);

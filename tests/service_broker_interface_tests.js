@@ -96,7 +96,6 @@ describe('Service Broker Interface', function() {
                     service_id: brokerServiceId,
                     plan_id: simplePlanId,
                     parameters: {},
-                    accepts_incomplete: true,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
                     context: {}
@@ -137,7 +136,6 @@ describe('Service Broker Interface', function() {
                     service_id: uuidv4(),
                     plan_id: simplePlanId,
                     parameters: {},
-                    accepts_incomplete: true,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
                     context: {}
@@ -161,7 +159,6 @@ describe('Service Broker Interface', function() {
                     service_id: brokerServiceId,
                     plan_id: uuidv4(),
                     parameters: {},
-                    accepts_incomplete: true,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
                     context: {}
@@ -289,14 +286,13 @@ describe('Service Broker Interface', function() {
 
         it('should create asynchronously', function(done) {
             request(server)
-                .put(`/v2/service_instances/${instanceId}`)
+                .put(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
                 .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
                     plan_id: asyncPlanId,
                     parameters: {},
-                    accepts_incomplete: true,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
                     context: {}
@@ -345,6 +341,109 @@ describe('Service Broker Interface', function() {
                 .catch(error => {
                     done(error);
                 });
+
+                it('should update asynchronously', function(done) {
+                    request(server)
+                        .patch(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: simplePlanId,
+                            parameters: {}
+                         })
+                        .expect(202)
+                        .then(response => {
+                            request(server)
+                                .get(`/v2/service_instances/${instanceId}/last_operation`)
+                                .auth(brokerUsername, brokerPassword)
+                                .set('X-Broker-Api-Version', apiVersion)
+                                .send({
+                                    service_id: brokerServiceId,
+                                    plan_id: asyncPlanId
+                                 })
+                                .expect(200)
+                                .then(response => {
+                                    should.exist(response.body);
+                                    response.body.should.be.type('object');
+                                    response.body.should.have.property('state');
+                                    (response.body.state).should.equal('in progress');
+
+                                    // The operation should finish after one second
+                                    setTimeout(function() {
+                                        request(server)
+                                            .get(`/v2/service_instances/${instanceId}/last_operation`)
+                                            .auth(brokerUsername, brokerPassword)
+                                            .set('X-Broker-Api-Version', apiVersion)
+                                            .send({
+                                               service_id: brokerServiceId,
+                                               plan_id: asyncPlanId
+                                            })
+                                            .expect(200)
+                                            .then(response => {
+                                                should.exist(response.body);
+                                                response.body.should.be.type('object');
+                                                response.body.should.have.property('state');
+                                                (response.body.state).should.equal('succeeded');
+                                                done();
+                                            });
+                                    }, 1000);
+                                })
+                                .catch(error => {
+                                    done(error);
+                                });
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                });
+
+                it('should not update asynchronously if accepts_incomplete=false', function(done) {
+                    request(server)
+                        .patch(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: simplePlanId,
+                            parameters: {}
+                         })
+                        .expect(200)
+                        .then(response => {
+                            should.exist(response.body);
+                            (response.body).should.be.empty();
+                            done();
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                });
+
+        });
+
+        it('should not create instance asynchronously if accepts_incomplete=false', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: asyncPlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.type('object');
+                    response.body.should.have.property('dashboard_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
         });
 
     });
@@ -360,7 +459,6 @@ describe('Service Broker Interface', function() {
                     service_id: brokerServiceId,
                     plan_id: simplePlanId,
                     parameters: {},
-                    accepts_incomplete: true,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
                     context: {}
@@ -533,6 +631,91 @@ describe('Service Broker Interface', function() {
                 });
         });
 
+        it('should create asynchronously', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}?accepts_incomplete=true`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: asyncPlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(202)
+                .then(response => {
+                    request(server)
+                        .get(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}/last_operation`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: asyncPlanId
+                         })
+                        .expect(200)
+                        .then(response => {
+                            should.exist(response.body);
+                            response.body.should.be.type('object');
+                            response.body.should.have.property('state');
+                            (response.body.state).should.equal('in progress');
+
+                            // The operation should finish after one second
+                            setTimeout(function() {
+                                request(server)
+                                    .get(`/v2/service_instances/${instanceId}/last_operation`)
+                                    .auth(brokerUsername, brokerPassword)
+                                    .set('X-Broker-Api-Version', apiVersion)
+                                    .send({
+                                       service_id: brokerServiceId,
+                                       plan_id: asyncPlanId
+                                    })
+                                    .expect(200)
+                                    .then(response => {
+                                        should.exist(response.body);
+                                        response.body.should.be.type('object');
+                                        response.body.should.have.property('state');
+                                        (response.body.state).should.equal('succeeded');
+                                        done();
+                                    });
+                            }, 1000);
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should not create binding asynchronously if accepts_incomplete=false', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}?accepts_incomplete=false`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    app_guid: appGuid,
+                    bind_resource: {},
+                    parameters: {},
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.type('object');
+                    response.body.should.have.property('credentials');
+                    response.body.credentials.should.have.property('username');
+                    response.body.credentials.should.have.property('password');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
     });
 
     describe('dashboard', function() {
@@ -559,7 +742,6 @@ describe('Service Broker Interface', function() {
                     service_id: brokerServiceId,
                     plan_id: complexPlanId,
                     parameters: validParameters,
-                    accepts_incomplete: true,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
                     context: {}
@@ -585,7 +767,6 @@ describe('Service Broker Interface', function() {
                     service_id: brokerServiceId,
                     plan_id: complexPlanId,
                     parameters: invalidParameters,
-                    accepts_incomplete: true,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
                     context: {}
@@ -608,7 +789,6 @@ describe('Service Broker Interface', function() {
                 .send({
                     service_id: brokerServiceId,
                     plan_id: complexPlanId,
-                    accepts_incomplete: true,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
                     context: {}
@@ -699,7 +879,6 @@ describe('Service Broker Interface', function() {
                     service_id: brokerServiceId,
                     plan_id: complexPlanId,
                     parameters: {},
-                    accepts_incomplete: true,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
                     context: {},
@@ -854,7 +1033,6 @@ describe('Service Broker Interface', function() {
                     service_id: brokerServiceId,
                     plan_id: simplePlanId,
                     parameters: {},
-                    accepts_incomplete: true,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
                     context: {}

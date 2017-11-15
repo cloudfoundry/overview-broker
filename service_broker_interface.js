@@ -16,8 +16,9 @@ class ServiceBrokerInterface {
             username: 'admin',
             password: 'password'
         };
-        this.createsInProgress = {};
-        this.updatesInProgress = {};
+        this.instanceProvisionsInProgress = {};
+        this.instanceUpdatesInProgress = {};
+        this.bindingCreatesInProgress = {};
     }
 
     checkRequest(request, response, next) {
@@ -93,7 +94,7 @@ class ServiceBrokerInterface {
             service_id: request.body.service_id,
             plan_id: request.body.plan_id,
             parameters: request.body.parameters || {},
-            accepts_incomplete: request.body.requests_incomplete,
+            accepts_incomplete: (request.query.accepts_incomplete == 'true'),
             organization_guid: request.body.organization_guid,
             space_guid: request.body.space_guid,
             context: request.body.context,
@@ -102,9 +103,7 @@ class ServiceBrokerInterface {
         };
 
         // If the plan is called 'async', then pretend to do an async create
-        if (plan.name == 'async') {
-            response.status(202).json(data);
-
+        if (plan.name == 'async' && request.query.accepts_incomplete == 'true') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -114,7 +113,8 @@ class ServiceBrokerInterface {
             else {
                endTime.setSeconds(endTime.getSeconds() + 1);
             }
-            this.createsInProgress[serviceInstanceId] = endTime;
+            this.instanceProvisionsInProgress[serviceInstanceId] = endTime;
+            response.status(202).json(data);
             return;
         }
 
@@ -166,9 +166,7 @@ class ServiceBrokerInterface {
         this.saveResponse({});
 
         // If the plan is called 'async', then pretend to do an async update
-        if (plan.name == 'async') {
-            response.status(202).json({});
-
+        if (plan.name == 'async' && request.query.accepts_incomplete == 'true') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -178,7 +176,8 @@ class ServiceBrokerInterface {
             else {
                endTime.setSeconds(endTime.getSeconds() + 1);
             }
-            this.updatesInProgress[serviceInstanceId] = endTime;
+            this.instanceUpdatesInProgress[serviceInstanceId] = endTime;
+            response.status(202).json({});
             return;
         }
 
@@ -290,6 +289,23 @@ class ServiceBrokerInterface {
             data: data
         };
 
+        // If the plan is called 'async', then pretend to do an async create
+        if (plan.name == 'async' && request.query.accepts_incomplete == 'true') {
+            // Set the end time for the operation to be one second from now
+            // unless an explicit delay was requested
+            var endTime = new Date();
+            if (request.body.parameters.delay) {
+               endTime.setSeconds(endTime.getSeconds() + request.body.parameters.delay);
+            }
+            else {
+               endTime.setSeconds(endTime.getSeconds() + 1);
+            }
+            this.bindingCreatesInProgress[bindingId] = endTime;
+            response.status(202).json({});
+            return;
+        }
+
+        // Else return the data synchronously
         response.json(data);
     }
 
@@ -318,7 +334,7 @@ class ServiceBrokerInterface {
         response.json({});
     }
 
-    getLastOperation(request, response) {
+    getLastServiceInstanceOperation(request, response) {
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
@@ -328,7 +344,7 @@ class ServiceBrokerInterface {
 
         // We should know about the operation
         var serviceInstanceId = request.params.instance_id;
-        var finishTime = this.createsInProgress[serviceInstanceId] || this.updatesInProgress[serviceInstanceId] || null;
+        var finishTime = this.instanceProvisionsInProgress[serviceInstanceId] || this.instanceUpdatesInProgress[serviceInstanceId] || null;
         // But if we don't, presume that the operation finished and we have forgotten about it
         if (!finishTime) {
            var data = { state: 'succeeded' };
@@ -347,8 +363,45 @@ class ServiceBrokerInterface {
            data.description = 'The operation has finished!';
 
            // Since it has finished, we should forget about the operation
-           delete this.createsInProgress[serviceInstanceId];
-           delete this.updatesInProgress[serviceInstanceId];
+           delete this.instanceProvisionsInProgress[serviceInstanceId];
+           delete this.instanceUpdatesInProgress[serviceInstanceId];
+        }
+        this.saveRequest(request);
+        this.saveResponse(data);
+        response.json(data);
+    }
+
+    getLastServiceBindingOperation(request, response) {
+        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
+        request.checkParams('binding_id', 'Missing binding_id').notEmpty();
+        var errors = request.validationErrors();
+        if (errors) {
+            response.status(400).send(errors);
+            return;
+        }
+
+        // We should know about the operation
+        var serviceBindingId = request.params.binding_id;
+        var finishTime = this.bindingCreatesInProgress[serviceBindingId] || null;
+        // But if we don't, presume that the operation finished and we have forgotten about it
+        if (!finishTime) {
+           var data = { state: 'succeeded' };
+           response.json(data);
+           return;
+        }
+
+        // Check if the operation is still going
+        var data = {};
+        if (finishTime >= new Date()) {
+           data.state = 'in progress';
+           data.description = 'The operation is in progress...';
+        }
+        else {
+           data.state = 'succeeded';
+           data.description = 'The operation has finished!';
+
+           // Since it has finished, we should forget about the operation
+           delete this.bindingCreatesInProgress[serviceBindingId];
         }
         this.saveRequest(request);
         this.saveResponse(data);
