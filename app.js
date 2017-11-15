@@ -73,6 +73,12 @@ function start(callback) {
     app.get('/v2/service_instances/:instance_id/last_operation', function(request, response) {
         serviceBrokerInterface.getLastOperation(request, response);
     });
+    app.get('/v2/service_instances/:instance_id', function(request, response) {
+        serviceBrokerInterface.getServiceInstance(request, response);
+    });
+    app.get('/v2/service_instances/:instance_id/service_bindings/:binding_id', function(request, response) {
+        serviceBrokerInterface.getServiceBinding(request, response);
+    });
 
     var port = process.env.PORT || 3000;
     var server = app.listen(port, function() {

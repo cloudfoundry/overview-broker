@@ -786,6 +786,138 @@ describe('Service Broker Interface', function() {
 
     });
 
+    describe('fetching service instances', function() {
+
+        beforeEach(function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should succeed', function(done) {
+            request(server)
+                .get(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.have.property('dashboard_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail', function(done) {
+            request(server)
+                .get(`/v2/service_instances/${uuidv4()}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .expect(404)
+                .then(response => {
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+    });
+
+    describe('fetching service bindings', function() {
+
+        beforeEach(function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    accepts_incomplete: true,
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    request(server)
+                        .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: simplePlanId,
+                            app_guid: appGuid,
+                            bind_resource: {},
+                            parameters: {}
+                         })
+                        .expect(200)
+                        .then(response => {
+                            should.exist(response.body);
+                            done();
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                });
+        });
+
+        it('should succeed', function(done) {
+            request(server)
+                .get(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.type('object');
+                    response.body.should.have.property('credentials');
+                    response.body.credentials.should.have.property('username');
+                    response.body.credentials.should.have.property('password');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail', function(done) {
+            request(server)
+                .get(`/v2/service_instances/${instanceId}/service_bindings/${uuidv4()}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .expect(404)
+                .then(response => {
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+    });
+
     describe('clean', function() {
 
         it('should succeed', function(done) {

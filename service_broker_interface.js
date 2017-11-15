@@ -77,6 +77,16 @@ class ServiceBrokerInterface {
         // Create the service
         var serviceInstanceId = request.params.instance_id;
         this.logger.debug(`Creating service ${serviceInstanceId}`);
+
+        this.saveRequest(request);
+        this.saveResponse({});
+
+        // var dashboardUrl = this.serviceBroker.getDashboardUrl();
+        var metricsUrl = `${cfenv.getAppEnv().url}/v2/service_instances/${serviceInstanceId}/metrics`;
+        var data = {
+            dashboard_url: metricsUrl
+        };
+
         this.serviceInstances[serviceInstanceId] = {
             created: moment().toString(),
             api_version: request.header('X-Broker-Api-Version'),
@@ -87,20 +97,13 @@ class ServiceBrokerInterface {
             organization_guid: request.body.organization_guid,
             space_guid: request.body.space_guid,
             context: request.body.context,
-            bindings: {}
+            bindings: {},
+            data: data
         };
-
-        this.saveRequest(request);
-        this.saveResponse({});
-
-        var dashboardUrl = this.serviceBroker.getDashboardUrl();
-        var metricsUrl = `${cfenv.getAppEnv().url}/v2/service_instances/${serviceInstanceId}/metrics`;
 
         // If the plan is called 'async', then pretend to do an async create
         if (plan.name == 'async') {
-            response.status(202).json({
-                dashboard_url: dashboardUrl
-            });
+            response.status(202).json(data);
 
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
@@ -116,9 +119,7 @@ class ServiceBrokerInterface {
         }
 
         // Else return the data synchronously
-        response.json({
-            dashboard_url: metricsUrl //dashboardUrl
-        });
+        response.json(data);
     }
 
     updateServiceInstance(request, response) {
@@ -252,16 +253,10 @@ class ServiceBrokerInterface {
         var serviceInstanceId = request.params.instance_id;
         var bindingId = request.params.binding_id;
         this.logger.debug(`Creating service binding ${bindingId} for service ${serviceInstanceId}`);
-        this.serviceInstances[serviceInstanceId]['bindings'][bindingId] = {
-            api_version: request.header('X-Broker-Api-Version'),
-            service_id: request.body.service_id,
-            plan_id: request.body.plan_id,
-            app_guid: request.body.app_guid,
-            bind_resource: request.body.bind_resource,
-            parameters: request.body.parameters
-        };
+
         this.saveRequest(request);
         this.saveResponse({});
+
         var data = {};
         if (!service.requires || service.requires.length == 0) {
            data = {
@@ -284,6 +279,17 @@ class ServiceBrokerInterface {
               }
            };
         }
+
+        this.serviceInstances[serviceInstanceId].bindings[bindingId] = {
+            api_version: request.header('X-Broker-Api-Version'),
+            service_id: request.body.service_id,
+            plan_id: request.body.plan_id,
+            app_guid: request.body.app_guid,
+            bind_resource: request.body.bind_resource,
+            parameters: request.body.parameters,
+            data: data
+        };
+
         response.json(data);
     }
 
@@ -302,7 +308,7 @@ class ServiceBrokerInterface {
         var bindingId = request.params.binding_id;
         this.logger.debug(`Deleting service binding ${bindingId} for service ${serviceInstanceId}`);
         try {
-            delete this.serviceInstances[serviceInstanceId]['bindings'][bindingId];
+            delete this.serviceInstances[serviceInstanceId].bindings[bindingId];
         }
         catch (e) {
             // We must have lost this state
@@ -347,6 +353,45 @@ class ServiceBrokerInterface {
         this.saveRequest(request);
         this.saveResponse(data);
         response.json(data);
+    }
+
+    getServiceInstance(request, response) {
+        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
+        var errors = request.validationErrors();
+        if (errors) {
+            response.status(400).send(errors);
+            return;
+        }
+
+        let serviceInstanceId = request.params.instance_id;
+        if (!this.serviceInstances[serviceInstanceId]) {
+            response.status(404).send(`Could not find service instance ${serviceInstanceId}`);
+            return;
+        }
+
+        response.json(this.serviceInstances[serviceInstanceId].data);
+    }
+
+    getServiceBinding(request, response) {
+        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
+        request.checkParams('binding_id', 'Missing binding_id').notEmpty();
+        var errors = request.validationErrors();
+        if (errors) {
+            response.status(400).send(errors);
+            return;
+        }
+
+        let serviceInstanceId = request.params.instance_id;
+        let serviceBindingId = request.params.binding_id;
+        if (!this.serviceInstances[serviceInstanceId]) {
+            response.status(404).send(`Could not find service instance ${serviceInstanceId}`);
+            return;
+        }
+        if (!this.serviceInstances[serviceInstanceId].bindings[serviceBindingId]) {
+            response.status(404).send(`Could not find service binding ${serviceBindingId}`);
+            return;
+        }
+        response.json(this.serviceInstances[serviceInstanceId].bindings[serviceBindingId].data);
     }
 
     showDashboard(request, response) {
