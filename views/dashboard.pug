@@ -67,14 +67,12 @@ html
               div.col-12.col-sm-6.mb-2
                 div.card
                   div.card-header(class=`${serviceData.parameters.rainbow ? "rainbow" : "instance"}`)
-                    if serviceData.parameters.name
-                      h5 #{serviceData.parameters.name}
-                    else
-                      h5 #{serviceKey}
+                    h6 Service instance
                   div.card-body
-                    sub Created #{serviceData.created}
+                    sub ID: #{serviceKey}
+                    sub Created: #{serviceData.created}
                     if serviceData.last_update
-                      sub Last Update #{serviceData.last_update}
+                      sub Last Update: #{serviceData.last_update}
                     p
                       -
                         var serviceDataToDisplay = JSON.parse(JSON.stringify(serviceData))

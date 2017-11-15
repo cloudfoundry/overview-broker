@@ -1,4 +1,4 @@
-var should = require('should'),
+let should = require('should'),
     request = require('supertest'),
     uuidv4 = require('uuid/v4'),
     app = require('./../app');
