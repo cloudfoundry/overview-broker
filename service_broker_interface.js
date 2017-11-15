@@ -87,12 +87,14 @@ class ServiceBrokerInterface {
             organization_guid: request.body.organization_guid,
             space_guid: request.body.space_guid,
             context: request.body.context,
-            bindings: {},
+            bindings: {}
         };
 
         this.saveRequest(request);
         this.saveResponse({});
+
         var dashboardUrl = this.serviceBroker.getDashboardUrl();
+        var metricsUrl = `${cfenv.getAppEnv().url}/v2/service_instances/${serviceInstanceId}/metrics`;
 
         // If the plan is called 'async', then pretend to do an async create
         if (plan.name == 'async') {
@@ -115,7 +117,7 @@ class ServiceBrokerInterface {
 
         // Else return the data synchronously
         response.json({
-            dashboard_url: dashboardUrl
+            dashboard_url: metricsUrl //dashboardUrl
         });
     }
 
@@ -358,6 +360,23 @@ class ServiceBrokerInterface {
             catalog: this.serviceBroker.getCatalog()
         };
         response.render('dashboard', data);
+    }
+
+    getMetrics(request, response) {
+        var metrics = `
+# HELP health The service instance is healthy
+# TYPE health gauge\n
+health{service_instance="${request.params.instance_id}"} ${Math.round(Math.random() * 1)} ${new Date().getTime() }
+
+# HELP cpu The service instance CPU load
+# TYPE cpu gauge
+cpu{service_instance="${request.params.instance_id}"} ${Math.floor(Math.random() * 100)} ${new Date().getTime() }
+
+# HELP total_requests Total requests to the service instance
+# TYPE total_requests counter
+total_requests{service_instance="${request.params.instance_id}"} ${new Date().getSeconds()} ${new Date().getTime() }
+        `;
+        response.send(metrics);
     }
 
     clean(request, response) {

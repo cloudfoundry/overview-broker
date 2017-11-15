@@ -37,6 +37,11 @@ function start(callback) {
     });
     app.use('/images', express.static('images'));
 
+    /* Metrics (unauthenticated) */
+    app.get('/v2/service_instances/:instance_id/metrics', function(request, response) {
+        serviceBrokerInterface.getMetrics(request, response);
+    });
+
     /* Authenticated routes (uses Basic Auth) */
     var users = {};
     users[process.env.BROKER_USERNAME || 'admin'] = process.env.BROKER_PASSWORD || 'password';

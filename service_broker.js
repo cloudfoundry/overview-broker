@@ -44,7 +44,7 @@ class ServiceBroker {
                 }
             ]
         };
-        this.dashboardUrl = cfenv.getAppEnv().url + '/dashboard';
+        this.dashboardUrl = `${cfenv.getAppEnv().url}/dashboard`;
         logger.debug(`Broker created (name: ${this.catalog.services[0].name}, id: ${this.catalog.services[0].id})`);
     }
 
