@@ -107,10 +107,11 @@ class ServiceBrokerInterface {
         this.saveRequest(request);
         this.saveResponse({});
 
-        // var dashboardUrl = this.serviceBroker.getDashboardUrl();
-        var metricsUrl = `${cfenv.getAppEnv().url}/v2/service_instances/${serviceInstanceId}/metrics`;
+        let dashboardUrl = this.serviceBroker.getDashboardUrl();
+        let metricsUrl = `${cfenv.getAppEnv().url}/v2/service_instances/${serviceInstanceId}/metrics`;
         var data = {
-            dashboard_url: metricsUrl
+            dashboard_url: dashboardUrl,
+            metrics_url: metricsUrl
         };
 
         this.serviceInstances[serviceInstanceId] = {
