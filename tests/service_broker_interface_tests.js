@@ -63,7 +63,7 @@ describe('Service Broker Interface', function() {
                 .then(response => {
                     should.exist(response.body.services);
                     var services = response.body.services;
-                    services.should.have.length(3);
+                    services.should.have.length(1);
                     should.exist(services[0].name);
                     should.exist(services[0].description);
                     should.exist(services[0].id);
