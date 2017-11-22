@@ -19,33 +19,41 @@ class ServiceBroker {
                     plan_updateable: true,
                     plans: this.generatePlansForService(cfenv.getAppEnv().name),
                     metadata: { shareable: true }
-                },
-                {
-                    name: cfenv.getAppEnv().name + '-syslog-drain',
-                    description: 'Provides an example syslog drain service.',
-                    id: sha256(cfenv.getAppEnv().name + '-syslog-drain').substring(0, 32),
-                    tags: [ 'overview-broker' ],
-                    requires: [ 'syslog_drain' ],
-                    bindable: true,
-                    plan_updateable: true,
-                    plans: this.generatePlansForService(cfenv.getAppEnv().name + '-syslog-drain'),
-                    metadata: { shareable: true }
-                },
-                {
-                    name: cfenv.getAppEnv().name + '-volume-mount',
-                    description: 'Provides an example volume mount service.',
-                    id: sha256(cfenv.getAppEnv().name + '-volume-mount').substring(0, 32),
-                    tags: [ 'overview-broker' ],
-                    requires: [ 'volume_mount' ],
-                    bindable: true,
-                    plan_updateable: true,
-                    plans: this.generatePlansForService(cfenv.getAppEnv().name + '-volume-mount'),
-                    metadata: { shareable: true }
                 }
             ]
         };
+
+        // Expose a syslog drain service if requested
+        if (process.env.EXPOSE_SYSLOG_DRAIN_SERVICE) {
+            this.catalog.services.push({
+                name: cfenv.getAppEnv().name + '-syslog-drain',
+                description: 'Provides an example syslog drain service.',
+                id: sha256(cfenv.getAppEnv().name + '-syslog-drain').substring(0, 32),
+                tags: [ 'overview-broker' ],
+                requires: [ 'syslog_drain' ],
+                bindable: true,
+                plan_updateable: true,
+                plans: this.generatePlansForService(cfenv.getAppEnv().name + '-syslog-drain'),
+                metadata: { shareable: true }
+            });
+        }
+
+        // Expose a volume mount service if requested
+        if (process.env.EXPOSE_VOLUME_MOUNT_SERVICE) {
+            this.catalog.services.push({
+                name: cfenv.getAppEnv().name + '-volume-mount',
+                description: 'Provides an example volume mount service.',
+                id: sha256(cfenv.getAppEnv().name + '-volume-mount').substring(0, 32),
+                tags: [ 'overview-broker' ],
+                requires: [ 'volume_mount' ],
+                bindable: true,
+                plan_updateable: true,
+                plans: this.generatePlansForService(cfenv.getAppEnv().name + '-volume-mount'),
+                metadata: { shareable: true }
+            });
+        };
         this.dashboardUrl = `${cfenv.getAppEnv().url}/dashboard`;
-        logger.debug(`Broker created (name: ${this.catalog.services[0].name}, id: ${this.catalog.services[0].id})`);
+        logger.debug(`Service broker created: ${this.catalog.services[0].name} (${this.catalog.services.length} service${this.catalog.services.length == 1 ? '' : 's'} exposed)`);
     }
 
     getCatalog() {
@@ -170,7 +178,7 @@ class ServiceBroker {
         });
 
         // Load example schemas if requested and generate a plan for each
-        if (process.env.ENABLE_EXAMPLE_SCHEMAS === true) {
+        if (process.env.ENABLE_EXAMPLE_SCHEMAS) {
             var exampleSchemas = fs.readdirSync('example_schemas');
             for (var i = 0; i < exampleSchemas.length; i++) {
                 var name = exampleSchemas[i].split('.json')[0];

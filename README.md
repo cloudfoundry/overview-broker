@@ -33,6 +33,19 @@ npm start
 npm test
 ```
 
+### Configuration
+* To set the BasicAuth credentials, set the `BROKER_USERNAME` and
+  `BROKER_PASSWORD` environmental variables. Otherwise the defaults of `admin`
+  and `password` will be used.
+* To expose a syslog drain service, set the `EXPOSE_SYSLOG_DRAIN_SERVICE`
+  environmental variable to `true`.
+* To expose a volume mount service, set the `EXPOSE_VOLUME_MOUNT_SERVICE`
+  environmental variable to `true`.
+* To generate lots of plans with example configuration schemas, set the
+  `ENABLE_EXAMPLE_SCHEMAS` environmental variable to `true`.
+* To show fake data in the dashboard UI, set the `FAKE_DATA` environmental
+  variable to `true`.
+
 ---
 
 ### Platforms
@@ -43,7 +56,7 @@ npm test
 
 * First you will need to deploy the broker as an application:
     ```bash
-    cf push overview-broker --no-start
+    cf push overview-broker
     ```
 * You can also use an application manifest to deploy the broker as an
     application:
