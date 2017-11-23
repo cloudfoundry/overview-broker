@@ -504,6 +504,15 @@ total_requests{service_instance="${request.params.instance_id}"} ${new Date().ge
         response.send(metrics);
     }
 
+    listInstances(request, response) {
+        var data = {};
+        var serviceInstances = this.serviceInstances;
+        Object.keys(serviceInstances).forEach(function(key) {
+            data[key] = serviceInstances[key].data;
+        });
+        response.json(data);
+    }
+
     clean(request, response) {
         this.serviceInstances = {};
         this.lastRequest = {};

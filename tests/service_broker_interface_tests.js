@@ -1020,6 +1020,24 @@ describe('Service Broker Interface', function() {
                 });
         });
 
+        it('should list', function(done) {
+            request(server)
+                .get('/v2/service_instances')
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.have.property(instanceId);
+                    response.body[instanceId].should.have.property('dashboard_url');
+                    response.body[instanceId].should.have.property('metrics_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        })
+
     });
 
     describe('fetching service bindings', function() {

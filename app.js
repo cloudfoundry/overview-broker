@@ -42,6 +42,11 @@ function start(callback) {
         serviceBrokerInterface.getMetrics(request, response);
     });
 
+    /* Listing */
+    app.get('/v2/service_instances', function(request, response) {
+        serviceBrokerInterface.listInstances(request, response);
+    });
+
     /* Authenticated routes (uses Basic Auth) */
     var users = {};
     users[process.env.BROKER_USERNAME || 'admin'] = process.env.BROKER_PASSWORD || 'password';
