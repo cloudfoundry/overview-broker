@@ -78,6 +78,7 @@ class ServiceBrokerInterface {
         }
 
         // Validate serviceId and planId
+        var service = this.serviceBroker.getService(request.body.service_id);
         var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
         if (!plan) {
             response.status(400).send('Could not find service %s, plan %s', request.body.service_id, request.body.plan_id);
@@ -119,7 +120,9 @@ class ServiceBrokerInterface {
             last_updated: 'never',
             api_version: request.header('X-Broker-Api-Version'),
             service_id: request.body.service_id,
+            service_name: service.name,
             plan_id: request.body.plan_id,
+            plan_name: plan.name,
             parameters: request.body.parameters || {},
             accepts_incomplete: (request.query.accepts_incomplete == 'true'),
             organization_guid: request.body.organization_guid,
@@ -488,22 +491,37 @@ class ServiceBrokerInterface {
     }
 
     getMetrics(request, response) {
-        var metrics = `
+        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
+        var errors = request.validationErrors();
+        if (errors) {
+            response.status(400).send(errors);
+            return;
+        }
+
+        let serviceInstanceId = request.params.instance_id;
+        if (!this.serviceInstances[serviceInstanceId]) {
+            response.status(404).send(`Could not find service instance ${serviceInstanceId}`);
+            return;
+        }
+
+        let serviceInstance = this.serviceInstances[serviceInstanceId];
+
+        let metrics = `
 # HELP alive Counting service instances that are responding
 # TYPE alive gauge
-alive {service_instance="${request.params.instance_id}"} 1 ${new Date().getTime() }
+alive {service_instance="${request.params.instance_id}", service_name="${serviceInstance.service_name}", plan_name="${serviceInstance.plan_name}"} 1 ${new Date().getTime() }
 
 # HELP health The service instance is healthy
 # TYPE health gauge
-health{service_instance="${request.params.instance_id}"} ${Math.round(Math.random() * 1)} ${new Date().getTime() }
+health{service_instance="${request.params.instance_id}", service_name="${serviceInstance.service_name}", plan_name="${serviceInstance.plan_name}"} ${Math.round(Math.random() * 1)} ${new Date().getTime() }
 
 # HELP cpu The service instance CPU load
 # TYPE cpu gauge
-cpu{service_instance="${request.params.instance_id}"} ${Math.floor(Math.random() * 100)} ${new Date().getTime() }
+cpu{service_instance="${request.params.instance_id}", service_name="${serviceInstance.service_name}", plan_name="${serviceInstance.plan_name}"} ${Math.floor(Math.random() * 100)} ${new Date().getTime() }
 
 # HELP total_requests Total requests to the service instance
 # TYPE total_requests counter
-total_requests{service_instance="${request.params.instance_id}"} ${new Date().getSeconds()} ${new Date().getTime() }
+total_requests{service_instance="${request.params.instance_id}", service_name="${serviceInstance.service_name}", plan_name="${serviceInstance.plan_name}"} ${new Date().getSeconds()} ${new Date().getTime() }
         `;
         response.send(metrics);
     }
