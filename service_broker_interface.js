@@ -489,8 +489,12 @@ class ServiceBrokerInterface {
 
     getMetrics(request, response) {
         var metrics = `
+# HELP alive Counting service instances that are responding
+# TYPE alive gauge
+alive {service_instance="${request.params.instance_id}"} 1 ${new Date().getTime() }
+
 # HELP health The service instance is healthy
-# TYPE health gauge\n
+# TYPE health gauge
 health{service_instance="${request.params.instance_id}"} ${Math.round(Math.random() * 1)} ${new Date().getTime() }
 
 # HELP cpu The service instance CPU load
