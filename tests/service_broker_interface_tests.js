@@ -186,7 +186,7 @@ describe('Service Broker Interface', function() {
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);
-                    (response.body).should.be.empty();
+                    response.body.should.be.empty();
                     done();
                 })
                 .catch(error => {
@@ -261,7 +261,7 @@ describe('Service Broker Interface', function() {
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);
-                    (response.body).should.be.empty();
+                    response.body.should.be.empty();
                     done();
                 })
                 .catch(error => {
@@ -312,7 +312,7 @@ describe('Service Broker Interface', function() {
                             should.exist(response.body);
                             response.body.should.be.type('object');
                             response.body.should.have.property('state');
-                            (response.body.state).should.equal('in progress');
+                            response.body.state.should.equal('in progress');
 
                             // The operation should finish after one second
                             setTimeout(function() {
@@ -329,7 +329,7 @@ describe('Service Broker Interface', function() {
                                         should.exist(response.body);
                                         response.body.should.be.type('object');
                                         response.body.should.have.property('state');
-                                        (response.body.state).should.equal('succeeded');
+                                        response.body.state.should.equal('succeeded');
                                         done();
                                     });
                             }, 1000);
@@ -367,7 +367,7 @@ describe('Service Broker Interface', function() {
                                     should.exist(response.body);
                                     response.body.should.be.type('object');
                                     response.body.should.have.property('state');
-                                    (response.body.state).should.equal('in progress');
+                                    response.body.state.should.equal('in progress');
 
                                     // The operation should finish after one second
                                     setTimeout(function() {
@@ -384,7 +384,7 @@ describe('Service Broker Interface', function() {
                                                 should.exist(response.body);
                                                 response.body.should.be.type('object');
                                                 response.body.should.have.property('state');
-                                                (response.body.state).should.equal('succeeded');
+                                                response.body.state.should.equal('succeeded');
                                                 done();
                                             });
                                     }, 1000);
@@ -411,7 +411,7 @@ describe('Service Broker Interface', function() {
                         .expect(200)
                         .then(response => {
                             should.exist(response.body);
-                            (response.body).should.be.empty();
+                            response.body.should.be.empty();
                             done();
                         })
                         .catch(error => {
@@ -570,7 +570,7 @@ describe('Service Broker Interface', function() {
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);
-                    (response.body).should.be.empty();
+                    response.body.should.be.empty();
                     done();
                 })
                 .catch(error => {
@@ -659,7 +659,7 @@ describe('Service Broker Interface', function() {
                             should.exist(response.body);
                             response.body.should.be.type('object');
                             response.body.should.have.property('state');
-                            (response.body.state).should.equal('in progress');
+                            response.body.state.should.equal('in progress');
 
                             // The operation should finish after one second
                             setTimeout(function() {
@@ -676,7 +676,7 @@ describe('Service Broker Interface', function() {
                                         should.exist(response.body);
                                         response.body.should.be.type('object');
                                         response.body.should.have.property('state');
-                                        (response.body.state).should.equal('succeeded');
+                                        response.body.state.should.equal('succeeded');
                                         done();
                                     });
                             }, 1000);
@@ -816,7 +816,7 @@ describe('Service Broker Interface', function() {
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);
-                    (response.body).should.be.empty();
+                    response.body.should.be.empty();
                     done();
                 })
                 .catch(error => {
@@ -975,7 +975,7 @@ describe('Service Broker Interface', function() {
                 .send({
                     service_id: brokerServiceId,
                     plan_id: simplePlanId,
-                    parameters: {},
+                    parameters: { foo: 'bar' },
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
                     context: {}
@@ -999,6 +999,11 @@ describe('Service Broker Interface', function() {
                 .then(response => {
                     should.exist(response.body);
                     response.body.should.have.property('dashboard_url');
+                    response.body.should.have.property('service_id');
+                    response.body.should.have.property('plan_id');
+                    response.body.should.have.property('parameters');
+                    response.body.parameters.should.have.property('foo');
+                    response.body.parameters.foo.should.equal('bar');
                     done();
                 })
                 .catch(error => {
@@ -1019,24 +1024,6 @@ describe('Service Broker Interface', function() {
                     done(error);
                 });
         });
-
-        it('should list', function(done) {
-            request(server)
-                .get('/v2/service_instances')
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .expect(200)
-                .then(response => {
-                    should.exist(response.body);
-                    response.body.should.have.property(instanceId);
-                    response.body[instanceId].should.have.property('dashboard_url');
-                    response.body[instanceId].should.have.property('metrics_url');
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        })
 
     });
 
@@ -1105,6 +1092,51 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .expect(404)
                 .then(response => {
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+    });
+
+    describe('listing service instances', function() {
+
+        beforeEach(function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: { foo: 'bar' },
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should succeed', function(done) {
+            request(server)
+                .get('/v2/service_instances')
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.have.property(instanceId);
+                    response.body[instanceId].should.have.property('dashboard_url');
+                    response.body[instanceId].should.have.property('metrics_url');
                     done();
                 })
                 .catch(error => {

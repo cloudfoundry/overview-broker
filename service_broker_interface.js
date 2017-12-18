@@ -452,7 +452,11 @@ class ServiceBrokerInterface {
             return;
         }
 
-        response.json(this.serviceInstances[serviceInstanceId].data);
+        var data = Object.assign({}, this.serviceInstances[serviceInstanceId].data);
+        data.service_id = this.serviceInstances[serviceInstanceId].service_id;
+        data.plan_id = this.serviceInstances[serviceInstanceId].plan_id;
+        data.parameters = this.serviceInstances[serviceInstanceId].parameters;
+        response.json(data);
     }
 
     getServiceBinding(request, response) {
@@ -474,7 +478,10 @@ class ServiceBrokerInterface {
             response.status(404).send(`Could not find service binding ${serviceBindingId}`);
             return;
         }
-        response.json(this.serviceInstances[serviceInstanceId].bindings[serviceBindingId].data);
+
+        var data = Object.assign({}, this.serviceInstances[serviceInstanceId].bindings[serviceBindingId].data);
+        data.parameters = this.serviceInstances[serviceInstanceId].bindings[serviceBindingId].parameters;
+        response.json(data);
     }
 
     showDashboard(request, response) {
