@@ -137,7 +137,7 @@ class ServiceBrokerInterface {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
-            if (request.body.parameters.delay) {
+            if (request.body.parameters && request.body.parameters.delay) {
                endTime.setSeconds(endTime.getSeconds() + request.body.parameters.delay);
             }
             else {
@@ -200,7 +200,7 @@ class ServiceBrokerInterface {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
-            if (request.body.parameters.delay) {
+            if (request.body.parameters && request.body.parameters.delay) {
                endTime.setSeconds(endTime.getSeconds() + request.body.parameters.delay);
             }
             else {
@@ -324,7 +324,7 @@ class ServiceBrokerInterface {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
-            if (request.body.parameters.delay) {
+            if (request.body.parameters && request.body.parameters.delay) {
                endTime.setSeconds(endTime.getSeconds() + request.body.parameters.delay);
             }
             else {
