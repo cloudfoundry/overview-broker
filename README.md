@@ -144,17 +144,22 @@ the quickest way to do this is:
     brew install kubernetes-helm
     helm init
     ```
-* The service catalog then needs to be installed with:
+* The service catalog then needs to be installed and configured with:
     ```bash
-    git clone git@github.com:kubernetes-incubator/service-catalog.git ~/workspace/service-catalog
-    helm install ~/workspace/service-catalog/charts/catalog --name catalog --namespace catalog
-    SERVICE_CATALOG_SERVER=$(minikube service catalog-catalog-apiserver --url --namespace catalog | awk 'FNR==1')
-    kubectl config set-cluster service-catalog --server=$SERVICE_CATALOG_SERVER
-    kubectl config set-context service-catalog --cluster=service-catalog
+    helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
+    kubectl create clusterrolebinding tiller-cluster-admin \
+        --clusterrole=cluster-admin \
+        --serviceaccount=kube-system:default
+
+    # The helm install will fail if we run this immediately. Give tiller
+    # some time to get ready...
+    sleep 30
+    helm install svc-cat/catalog \
+        --name catalog --namespace catalog --set insecure=true
     ```
     If everything installed successfully, then you should see the following:
     ```bash
-    $ kubectl --context=service-catalog get brokers,serviceclasses,instances,bindings
+    $ kubectl get clusterservicebrokers
     No resources found.
     ```
 * Finally, you need to register a broker server with the catalog by creating
@@ -168,17 +173,15 @@ have deployed (use the IP address returned by
     ```
     Now create the resource with:
     ```bash
-    kubectl --context=service-catalog create -f overview-broker.yaml
+    kubectl create -f overview-broker.yaml
     ```
     Check the status of the broker with:
     ```bash
-    kubectl --context=service-catalog get brokers ups-broker -o yaml
+    kubectl get clusterservicebrokers overview-broker -o yaml
     ```
-    If all has gone well, you should see a message saying `"Suffessully fetched
-    catalog entries from broker"`.
     Your broker should also appear in the output from:
     ```bash
-    kubectl --context=service-catalog get serviceclasses
+    kubectl get clusterserviceclasses
     ```
 
 ##### 3. Creating a service instance
@@ -190,11 +193,11 @@ catalog, we can provision a new Instance resource.
 a new instance with:
     ```bash
     wget https://raw.githubusercontent.com/mattmcneeney/overview-broker/master/examples/kubernetes/overview-broker-instance.yaml
-    kubectl --context=service-catalog create -f overview-broker-instance.yaml
+    kubectl create -f overview-broker-instance.yaml
     ```
     Check everything has worked with:
     ```bash
-    kubectl --context=service-catalog get instances overview-broker-instance -o yaml
+    kubectl get serviceinstances overview-broker-instance -o yaml
     ```
     You should see a message saying `"The instance was provisioned successfully"`.
 * If you now head back to the dashboard (run `minikube service overview-broker`),

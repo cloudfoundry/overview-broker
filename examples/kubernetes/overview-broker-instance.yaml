@@ -1,7 +1,7 @@
-apiVersion: servicecatalog.k8s.io/v1alpha1
-kind: Instance
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
 metadata:
   name: overview-broker-instance
 spec:
-  serviceClassName: overview-broker
-  planName: simple
+  clusterServiceClassExternalName: overview-broker
+  clusterServicePlanExternalName: simple

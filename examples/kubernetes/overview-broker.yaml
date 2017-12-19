@@ -1,6 +1,7 @@
-apiVersion: servicecatalog.k8s.io/v1alpha1
-kind: Broker
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ClusterServiceBroker
 metadata:
   name: overview-broker
 spec:
-  url: <URL>
+  url: <url>
+
