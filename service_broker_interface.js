@@ -19,6 +19,7 @@ class ServiceBrokerInterface {
         this.instanceProvisionsInProgress = {};
         this.instanceUpdatesInProgress = {};
         this.bindingCreatesInProgress = {};
+        this.instanceDeprovisionsInProgress = {};
 
         if (process.env.FAKE_DATA) {
             this.showFakeData()
@@ -235,6 +236,23 @@ class ServiceBrokerInterface {
         var serviceInstanceId = request.params.instance_id;
         this.logger.debug(`Deleting service ${serviceInstanceId}`);
         delete this.serviceInstances[serviceInstanceId];
+
+        // If the plan is called 'async', then pretend to do an async delete
+        if (plan.name == 'async' && request.query.accepts_incomplete == 'true') {
+            // Set the end time for the operation to be one second from now
+            // unless an explicit delay was requested
+            var endTime = new Date();
+            if (request.body.parameters && request.body.parameters.delay) {
+               endTime.setSeconds(endTime.getSeconds() + request.body.parameters.delay);
+            }
+            else {
+               endTime.setSeconds(endTime.getSeconds() + 1);
+            }
+            this.instanceDeprovisionsInProgress[serviceInstanceId] = endTime;
+            response.status(202).json({});
+            return;
+        }
+
         this.saveRequest(request);
         this.saveResponse({});
         response.json({});
@@ -374,7 +392,7 @@ class ServiceBrokerInterface {
 
         // We should know about the operation
         var serviceInstanceId = request.params.instance_id;
-        var finishTime = this.instanceProvisionsInProgress[serviceInstanceId] || this.instanceUpdatesInProgress[serviceInstanceId] || null;
+        var finishTime = this.instanceProvisionsInProgress[serviceInstanceId] || this.instanceUpdatesInProgress[serviceInstanceId] || this.instanceDeprovisionsInProgress[serviceInstanceId] || null;
         // But if we don't, presume that the operation finished and we have forgotten about it
         if (!finishTime) {
            var data = { state: 'succeeded' };
@@ -395,6 +413,7 @@ class ServiceBrokerInterface {
            // Since it has finished, we should forget about the operation
            delete this.instanceProvisionsInProgress[serviceInstanceId];
            delete this.instanceUpdatesInProgress[serviceInstanceId];
+           delete this.instanceDeprovisionsInProgress[serviceInstanceId];
         }
         this.saveRequest(request);
         this.saveResponse(data);

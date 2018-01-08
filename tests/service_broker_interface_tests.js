@@ -85,7 +85,7 @@ describe('Service Broker Interface', function() {
 
     });
 
-    describe('service instances', function() {
+    describe('provisioning service instances', function() {
 
         it('should create service instance', function(done) {
             request(server)
@@ -173,117 +173,6 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should update service instance', function(done) {
-            request(server)
-                .patch(`/v2/service_instances/${instanceId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .send({
-                    service_id: brokerServiceId,
-                    plan_id: simplePlanId,
-                    parameters: {}
-                 })
-                .expect(200)
-                .then(response => {
-                    should.exist(response.body);
-                    response.body.should.be.empty();
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-        it('should fail to update service instance without required parameters', function(done) {
-            request(server)
-                .patch(`/v2/service_instances/${instanceId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .expect(400)
-                .then(response => {
-                    should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-        it('should fail to update service instance with invalid serviceId', function(done) {
-            request(server)
-                .patch(`/v2/service_instances/${instanceId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .send({
-                    service_id: uuidv4(),
-                    plan_id: simplePlanId,
-                    parameters: {}
-                 })
-                .expect(400)
-                .then(response => {
-                    should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-        it('should fail to update service instance with invalid planId', function(done) {
-            request(server)
-                .patch(`/v2/service_instances/${instanceId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .send({
-                    service_id: brokerServiceId,
-                    plan_id: uuidv4(),
-                    parameters: {}
-                 })
-                .expect(400)
-                .then(response => {
-                    should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-        it('should delete service instance', function(done) {
-            request(server)
-                .delete(`/v2/service_instances/${instanceId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .query({
-                    service_id: brokerServiceId,
-                    plan_id: simplePlanId
-                 })
-                .expect(200)
-                .then(response => {
-                    should.exist(response.body);
-                    response.body.should.be.empty();
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-        it('should fail to delete service instance without required parameters', function(done) {
-            request(server)
-                .delete(`/v2/service_instances/${instanceId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .expect(400)
-                .then(response => {
-                    should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
         it('should create asynchronously', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
@@ -341,87 +230,9 @@ describe('Service Broker Interface', function() {
                 .catch(error => {
                     done(error);
                 });
-
-                it('should update asynchronously', function(done) {
-                    request(server)
-                        .patch(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
-                        .auth(brokerUsername, brokerPassword)
-                        .set('X-Broker-Api-Version', apiVersion)
-                        .send({
-                            service_id: brokerServiceId,
-                            plan_id: simplePlanId,
-                            parameters: {}
-                         })
-                        .expect(202)
-                        .then(response => {
-                            request(server)
-                                .get(`/v2/service_instances/${instanceId}/last_operation`)
-                                .auth(brokerUsername, brokerPassword)
-                                .set('X-Broker-Api-Version', apiVersion)
-                                .send({
-                                    service_id: brokerServiceId,
-                                    plan_id: asyncPlanId
-                                 })
-                                .expect(200)
-                                .then(response => {
-                                    should.exist(response.body);
-                                    response.body.should.be.type('object');
-                                    response.body.should.have.property('state');
-                                    response.body.state.should.equal('in progress');
-
-                                    // The operation should finish after one second
-                                    setTimeout(function() {
-                                        request(server)
-                                            .get(`/v2/service_instances/${instanceId}/last_operation`)
-                                            .auth(brokerUsername, brokerPassword)
-                                            .set('X-Broker-Api-Version', apiVersion)
-                                            .send({
-                                               service_id: brokerServiceId,
-                                               plan_id: asyncPlanId
-                                            })
-                                            .expect(200)
-                                            .then(response => {
-                                                should.exist(response.body);
-                                                response.body.should.be.type('object');
-                                                response.body.should.have.property('state');
-                                                response.body.state.should.equal('succeeded');
-                                                done();
-                                            });
-                                    }, 1000);
-                                })
-                                .catch(error => {
-                                    done(error);
-                                });
-                        })
-                        .catch(error => {
-                            done(error);
-                        });
-                });
-
-                it('should not update asynchronously if accepts_incomplete=false', function(done) {
-                    request(server)
-                        .patch(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
-                        .auth(brokerUsername, brokerPassword)
-                        .set('X-Broker-Api-Version', apiVersion)
-                        .send({
-                            service_id: brokerServiceId,
-                            plan_id: simplePlanId,
-                            parameters: {}
-                         })
-                        .expect(200)
-                        .then(response => {
-                            should.exist(response.body);
-                            response.body.should.be.empty();
-                            done();
-                        })
-                        .catch(error => {
-                            done(error);
-                        });
-                });
-
         });
 
-        it('should not create instance asynchronously if accepts_incomplete=false', function(done) {
+        it('should be synchronous if accepts_incomplete=false', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
                 .auth(brokerUsername, brokerPassword)
@@ -439,6 +250,385 @@ describe('Service Broker Interface', function() {
                     should.exist(response.body);
                     response.body.should.be.type('object');
                     response.body.should.have.property('dashboard_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+    });
+
+    describe('updating service instances', function() {
+
+        beforeEach(function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.type('object');
+                    response.body.should.have.property('dashboard_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should succeed', function(done) {
+            request(server)
+                .patch(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.empty();
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail without required parameters', function(done) {
+            request(server)
+                .patch(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .expect(400)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail with invalid serviceId', function(done) {
+            request(server)
+                .patch(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: uuidv4(),
+                    plan_id: simplePlanId,
+                    parameters: {}
+                 })
+                .expect(400)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail with invalid planId', function(done) {
+            request(server)
+                .patch(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: uuidv4(),
+                    parameters: {}
+                 })
+                .expect(400)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+    });
+
+    describe('updating service instances asynchronously', function() {
+
+        beforeEach(function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: asyncPlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.type('object');
+                    response.body.should.have.property('dashboard_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should succeed if accepts_incomplete=true', function(done) {
+            request(server)
+                .patch(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: asyncPlanId,
+                    parameters: {}
+                 })
+                .expect(202)
+                .then(response => {
+                    request(server)
+                        .get(`/v2/service_instances/${instanceId}/last_operation`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: asyncPlanId
+                         })
+                        .expect(200)
+                        .then(response => {
+                            should.exist(response.body);
+                            response.body.should.be.type('object');
+                            response.body.should.have.property('state');
+                            response.body.state.should.equal('in progress');
+
+                            // The operation should finish after one second
+                            setTimeout(function() {
+                                request(server)
+                                    .get(`/v2/service_instances/${instanceId}/last_operation`)
+                                    .auth(brokerUsername, brokerPassword)
+                                    .set('X-Broker-Api-Version', apiVersion)
+                                    .send({
+                                       service_id: brokerServiceId,
+                                       plan_id: asyncPlanId
+                                    })
+                                    .expect(200)
+                                    .then(response => {
+                                        should.exist(response.body);
+                                        response.body.should.be.type('object');
+                                        response.body.should.have.property('state');
+                                        response.body.state.should.equal('succeeded');
+                                        done();
+                                    });
+                            }, 1000);
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should revert to synchronous if accepts_incomplete=false', function(done) {
+            request(server)
+                .patch(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.empty();
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+    });
+
+    describe('deprovisioning service instances', function() {
+
+        beforeEach(function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.type('object');
+                    response.body.should.have.property('dashboard_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should succeed', function(done) {
+            request(server)
+                .delete(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .query({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.empty();
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail without required parameters', function(done) {
+            request(server)
+                .delete(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .expect(400)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+    });
+
+    describe('deprovisioning service instances asynchronously', function() {
+
+        beforeEach(function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: asyncPlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.type('object');
+                    response.body.should.have.property('dashboard_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should succeed if accepts_incomplete=true', function(done) {
+            request(server)
+                .delete(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .query({
+                    service_id: brokerServiceId,
+                    plan_id: asyncPlanId
+                 })
+                .expect(202)
+                .then(response => {
+                    request(server)
+                        .get(`/v2/service_instances/${instanceId}/last_operation`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: asyncPlanId
+                         })
+                        .expect(200)
+                        .then(response => {
+                            should.exist(response.body);
+                            response.body.should.be.type('object');
+                            response.body.should.have.property('state');
+                            response.body.state.should.equal('in progress');
+
+                            // The operation should finish after one second
+                            setTimeout(function() {
+                                request(server)
+                                    .get(`/v2/service_instances/${instanceId}/last_operation`)
+                                    .auth(brokerUsername, brokerPassword)
+                                    .set('X-Broker-Api-Version', apiVersion)
+                                    .send({
+                                       service_id: brokerServiceId,
+                                       plan_id: asyncPlanId
+                                    })
+                                    .expect(200)
+                                    .then(response => {
+                                        should.exist(response.body);
+                                        response.body.should.be.type('object');
+                                        response.body.should.have.property('state');
+                                        response.body.state.should.equal('succeeded');
+                                        done();
+                                    });
+                            }, 1000);
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should revert to synchronous if accepts_incomplete=false', function(done) {
+            request(server)
+                .delete(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .query({
+                    service_id: brokerServiceId,
+                    plan_id: asyncPlanId
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.empty();
                     done();
                 })
                 .catch(error => {
