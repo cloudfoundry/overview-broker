@@ -22,18 +22,38 @@ function start(callback) {
     logger = new Logger();
     serviceBrokerInterface = new ServiceBrokerInterface();
 
+    /* Error mode - always return an HTTP 500 if enabled */
+    var errorMode = false;
+
+    /* Timeout mode - all requests should time out (never respond) */
+    var timeoutMode = false;
+
     /* Unauthenticated routes */
     app.get('/', function(request, response) {
         response.redirect(303, '/dashboard');
     });
     app.get('/dashboard', function(request, response) {
-        serviceBrokerInterface.showDashboard(request, response);
+        var data = serviceBrokerInterface.getDashboardData();
+        data.errorMode = errorMode;
+        data.timeoutMode = timeoutMode;
+        console.log(data);
+        response.render('dashboard', data);
     });
     app.post('/admin/clean', function(request, response) {
         serviceBrokerInterface.clean(request, response);
     });
     app.post('/admin/updateCatalog', function(request, response) {
         serviceBrokerInterface.updateCatalog(request, response);
+    });
+    app.post('/admin/errorMode', function(request, response) {
+        errorMode = request.body.mode == 'true' ? true : false;
+        console.log(`Error mode is now ${errorMode}`);
+        response.json({});
+    });
+    app.post('/admin/timeoutMode', function(request, response) {
+        timeoutMode = request.body.mode == 'true' ? true : false;
+        console.log(`Timeout mode is now ${errorMode}`);
+        response.json({});
     });
     app.use('/images', express.static('images'));
 
@@ -55,6 +75,15 @@ function start(callback) {
     }));
 
     app.all('*', function(request, response, next) {
+        console.log('error mode: ' + errorMode);
+        console.log('timeout mode: ' + timeoutMode);
+        if (errorMode) {
+            response.status(500).send('Error mode is enabled');
+            return;
+        }
+        if (timeoutMode) {
+            return;
+        }
         serviceBrokerInterface.checkRequest(request, response, next);
     });
     app.get('/v2/catalog', function(request, response) {

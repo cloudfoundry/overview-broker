@@ -50,6 +50,54 @@ function cleanData() {
    });
 }
 
+function setErrorMode(mode) {
+  jQuery.post('/admin/errorMode', { mode: mode }, function() {
+     swal({
+        title: 'Completed',
+        text: `Error mode has been ${ mode ? 'enabled' : 'disabled' }`,
+        type: 'success'
+     },
+     function() {
+        refreshPage();
+     });
+  }).fail(function() {
+     swal({
+        title: 'Oops...',
+        text: 'There was a problem setting the error mode. Please try again.',
+        type: 'error'
+     });
+  });
+}
+
+function setTimeoutMode(mode) {
+  jQuery.post('/admin/timeoutMode', { mode: mode }, function() {
+     swal({
+        title: 'Completed',
+        text: `Timeout mode has been ${ mode ? 'enabled' : 'disabled' }`,
+        type: 'success'
+     },
+     function() {
+        refreshPage();
+     });
+  }).fail(function() {
+     swal({
+        title: 'Oops...',
+        text: 'There was a problem setting the timeout mode. Please try again.',
+        type: 'error'
+     });
+  });
+}
+
+function editCatalog(catalog) {
+    swal({
+        title: 'Edit catalog',
+        text: catalog,
+        content: {
+            element: 'textarea'
+        }
+    });
+}
+
 function refreshPage() {
    location.reload();
 }

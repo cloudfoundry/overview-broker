@@ -503,17 +503,15 @@ class ServiceBrokerInterface {
         response.json(data);
     }
 
-    showDashboard(request, response) {
-        var data = {
+    getDashboardData() {
+        return {
             title: 'Overview Broker',
             status: 'running',
-            api_version: request.header('X-Broker-Api-Version'),
             serviceInstances: this.serviceInstances,
             lastRequest: this.lastRequest,
             lastResponse: this.lastResponse,
             catalog: this.serviceBroker.getCatalog()
         };
-        response.render('dashboard', data);
     }
 
     getMetrics(request, response) {
