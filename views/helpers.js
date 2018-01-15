@@ -1,125 +1,121 @@
 'use strict';
 
-function updateCatalog() {
-   jQuery.post('/admin/updateCatalog',
-      {
-         catalog: $('#catalog textarea').val()
-      },
-      function() {
-         swal({
-            title: 'Yay',
-            text: 'The catalog has been updated.',
-            type: 'success'
-         });
-      }
-   ).fail(function(error, data) {
-      console.log(error);
-      swal({
-         title: 'Oops...',
-         text: `There is a problem with the catalog. Please check it and try again.\n\n${error.responseText}`,
-         type: 'error'
-      });
-   });
-}
-
 function cleanData() {
-   swal({
-      title: 'Are you sure?',
-      text: 'You will not be able to recover the service instance data.',
-      type: 'warning',
-      showCancelButton: true,
-      closeOnConfirm: false
-   },
-   function() {
-      jQuery.post('/admin/clean', function() {
-         swal({
-            title: 'Completed',
-            text: 'Service instance data has been deleted.',
-            type: 'success'
-         },
-         function() {
-            refreshPage();
-         });
-      }).fail(function() {
-         swal({
-            title: 'Oops...',
-            text: 'There was a problem removing service instance data. Please try again.',
-            type: 'error'
-         });
-      });
-   });
+    swal({
+        title: 'Are you sure?',
+        text: 'You will not be able to recover the service instance data.',
+        icon: 'warning',
+        showCancelButton: true,
+        closeOnConfirm: false
+    },
+    function() {
+        jQuery.post('/admin/clean', function() {
+            swal({
+                title: 'Completed',
+                text: 'Service instance data has been deleted.',
+                icon: 'success'
+            },
+            function() {
+                refreshPage();
+            });
+        }).fail(function() {
+            swal({
+                title: 'Oops...',
+                text: 'There was a problem removing service instance data. Please try again.',
+                icon: 'error'
+            });
+        });
+    });
 }
 
 function setErrorMode(mode) {
-  jQuery.post('/admin/errorMode', { mode: mode }, function() {
-     swal({
-        title: 'Completed',
-        text: `Error mode has been ${ mode ? 'enabled' : 'disabled' }`,
-        type: 'success'
-     },
-     function() {
-        refreshPage();
-     });
-  }).fail(function() {
-     swal({
-        title: 'Oops...',
-        text: 'There was a problem setting the error mode. Please try again.',
-        type: 'error'
-     });
-  });
+    jQuery.post('/admin/errorMode', { mode: mode }, function() {
+        swal({
+            title: 'Completed',
+            text: `Error mode has been ${ mode ? 'enabled' : 'disabled' }`,
+            icon: 'success'
+        }).then(result => {
+            refreshPage();
+        });
+    }).fail(function() {
+        swal({
+            title: 'Oops...',
+            text: 'There was a problem setting the error mode. Please try again.',
+            icon: 'error'
+        });
+    });
 }
 
 function setTimeoutMode(mode) {
-  jQuery.post('/admin/timeoutMode', { mode: mode }, function() {
-     swal({
-        title: 'Completed',
-        text: `Timeout mode has been ${ mode ? 'enabled' : 'disabled' }`,
-        type: 'success'
-     },
-     function() {
-        refreshPage();
-     });
-  }).fail(function() {
-     swal({
-        title: 'Oops...',
-        text: 'There was a problem setting the timeout mode. Please try again.',
-        type: 'error'
-     });
-  });
+    jQuery.post('/admin/timeoutMode', { mode: mode }, function() {
+        swal({
+            title: 'Completed',
+            text: `Timeout mode has been ${ mode ? 'enabled' : 'disabled' }`,
+            icon: 'success'
+        }).then(result => {
+            refreshPage();
+        });
+    }).fail(function() {
+        swal({
+            title: 'Oops...',
+            text: 'There was a problem setting the timeout mode. Please try again.',
+            icon: 'error'
+        });
+    });
 }
 
-function editCatalog(catalog) {
+function editCatalog(catalogText) {
+    var prettyCatalog = JSON.stringify(JSON.parse(catalogText), null, 2);
     swal({
         title: 'Edit catalog',
-        text: catalog,
+        className: 'edit-catalog',
         content: {
-            element: 'textarea'
+            element: 'textarea',
+            attributes: {
+                value: prettyCatalog
+            }
+        },
+        buttons: {
+            cancel: {
+                text: 'Cancel',
+                visible: true
+            },
+            confirm: {
+                text: 'Update',
+                visible: true,
+                closeModal: false
+            }
         }
+    }).then((result) => {
+        if (!result) {
+            return;
+        }
+        let catalogData = $('.swal-modal.edit-catalog textarea').val();
+        jQuery.post('/admin/updateCatalog',
+        {
+            catalog: catalogData
+        },
+        function() {
+            swal({
+                title: 'Yay',
+                text: 'The catalog has been updated.',
+                icon: 'success'
+            }).then(result => {
+                refreshPage();
+            });
+        }
+    ).fail(function(error, data) {
+        swal({
+            title: 'Update failed',
+            text: error.responseText,
+            icon: 'error'
+        }).then(result => {
+            refreshPage();
+        });
     });
+});
 }
 
 function refreshPage() {
-   location.reload();
-}
-
-function syntaxHighlight(json) {
-    if (typeof json != 'string') {
-        json = JSON.stringify(json, undefined, 2);
-    }
-    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-        var cls = 'number';
-        if (/^"/.test(match)) {
-            if (/:$/.test(match)) {
-                cls = 'key';
-            } else {
-                cls = 'string';
-            }
-        } else if (/true|false/.test(match)) {
-            cls = 'boolean';
-        } else if (/null/.test(match)) {
-            cls = 'null';
-        }
-        return '<span class="' + cls + '">' + match + '</span>';
-    });
+    location.reload();
 }

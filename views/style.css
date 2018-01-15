@@ -33,6 +33,21 @@ pre .boolean { color: #905; }
 pre .null { color: #e90; }
 pre .key { color: #07a; }
 
+.swal-modal.edit-catalog {
+    height: 90%;
+    width: 90%;
+}
+
+.swal-modal.edit-catalog .swal-content__textarea {
+    height: 70%;
+    background: #333;
+    color: #fff;
+    font: 14px 'Courier New';
+    line-height: 1.6em;
+    padding: 15px;
+    border: none;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }

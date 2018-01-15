@@ -53,14 +53,8 @@ html
                 label.form-check-label
                   input.form-check-input(type='checkbox', value='', checked=timeoutMode, onclick='setTimeoutMode(this.checked)')
                   p Timeout all requests
-      div.row.mb-2
-        div.col-12
-          div.card
-            h6.card-header
-              a.text-primary(data-toggle='collapse', href='#catalog') Edit catalog
-            div#catalog.card-body.collapse(style={'padding': '0px'})
-              textarea(style={'background': '#333', 'color': '#fff', 'font': '14px "Courier New";', 'line-height': '1.6em', 'padding': '15px', 'border': 'none', 'height': '60%', 'width': '100%' }) #{JSON.stringify(catalog, null, 2)}
-              button.btn.btn-default(style={'width': '100%', 'border-radius': '0px', 'color': 'white', 'background-color': '#f19600'}, onclick='updateCatalog()') Update
+              div.form-group
+                button.btn.btn-primary(onclick="editCatalog(\'" + JSON.stringify(catalog) + "\')") Edit the catalog
       div.row.mb-2
         div.col-12.col-sm-6
           div.card

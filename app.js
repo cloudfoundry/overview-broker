@@ -36,7 +36,6 @@ function start(callback) {
         var data = serviceBrokerInterface.getDashboardData();
         data.errorMode = errorMode;
         data.timeoutMode = timeoutMode;
-        console.log(data);
         response.render('dashboard', data);
     });
     app.post('/admin/clean', function(request, response) {
