@@ -39,7 +39,7 @@ pre .key { color: #07a; }
 }
 
 .swal-modal.edit-catalog .swal-content__textarea {
-    height: 70%;
+    height: 80%;
     background: #333;
     color: #fff;
     font: 14px 'Courier New';

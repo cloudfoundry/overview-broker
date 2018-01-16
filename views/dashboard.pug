@@ -54,7 +54,7 @@ html
                   input.form-check-input(type='checkbox', value='', checked=timeoutMode, onclick='setTimeoutMode(this.checked)')
                   p Timeout all requests
               div.form-group
-                button.btn.btn-primary(onclick="editCatalog(\'" + JSON.stringify(catalog) + "\')") Edit the catalog
+                button.btn.btn-primary(onclick="editCatalog(\'" + JSON.stringify(catalog) + "\', true)") Edit the catalog
       div.row.mb-2
         div.col-12.col-sm-6
           div.card

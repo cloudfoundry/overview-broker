@@ -34,8 +34,6 @@ function setErrorMode(mode) {
             title: 'Completed',
             text: `Error mode has been ${ mode ? 'enabled' : 'disabled' }`,
             icon: 'success'
-        }).then(result => {
-            refreshPage();
         });
     }).fail(function() {
         swal({
@@ -52,8 +50,6 @@ function setTimeoutMode(mode) {
             title: 'Completed',
             text: `Timeout mode has been ${ mode ? 'enabled' : 'disabled' }`,
             icon: 'success'
-        }).then(result => {
-            refreshPage();
         });
     }).fail(function() {
         swal({
@@ -64,8 +60,8 @@ function setTimeoutMode(mode) {
     });
 }
 
-function editCatalog(catalogText) {
-    var prettyCatalog = JSON.stringify(JSON.parse(catalogText), null, 2);
+function editCatalog(catalogText, prettify) {
+    var prettyCatalog = prettify ? JSON.stringify(JSON.parse(catalogText), null, 2) : catalogText;
     swal({
         title: 'Edit catalog',
         className: 'edit-catalog',
@@ -100,17 +96,18 @@ function editCatalog(catalogText) {
                 title: 'Yay',
                 text: 'The catalog has been updated.',
                 icon: 'success'
-            }).then(result => {
+            }).then(function() {
                 refreshPage();
             });
         }
     ).fail(function(error, data) {
+        let catalogData = $('.swal-modal.edit-catalog textarea').val();
         swal({
             title: 'Update failed',
             text: error.responseText,
             icon: 'error'
         }).then(result => {
-            refreshPage();
+            editCatalog(catalogData, false);
         });
     });
 });
