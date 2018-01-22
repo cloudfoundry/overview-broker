@@ -28,33 +28,40 @@ function cleanData() {
     });
 }
 
-function setErrorMode(mode) {
-    jQuery.post('/admin/errorMode', { mode: mode }, function() {
+function errorModeChanged(el) {
+    var errorMode = null;
+    switch(el.value) {
+        case 'Disabled':
+            errorMode = '';
+            break;
+        case 'Respond to all requests with an HTTP 500':
+            errorMode = 'servererror';
+            break;
+        case 'Respond to all requests with an HTTP 404':
+            errorMode = 'notfound';
+            break;
+        case 'Do not respond to any request (timeout)':
+            errorMode = 'timeout';
+            break;
+        case 'Respond with invalid JSON to any request':
+            errorMode = 'invalidjson';
+            break;
+        default:
+            console.error(`Unknown error mode detected: ${el.value}`);
+            return;
+    }
+    jQuery.post('/admin/setErrorMode', { mode: errorMode }, function() {
         swal({
             title: 'Completed',
-            text: `Error mode has been ${ mode ? 'enabled' : 'disabled' }`,
-            icon: 'success'
+            text: `The error mode has been updated`,
+            icon: 'success',
+            buttons: false,
+            timer: 1000
         });
     }).fail(function() {
         swal({
             title: 'Oops...',
             text: 'There was a problem setting the error mode. Please try again.',
-            icon: 'error'
-        });
-    });
-}
-
-function setTimeoutMode(mode) {
-    jQuery.post('/admin/timeoutMode', { mode: mode }, function() {
-        swal({
-            title: 'Completed',
-            text: `Timeout mode has been ${ mode ? 'enabled' : 'disabled' }`,
-            icon: 'success'
-        });
-    }).fail(function() {
-        swal({
-            title: 'Oops...',
-            text: 'There was a problem setting the timeout mode. Please try again.',
             icon: 'error'
         });
     });

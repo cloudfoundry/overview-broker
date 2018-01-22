@@ -45,14 +45,14 @@ html
             h6.card-header
               a.text-primary(data-toggle='collapse', href='#settings') Settings
             div#settings.card-body.collapse
-              div.form-check
-                label.form-check-label
-                  input.form-check-input(type='checkbox', value='', checked=errorMode, onclick='setErrorMode(this.checked)')
-                  p Respond HTTP 500 to all requests
-              div.form-check
-                label.form-check-label
-                  input.form-check-input(type='checkbox', value='', checked=timeoutMode, onclick='setTimeoutMode(this.checked)')
-                  p Timeout all requests
+              div.form-group
+                label(for='errorModeSelect') Error mode:
+                select.form-control(id='errorModeSelect', onchange='errorModeChanged(this)')
+                  option(selected=(errorMode == '')) Disabled
+                  option(selected=(errorMode == 'servererror')) Respond to all requests with an HTTP 500
+                  option(selected=(errorMode == 'notfound')) Respond to all requests with an HTTP 404
+                  option(selected=(errorMode == 'timeout')) Do not respond to any request (timeout)
+                  option(selected=(errorMode == 'invalidjson')) Respond with invalid JSON to any request
               div.form-group
                 button.btn.btn-primary(onclick="editCatalog(\'" + JSON.stringify(catalog) + "\', true)") Edit the catalog
       div.row.mb-2

@@ -22,11 +22,15 @@ function start(callback) {
     logger = new Logger();
     serviceBrokerInterface = new ServiceBrokerInterface();
 
-    /* Error mode - always return an HTTP 500 if enabled */
-    var errorMode = false;
-
-    /* Timeout mode - all requests should time out (never respond) */
-    var timeoutMode = false;
+    /* Error modes */
+    var errorMode = ''; // Disabled by default
+    const supportedErrorModes = [
+        '', // Disabled
+        'timeout', // Do not respond to any request
+        'servererror', // Return HTTP 500 to every request
+        'notfound', // Return HTTP 404 to every request
+        'invalidjson' // Return invalid JSON to every request
+    ];
 
     /* Unauthenticated routes */
     app.get('/', function(request, response) {
@@ -35,7 +39,6 @@ function start(callback) {
     app.get('/dashboard', function(request, response) {
         var data = serviceBrokerInterface.getDashboardData();
         data.errorMode = errorMode;
-        data.timeoutMode = timeoutMode;
         response.render('dashboard', data);
     });
     app.post('/admin/clean', function(request, response) {
@@ -44,14 +47,13 @@ function start(callback) {
     app.post('/admin/updateCatalog', function(request, response) {
         serviceBrokerInterface.updateCatalog(request, response);
     });
-    app.post('/admin/errorMode', function(request, response) {
-        errorMode = request.body.mode == 'true' ? true : false;
-        console.log(`Error mode is now ${errorMode}`);
-        response.json({});
-    });
-    app.post('/admin/timeoutMode', function(request, response) {
-        timeoutMode = request.body.mode == 'true' ? true : false;
-        console.log(`Timeout mode is now ${errorMode}`);
+    app.post('/admin/setErrorMode', function(request, response) {
+        if (!supportedErrorModes.includes(request.body.mode)) {
+            response.status(400).send('Invalid error mode');
+            return;
+        }
+        errorMode = request.body.mode;
+        console.log(`Error mode is now ${errorMode || 'disabled'}`);
         response.json({});
     });
     app.use('/images', express.static('images'));
@@ -59,11 +61,6 @@ function start(callback) {
     /* Metrics (unauthenticated) */
     app.get('/v2/service_instances/:instance_id/metrics', function(request, response) {
         serviceBrokerInterface.getMetrics(request, response);
-    });
-
-    /* Listing */
-    app.get('/v2/service_instances', function(request, response) {
-        serviceBrokerInterface.listInstances(request, response);
     });
 
     /* Authenticated routes (uses Basic Auth) */
@@ -74,14 +71,21 @@ function start(callback) {
     }));
 
     app.all('*', function(request, response, next) {
-        console.log('error mode: ' + errorMode);
-        console.log('timeout mode: ' + timeoutMode);
-        if (errorMode) {
-            response.status(500).send('Error mode is enabled');
-            return;
-        }
-        if (timeoutMode) {
-            return;
+        switch (errorMode) {
+            case 'timeout':
+                console.log('timing out');
+                return;
+            case 'servererror':
+                response.status(500).send();
+                return;
+            case 'notfound':
+                response.status(404).send();
+                return;
+            case 'invalidjson':
+                response.send('{ "this is not valid json" }');
+                return;
+            default:
+                break;
         }
         serviceBrokerInterface.checkRequest(request, response, next);
     });
@@ -114,6 +118,11 @@ function start(callback) {
     });
     app.get('/v2/service_instances/:instance_id/service_bindings/:binding_id', function(request, response) {
         serviceBrokerInterface.getServiceBinding(request, response);
+    });
+
+    /* Listing */
+    app.get('/v2/service_instances', function(request, response) {
+        serviceBrokerInterface.listInstances(request, response);
     });
 
     var port = process.env.PORT || 3000;
