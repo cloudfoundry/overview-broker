@@ -76,7 +76,10 @@ html
               div.col-12.col-sm-6.mb-2
                 div.card.instance
                   div.card-header(class=`${serviceData.parameters.rainbow ? "rainbow" : ""}`)
-                    h6 Service instance
+                    if serviceData.parameters.name != null
+                      h6 !{serviceData.parameters.name}
+                    else
+                      h6 Service Instance
                   div.card-body
                     p.text-muted ID: #{serviceKey}
                     p.text-muted Created: #{serviceData.created}
