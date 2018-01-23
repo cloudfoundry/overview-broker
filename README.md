@@ -8,9 +8,13 @@ specification that hosts a dashboard showing information on service instances
 and bindings created by any platform the broker is registered with.
 
 Fun features this broker provides include:
-* Configuration parameter schemas for provision, update and create binding
-* Supports asynchronous provisioing, updating and creation of service bindings
-* Supports fetching service instances and bindings
+* A range of configuration parameter schemas for provision service instance,
+  update service instance and create service binding
+* Ability to enable different error modes to test platform integrations
+* Edit the broker catalog without redeploys to speed up testing
+* Asynchronous service instance provisions and updates
+* Asynchronous service binding creates and deletes
+* Fetching service instances and bindings
 
 > The [Open Service Broker API](https://www.openservicebrokerapi.org/) project
 allows developers, ISVs, and SaaS vendors a single, simple, and elegant way to
@@ -41,8 +45,8 @@ npm test
   environmental variable to `true`.
 * To expose a volume mount service, set the `EXPOSE_VOLUME_MOUNT_SERVICE`
   environmental variable to `true`.
-* To generate lots of plans with example configuration schemas, set the
-  `ENABLE_EXAMPLE_SCHEMAS` environmental variable to `true`.
+* To generate many plans with a range of configuration parameter schemas, set
+  the `ENABLE_EXAMPLE_SCHEMAS` environmental variable to `true`.
 * To show fake data in the dashboard UI, set the `FAKE_DATA` environmental
   variable to `true`.
 
@@ -71,6 +75,8 @@ npm test
     ```bash
     cf create-service-broker --space-scoped overview-broker admin password <url-of-deployed-broker>
     ```
+    The basic auth credentials "admin" and "password" can be specified if needed
+    (see [Configuration](#configuration)).
 * The overview broker dashboard should now be accessible at
 `https://<url-of-deployed-broker>/dashboard`.
 
@@ -86,12 +92,8 @@ npm test
     ```bash
     cf create-service overview-broker simple my-broker -c '{ "name": "My Broker" }'
     ```
-    Or, if you like all the colours of the rainbow...
-    ```bash
-    cf create-service overview-broker simple my-broker -c '{ "rainbow": true }'
-    ```
 * If you now head back to the dashboard, you should see your new service
-instance information!
+instance information.
 
 #### Kubernetes
 

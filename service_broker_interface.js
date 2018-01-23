@@ -28,15 +28,17 @@ class ServiceBrokerInterface {
 
     showFakeData() {
         this.serviceInstances['b1daaff9-1430-4b20-9846-cb2ae0987861'] = {
+            name: 'Cloud Foundry Service Instance',
             created: moment().toString(),
             last_updated: 'never',
             service_id: '1',
             plan_id: '1',
             api_version: '2.13',
-            parameters: {},
+            parameters: { rainbow: true },
             context: { platform: 'cloudfoundry', space_guid: '15b5c1e9-5e2d-4afe-946a-4fbea279ccf8' }
         };
         this.serviceInstances['8aaf022d-ec8d-40aa-a22e-fa7f6c2b20f5'] = {
+            name: 'Kubernetes Service Instance',
             created: moment().toString(),
             last_updated: 'never',
             service_id: '1',
