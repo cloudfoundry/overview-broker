@@ -5,17 +5,27 @@ function cleanData() {
         title: 'Are you sure?',
         text: 'You will not be able to recover the service instance data.',
         icon: 'warning',
-        showCancelButton: true,
-        closeOnConfirm: false
-    },
-    function() {
+        buttons: {
+            cancel: {
+                text: 'Cancel',
+                visible: true
+            },
+            confirm: {
+                text: 'Delete',
+                visible: true,
+                closeModal: false
+            }
+        }
+    }).then(function(result) {
+        if (!result) {
+            return;
+        }
         jQuery.post('/admin/clean', function() {
             swal({
                 title: 'Completed',
                 text: 'Service instance data has been deleted.',
                 icon: 'success'
-            },
-            function() {
+            }).then(function() {
                 refreshPage();
             });
         }).fail(function() {
