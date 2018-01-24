@@ -17,13 +17,14 @@
     "express": "latest",
     "express-basic-auth": "latest",
     "express-validator": "latest",
-    "uuid": "latest",
     "jsonschema": "latest",
     "moment": "latest",
     "morgan": "latest",
     "pug": "latest",
+    "randomstring": "^1.1.5",
     "request": "latest",
-    "sha256": "latest"
+    "sha256": "latest",
+    "uuid": "latest"
   },
   "devDependencies": {
     "mocha": "latest",

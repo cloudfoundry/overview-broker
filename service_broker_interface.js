@@ -1,6 +1,7 @@
 var express = require('express'),
     moment = require('moment'),
     cfenv = require('cfenv'),
+    randomstring = require('randomstring'),
     Logger = require('./logger'),
     ServiceBroker = require('./service_broker');
 
@@ -14,7 +15,7 @@ class ServiceBrokerInterface {
         this.lastResponse = {};
         this.bindingCredentials = {
             username: 'admin',
-            password: 'password'
+            password: randomstring.generate(16)
         };
         this.instanceProvisionsInProgress = {};
         this.instanceUpdatesInProgress = {};
