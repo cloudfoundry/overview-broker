@@ -481,6 +481,9 @@ class ServiceBrokerInterface {
         data.service_id = this.serviceInstances[serviceInstanceId].service_id;
         data.plan_id = this.serviceInstances[serviceInstanceId].plan_id;
         data.parameters = this.serviceInstances[serviceInstanceId].parameters;
+
+        this.saveRequest(request);
+        this.saveResponse(data);
         response.json(data);
     }
 
@@ -506,6 +509,9 @@ class ServiceBrokerInterface {
 
         var data = Object.assign({}, this.serviceInstances[serviceInstanceId].bindings[serviceBindingId].data);
         data.parameters = this.serviceInstances[serviceInstanceId].bindings[serviceBindingId].parameters;
+
+        this.saveRequest(request);
+        this.saveResponse(data);
         response.json(data);
     }
 
