@@ -17,10 +17,10 @@ class ServiceBroker {
                     tags: [ 'overview-broker' ],
                     bindable: true,
                     plan_updateable: true,
-                    plans: this.generatePlansForService(cfenv.getAppEnv().name),
-                    metadata: { shareable: true },
                     bindings_retrievable: true,
                     instances_retrievable: true,
+                    metadata: { shareable: true },
+                    plans: this.generatePlansForService(cfenv.getAppEnv().name),
                 }
             ]
         };
