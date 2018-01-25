@@ -18,7 +18,9 @@ class ServiceBroker {
                     bindable: true,
                     plan_updateable: true,
                     plans: this.generatePlansForService(cfenv.getAppEnv().name),
-                    metadata: { shareable: true }
+                    metadata: { shareable: true },
+                    bindings_retrievable: true,
+                    instances_retrievable: true,
                 }
             ]
         };
