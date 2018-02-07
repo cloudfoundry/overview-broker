@@ -49,6 +49,8 @@ npm test
   the `ENABLE_EXAMPLE_SCHEMAS` environmental variable to `true`.
 * To show fake data in the dashboard UI, set the `FAKE_DATA` environmental
   variable to `true`.
+* To force all operations to be performed synchronously, set the
+  `DISABLE_ASYNCHRONOUS_OPERATIONS` environmental variable to `true`.
 
 ---
 

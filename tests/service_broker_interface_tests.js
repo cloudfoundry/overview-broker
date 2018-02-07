@@ -16,7 +16,6 @@ describe('Service Broker Interface', function() {
     var brokerServiceId = null;
     var simplePlanId = null;
     var complexPlanId = null;
-    var asyncPlanId = null;
 
     var brokerUsername = null;
     var brokerPassword = null;
@@ -35,9 +34,6 @@ describe('Service Broker Interface', function() {
                         break;
                     case 'complex':
                         complexPlanId = plan.id;
-                        break;
-                    case 'async':
-                        asyncPlanId = plan.id;
                         break;
                     default:
                         break;
@@ -180,7 +176,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: asyncPlanId,
+                    plan_id: simplePlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -194,7 +190,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: asyncPlanId
+                            plan_id: simplePlanId
                          })
                         .expect(200)
                         .then(response => {
@@ -211,7 +207,7 @@ describe('Service Broker Interface', function() {
                                     .set('X-Broker-Api-Version', apiVersion)
                                     .send({
                                        service_id: brokerServiceId,
-                                       plan_id: asyncPlanId
+                                       plan_id: simplePlanId
                                     })
                                     .expect(200)
                                     .then(response => {
@@ -239,7 +235,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: asyncPlanId,
+                    plan_id: simplePlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -373,7 +369,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: asyncPlanId,
+                    plan_id: simplePlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -398,7 +394,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: asyncPlanId,
+                    plan_id: simplePlanId,
                     parameters: {}
                  })
                 .expect(202)
@@ -409,7 +405,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: asyncPlanId
+                            plan_id: simplePlanId
                          })
                         .expect(200)
                         .then(response => {
@@ -426,7 +422,7 @@ describe('Service Broker Interface', function() {
                                     .set('X-Broker-Api-Version', apiVersion)
                                     .send({
                                        service_id: brokerServiceId,
-                                       plan_id: asyncPlanId
+                                       plan_id: simplePlanId
                                     })
                                     .expect(200)
                                     .then(response => {
@@ -543,7 +539,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: asyncPlanId,
+                    plan_id: simplePlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -568,7 +564,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
-                    plan_id: asyncPlanId
+                    plan_id: simplePlanId
                  })
                 .expect(202)
                 .then(response => {
@@ -578,7 +574,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: asyncPlanId
+                            plan_id: simplePlanId
                          })
                         .expect(200)
                         .then(response => {
@@ -595,7 +591,7 @@ describe('Service Broker Interface', function() {
                                     .set('X-Broker-Api-Version', apiVersion)
                                     .send({
                                        service_id: brokerServiceId,
-                                       plan_id: asyncPlanId
+                                       plan_id: simplePlanId
                                     })
                                     .expect(200)
                                     .then(response => {
@@ -623,7 +619,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
-                    plan_id: asyncPlanId
+                    plan_id: simplePlanId
                  })
                 .expect(200)
                 .then(response => {
@@ -828,7 +824,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: asyncPlanId,
+                    plan_id: simplePlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -842,7 +838,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: asyncPlanId
+                            plan_id: simplePlanId
                          })
                         .expect(200)
                         .then(response => {
@@ -859,7 +855,7 @@ describe('Service Broker Interface', function() {
                                     .set('X-Broker-Api-Version', apiVersion)
                                     .send({
                                        service_id: brokerServiceId,
-                                       plan_id: asyncPlanId
+                                       plan_id: simplePlanId
                                     })
                                     .expect(200)
                                     .then(response => {
@@ -899,6 +895,125 @@ describe('Service Broker Interface', function() {
                     response.body.should.have.property('credentials');
                     response.body.credentials.should.have.property('username');
                     response.body.credentials.should.have.property('password');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+    });
+
+    describe('delete service bindings asynchronously', function() {
+
+        beforeEach(function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    request(server)
+                        .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: simplePlanId,
+                            app_guid: appGuid,
+                            bind_resource: {},
+                            parameters: {}
+                         })
+                        .expect(200)
+                        .then(response => {
+                            done();
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should succeed if accepts_incomplete=true', function(done) {
+            request(server)
+                .delete(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}?accepts_incomplete=true`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .query({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId
+                 })
+                .expect(202)
+                .then(response => {
+                    request(server)
+                        .get(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}/last_operation`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: simplePlanId
+                         })
+                        .expect(200)
+                        .then(response => {
+                            should.exist(response.body);
+                            response.body.should.be.type('object');
+                            response.body.should.have.property('state');
+                            response.body.state.should.equal('in progress');
+
+                            // The operation should finish after one second
+                            setTimeout(function() {
+                                request(server)
+                                    .get(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}/last_operation`)
+                                    .auth(brokerUsername, brokerPassword)
+                                    .set('X-Broker-Api-Version', apiVersion)
+                                    .send({
+                                       service_id: brokerServiceId,
+                                       plan_id: simplePlanId
+                                    })
+                                    .expect(200)
+                                    .then(response => {
+                                        should.exist(response.body);
+                                        response.body.should.be.type('object');
+                                        response.body.should.have.property('state');
+                                        response.body.state.should.equal('succeeded');
+                                        done();
+                                    });
+                            }, 1000);
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should revert to synchronous if accepts_incomplete=false', function(done) {
+            request(server)
+                .delete(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}?accepts_incomplete=false`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .query({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.empty();
                     done();
                 })
                 .catch(error => {
