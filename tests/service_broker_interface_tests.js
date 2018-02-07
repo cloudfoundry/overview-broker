@@ -83,7 +83,7 @@ describe('Service Broker Interface', function() {
 
     describe('provisioning service instances', function() {
 
-        it('should create service instance', function(done) {
+        it('should succeed', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}`)
                 .auth(brokerUsername, brokerPassword)
@@ -108,7 +108,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should fail to create service instance without required parameters', function(done) {
+        it('should fail without required parameters', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}`)
                 .auth(brokerUsername, brokerPassword)
@@ -123,7 +123,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should fail to create service instance without invalid serviceId', function(done) {
+        it('should fail without invalid serviceId', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}`)
                 .auth(brokerUsername, brokerPassword)
@@ -146,7 +146,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should fail to create service instance without invalid planId', function(done) {
+        it('should fail without invalid planId', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}`)
                 .auth(brokerUsername, brokerPassword)
@@ -169,7 +169,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should create asynchronously', function(done) {
+        it('should succeed asynchronously', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
                 .auth(brokerUsername, brokerPassword)
@@ -228,7 +228,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should be synchronous if accepts_incomplete=false', function(done) {
+        it('should revert to synchronous if accepts_incomplete=false', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
                 .auth(brokerUsername, brokerPassword)
@@ -351,35 +351,6 @@ describe('Service Broker Interface', function() {
                 .expect(400)
                 .then(response => {
                     should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-    });
-
-    describe('updating service instances asynchronously', function() {
-
-        beforeEach(function(done) {
-            request(server)
-                .put(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .send({
-                    service_id: brokerServiceId,
-                    plan_id: simplePlanId,
-                    parameters: {},
-                    organization_guid: organizationGuid,
-                    space_guid: spaceGuid,
-                    context: {}
-                 })
-                .expect(200)
-                .then(response => {
-                    should.exist(response.body);
-                    response.body.should.be.type('object');
-                    response.body.should.have.property('dashboard_url');
                     done();
                 })
                 .catch(error => {
@@ -528,35 +499,6 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-    });
-
-    describe('deprovisioning service instances asynchronously', function() {
-
-        beforeEach(function(done) {
-            request(server)
-                .put(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .send({
-                    service_id: brokerServiceId,
-                    plan_id: simplePlanId,
-                    parameters: {},
-                    organization_guid: organizationGuid,
-                    space_guid: spaceGuid,
-                    context: {}
-                 })
-                .expect(200)
-                .then(response => {
-                    should.exist(response.body);
-                    response.body.should.be.type('object');
-                    response.body.should.have.property('dashboard_url');
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
         it('should succeed if accepts_incomplete=true', function(done) {
             request(server)
                 .delete(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
@@ -634,7 +576,7 @@ describe('Service Broker Interface', function() {
 
     });
 
-    describe('service bindings', function() {
+    describe('binding', function() {
 
         beforeEach(function(done) {
             request(server)
@@ -659,7 +601,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should create service binding', function(done) {
+        it('should succeed', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
                 .auth(brokerUsername, brokerPassword)
@@ -685,7 +627,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should fail to create service binding without required parameters', function(done) {
+        it('should fail without required parameters', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
                 .auth(brokerUsername, brokerPassword)
@@ -700,7 +642,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should fail to create service binding with invalid serviceId', function(done) {
+        it('should fail with invalid serviceId', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
                 .auth(brokerUsername, brokerPassword)
@@ -722,7 +664,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should fail to create service binding with invalid planId', function(done) {
+        it('should fail with invalid planId', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
                 .auth(brokerUsername, brokerPassword)
@@ -744,80 +686,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should delete service binding', function(done) {
-            request(server)
-                .delete(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .query({
-                    service_id: brokerServiceId,
-                    plan_id: simplePlanId
-                })
-                .expect(200)
-                .then(response => {
-                    should.exist(response.body);
-                    response.body.should.be.empty();
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-        it('should fail to delete service binding without required parameters', function(done) {
-            request(server)
-                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .expect(400)
-                .then(response => {
-                    should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-        it('should fail to delete service binding with invalid serviceId', function(done) {
-            request(server)
-                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .query({
-                    service_id: uuidv4(),
-                    plan_id: simplePlanId
-                })
-                .expect(400)
-                .then(response => {
-                    should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-        it('should fail to delete service binding with invalid planId', function(done) {
-            request(server)
-                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .query({
-                    service_id: brokerServiceId,
-                    plan_id: uuidv4()
-                })
-                .expect(400)
-                .then(response => {
-                    should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-        it('should create asynchronously', function(done) {
+        it('should succeed asynchronously', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}?accepts_incomplete=true`)
                 .auth(brokerUsername, brokerPassword)
@@ -876,7 +745,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should not create binding asynchronously if accepts_incomplete=false', function(done) {
+        it('should fail asynchronously if accepts_incomplete=false', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}?accepts_incomplete=false`)
                 .auth(brokerUsername, brokerPassword)
@@ -904,7 +773,7 @@ describe('Service Broker Interface', function() {
 
     });
 
-    describe('delete service bindings asynchronously', function() {
+    describe('unbinding', function() {
 
         beforeEach(function(done) {
             request(server)
@@ -940,6 +809,79 @@ describe('Service Broker Interface', function() {
                         .catch(error => {
                             done(error);
                         });
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should succeed', function(done) {
+            request(server)
+                .delete(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .query({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId
+                })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.empty();
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail without required parameters', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .expect(400)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail with invalid serviceId', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .query({
+                    service_id: uuidv4(),
+                    plan_id: simplePlanId
+                })
+                .expect(400)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail with invalid planId', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .query({
+                    service_id: brokerServiceId,
+                    plan_id: uuidv4()
+                })
+                .expect(400)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
                 })
                 .catch(error => {
                     done(error);
