@@ -51,6 +51,10 @@ npm test
   variable to `true`.
 * To force all operations to be performed synchronously, set the
   `DISABLE_ASYNCHRONOUS_OPERATIONS` environmental variable to `true`.
+* By default, all asynchronous operations take 1 second to complete. To override
+  this, set the `ASYNCHRONOUS_DELAY_IN_SECONDS` environmental variable to the
+  number of seconds all operations should take.
+
 
 ---
 

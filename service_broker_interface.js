@@ -148,8 +148,8 @@ class ServiceBrokerInterface {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
-            if (request.body.parameters && request.body.parameters.delay) {
-               endTime.setSeconds(endTime.getSeconds() + request.body.parameters.delay);
+            if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
+               endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
             }
             else {
                endTime.setSeconds(endTime.getSeconds() + 1);
@@ -215,8 +215,8 @@ class ServiceBrokerInterface {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
-            if (request.body.parameters && request.body.parameters.delay) {
-               endTime.setSeconds(endTime.getSeconds() + request.body.parameters.delay);
+            if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
+               endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
             }
             else {
                endTime.setSeconds(endTime.getSeconds() + 1);
@@ -260,8 +260,8 @@ class ServiceBrokerInterface {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
-            if (request.body.parameters && request.body.parameters.delay) {
-               endTime.setSeconds(endTime.getSeconds() + request.body.parameters.delay);
+            if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
+               endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
             }
             else {
                endTime.setSeconds(endTime.getSeconds() + 1);
@@ -364,8 +364,8 @@ class ServiceBrokerInterface {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
-            if (request.body.parameters && request.body.parameters.delay) {
-               endTime.setSeconds(endTime.getSeconds() + request.body.parameters.delay);
+            if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
+               endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
             }
             else {
                endTime.setSeconds(endTime.getSeconds() + 1);
@@ -409,8 +409,8 @@ class ServiceBrokerInterface {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
-            if (request.body.parameters && request.body.parameters.delay) {
-               endTime.setSeconds(endTime.getSeconds() + request.body.parameters.delay);
+            if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
+               endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
             }
             else {
                endTime.setSeconds(endTime.getSeconds() + 1);
