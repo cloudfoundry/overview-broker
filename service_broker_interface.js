@@ -440,6 +440,8 @@ class ServiceBrokerInterface {
         if (!finishTime) {
            var data = { state: 'succeeded' };
            response.json(data);
+           this.saveRequest(request);
+           this.saveResponse(data);
            return;
         }
 
