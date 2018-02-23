@@ -44,8 +44,9 @@ describe('Service Broker Interface', function() {
     });
 
     after(function(done) {
-        server.close();
-        done();
+        server.close(() => {
+            done();
+        });
     });
 
     describe('catalog', function() {

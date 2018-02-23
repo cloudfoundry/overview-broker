@@ -77,6 +77,36 @@ function errorModeChanged(el) {
     });
 }
 
+function responseModeChanged(el) {
+    var responseMode = null;
+    switch(el.value) {
+        case 'Asynchronous responses where possible':
+            responseMode = 'async';
+            break;
+        case 'Synchronous responses always':
+            responseMode = 'sync';
+            break;
+        default:
+            console.error(`Unknown response mode detected: ${el.value}`);
+            return;
+    }
+    jQuery.post('/admin/setResponseMode', { mode: responseMode }, function() {
+        swal({
+            title: 'Completed',
+            text: `The response mode has been updated`,
+            icon: 'success',
+            buttons: false,
+            timer: 1000
+        });
+    }).fail(function() {
+        swal({
+            title: 'Oops...',
+            text: 'There was a problem setting the response mode. Please try again.',
+            icon: 'error'
+        });
+    });
+}
+
 function editCatalog(catalogText, prettify) {
     var prettyCatalog = prettify ? JSON.stringify(JSON.parse(catalogText), null, 2) : catalogText;
     swal({

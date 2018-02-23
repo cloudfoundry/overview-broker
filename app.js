@@ -1,5 +1,4 @@
 var express = require('express'),
-    app = express(),
     bodyParser = require('body-parser'),
     expressValidator = require('express-validator'),
     basicAuth = require('express-basic-auth'),
@@ -8,17 +7,19 @@ var express = require('express'),
     ServiceBrokerInterface = require('./service_broker_interface'),
     serviceBrokerInterface = null;
 
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-app.use(expressValidator());
-
-if (process.env.NODE_ENV != 'testing') {
-    app.use(morgan('tiny'));
-}
-
-app.set('view engine', 'pug');
-
 function start(callback) {
+    let app = express();
+
+    app.use(bodyParser.json()); // support json encoded bodies
+    app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+    app.use(expressValidator());
+
+    if (process.env.NODE_ENV != 'testing') {
+        app.use(morgan('tiny'));
+    }
+
+    app.set('view engine', 'pug');
+
     logger = new Logger();
     serviceBrokerInterface = new ServiceBrokerInterface();
 
@@ -30,6 +31,13 @@ function start(callback) {
         'servererror', // Return HTTP 500 to every request
         'notfound', // Return HTTP 404 to every request
         'invalidjson' // Return invalid JSON to every request
+    ];
+
+    /* Response modes */
+    process.env.responseMode = 'async'; // Support async responses by default
+    const supportedResponseModes = [
+        'async', // Asynchronous responses where possible
+        'sync' // Synchronous responses always
     ];
 
     /* Unauthenticated routes */
@@ -54,6 +62,15 @@ function start(callback) {
         }
         errorMode = request.body.mode;
         console.log(`Error mode is now ${errorMode || 'disabled'}`);
+        response.json({});
+    });
+    app.post('/admin/setResponseMode', function(request, response) {
+        if (!supportedResponseModes.includes(request.body.mode)) {
+            response.status(400).send('Invalid response mode');
+            return;
+        }
+        process.env.responseMode = request.body.mode;
+        console.log(`Response mode is now ${process.env.responseMode}`);
         response.json({});
     });
     app.use('/images', express.static('images'));

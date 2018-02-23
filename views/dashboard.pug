@@ -54,6 +54,11 @@ html
                   option(selected=(errorMode == 'timeout')) Do not respond to any request (timeout)
                   option(selected=(errorMode == 'invalidjson')) Respond with invalid JSON to any request
               div.form-group
+                label(for='responseModeSelect') Response mode:
+                select.form-control(id='responseModeSelect', onchange='responseModeChanged(this)')
+                  option(selected=(responseMode == 'async')) Asynchronous responses where possible
+                  option(selected=(responseMode == 'sync')) Synchronous responses always
+              div.form-group
                 button.btn.btn-primary(onclick="editCatalog(\'" + JSON.stringify(catalog) + "\', true)") Edit the catalog
       div.row.mb-2
         div.col-12.col-sm-6

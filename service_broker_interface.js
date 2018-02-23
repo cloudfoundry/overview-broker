@@ -61,7 +61,6 @@ class ServiceBrokerInterface {
             response.status(412).send(errors);
             return;
         }
-
         next();
     }
 
@@ -73,7 +72,7 @@ class ServiceBrokerInterface {
     }
 
     createServiceInstance(request, response) {
-        if (request.query.accepts_incomplete != 'true' && process.env.DISABLE_ASYNCHRONOUS_OPERATIONS) {
+        if (request.query.accepts_incomplete != 'true' && process.env.responseMode == 'sync') {
             response.status(422).send('Asynchronous operations are disabled');
             return;
         }
@@ -164,7 +163,7 @@ class ServiceBrokerInterface {
     }
 
     updateServiceInstance(request, response) {
-        if (request.query.accepts_incomplete != 'true' && process.env.DISABLE_ASYNCHRONOUS_OPERATIONS) {
+        if (request.query.accepts_incomplete != 'true' && process.env.responseMode == 'sync') {
             response.status(422).send('Asynchronous operations are disabled');
             return;
         }
@@ -231,7 +230,7 @@ class ServiceBrokerInterface {
     }
 
     deleteServiceInstance(request, response) {
-        if (request.query.accepts_incomplete != 'true' && process.env.DISABLE_ASYNCHRONOUS_OPERATIONS) {
+        if (request.query.accepts_incomplete != 'true' && process.env.responseMode == 'sync') {
             response.status(422).send('Asynchronous operations are disabled');
             return;
         }
@@ -277,7 +276,7 @@ class ServiceBrokerInterface {
     }
 
     createServiceBinding(request, response) {
-        if (request.query.accepts_incomplete != 'true' && process.env.DISABLE_ASYNCHRONOUS_OPERATIONS) {
+        if (request.query.accepts_incomplete != 'true' && process.env.responseMode == 'sync') {
             response.status(422).send('Asynchronous operations are disabled');
             return;
         }
@@ -380,7 +379,7 @@ class ServiceBrokerInterface {
     }
 
     deleteServiceBinding(request, response) {
-        if (request.query.accepts_incomplete != 'true' && process.env.DISABLE_ASYNCHRONOUS_OPERATIONS) {
+        if (request.query.accepts_incomplete != 'true' && process.env.responseMode == 'sync') {
             response.status(422).send('Asynchronous operations are disabled');
             return;
         }
