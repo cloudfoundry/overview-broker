@@ -64,7 +64,7 @@ function start(callback) {
         console.log(`Error mode is now ${errorMode || 'disabled'}`);
         response.json({});
     });
-    app.post('/admin/responseMode', function(request, response) {
+    app.post('/admin/setResponseMode', function(request, response) {
         if (!supportedResponseModes.includes(request.body.mode)) {
             response.status(400).send('Invalid response mode');
             return;
