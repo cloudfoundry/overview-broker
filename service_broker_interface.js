@@ -72,11 +72,6 @@ class ServiceBrokerInterface {
     }
 
     createServiceInstance(request, response) {
-        if (request.query.accepts_incomplete != 'true' && process.env.responseMode == 'sync') {
-            response.status(422).send('Asynchronous operations are disabled');
-            return;
-        }
-
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         request.checkBody('service_id', 'Missing service_id').notEmpty();
         request.checkBody('plan_id', 'Missing plan_id').notEmpty();
@@ -143,7 +138,7 @@ class ServiceBrokerInterface {
             data: data
         };
 
-        if (request.query.accepts_incomplete == 'true') {
+        if (request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -163,11 +158,6 @@ class ServiceBrokerInterface {
     }
 
     updateServiceInstance(request, response) {
-        if (request.query.accepts_incomplete != 'true' && process.env.responseMode == 'sync') {
-            response.status(422).send('Asynchronous operations are disabled');
-            return;
-        }
-
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         request.checkBody('service_id', 'Missing service_id').notEmpty();
         var errors = request.validationErrors();
@@ -210,7 +200,7 @@ class ServiceBrokerInterface {
         this.saveRequest(request);
         this.saveResponse({});
 
-        if (request.query.accepts_incomplete == 'true') {
+        if (request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -230,11 +220,6 @@ class ServiceBrokerInterface {
     }
 
     deleteServiceInstance(request, response) {
-        if (request.query.accepts_incomplete != 'true' && process.env.responseMode == 'sync') {
-            response.status(422).send('Asynchronous operations are disabled');
-            return;
-        }
-
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         request.checkQuery('service_id', 'Missing service_id').notEmpty();
         request.checkQuery('plan_id', 'Missing plan_id').notEmpty();
@@ -255,7 +240,7 @@ class ServiceBrokerInterface {
         this.logger.debug(`Deleting service ${serviceInstanceId}`);
         delete this.serviceInstances[serviceInstanceId];
 
-        if (request.query.accepts_incomplete == 'true') {
+        if (request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -276,11 +261,6 @@ class ServiceBrokerInterface {
     }
 
     createServiceBinding(request, response) {
-        if (request.query.accepts_incomplete != 'true' && process.env.responseMode == 'sync') {
-            response.status(422).send('Asynchronous operations are disabled');
-            return;
-        }
-
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         request.checkParams('binding_id', 'Missing binding_id').notEmpty();
         request.checkBody('service_id', 'Missing service_id').notEmpty();
@@ -359,7 +339,7 @@ class ServiceBrokerInterface {
             data: data
         };
 
-        if (request.query.accepts_incomplete == 'true') {
+        if (request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -379,11 +359,6 @@ class ServiceBrokerInterface {
     }
 
     deleteServiceBinding(request, response) {
-        if (request.query.accepts_incomplete != 'true' && process.env.responseMode == 'sync') {
-            response.status(422).send('Asynchronous operations are disabled');
-            return;
-        }
-
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         request.checkParams('binding_id', 'Missing binding_id').notEmpty();
         request.checkQuery('service_id', 'Missing service_id').notEmpty();
@@ -404,7 +379,7 @@ class ServiceBrokerInterface {
             // We must have lost this state
         }
 
-        if (request.query.accepts_incomplete == 'true') {
+        if (request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
