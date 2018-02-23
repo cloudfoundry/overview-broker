@@ -47,6 +47,7 @@ function start(callback) {
     app.get('/dashboard', function(request, response) {
         var data = serviceBrokerInterface.getDashboardData();
         data.errorMode = errorMode;
+        data.responseMode = process.env.responseMode;
         response.render('dashboard', data);
     });
     app.post('/admin/clean', function(request, response) {
