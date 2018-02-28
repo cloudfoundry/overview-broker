@@ -51,6 +51,7 @@ html
                   option(selected=(errorMode == '')) Disabled
                   option(selected=(errorMode == 'servererror')) Respond to all requests with an HTTP 500
                   option(selected=(errorMode == 'notfound')) Respond to all requests with an HTTP 404
+                  option(selected=(errorMode == 'unprocessable')) Respond to all requests with an HTTP 422
                   option(selected=(errorMode == 'timeout')) Do not respond to any request (timeout)
                   option(selected=(errorMode == 'invalidjson')) Respond with invalid JSON to any request
               div.form-group

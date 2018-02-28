@@ -50,6 +50,9 @@ function errorModeChanged(el) {
         case 'Respond to all requests with an HTTP 404':
             errorMode = 'notfound';
             break;
+        case 'Respond to all requests with an HTTP 422':
+            errorMode = 'unprocessable';
+            break;
         case 'Do not respond to any request (timeout)':
             errorMode = 'timeout';
             break;

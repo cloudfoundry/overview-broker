@@ -91,6 +91,16 @@ describe('Admin', function() {
                 });
         });
 
+        it('should set to unprocessable', function(done) {
+            request(server)
+                .post('/admin/setErrorMode')
+                .send({ mode: 'unprocessable' })
+                .expect(200)
+                .then(response => {
+                    done();
+                });
+        });
+
         it('should set to invalidjson', function(done) {
             request(server)
                 .post('/admin/setErrorMode')

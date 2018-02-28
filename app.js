@@ -30,6 +30,7 @@ function start(callback) {
         'timeout', // Do not respond to any request
         'servererror', // Return HTTP 500 to every request
         'notfound', // Return HTTP 404 to every request
+        'unprocessable', // Return HTTP 422 to every request
         'invalidjson' // Return invalid JSON to every request
     ];
 
@@ -94,11 +95,19 @@ function start(callback) {
                 console.log('timing out');
                 return;
             case 'servererror':
-                response.status(500).send();
+                response.status(500).json({
+                    error: 'ErrorMode',
+                    description: 'Error mode enabled'
+                });
                 return;
             case 'notfound':
-                response.status(404).send();
+                response.status(404).json({});
                 return;
+            case 'unprocessable':
+                response.status(422).json({
+                    error: 'ErrorMode',
+                    description: 'Error mode enabled'
+                });
             case 'invalidjson':
                 response.send('{ "this is not valid json" }');
                 return;
