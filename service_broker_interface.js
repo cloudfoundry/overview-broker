@@ -412,7 +412,7 @@ class ServiceBrokerInterface {
         var finishTime = this.instanceProvisionsInProgress[serviceInstanceId] || this.instanceUpdatesInProgress[serviceInstanceId] || this.instanceDeprovisionsInProgress[serviceInstanceId] || null;
         // But if we don't, presume that the operation finished and we have forgotten about it
         if (!finishTime) {
-           var data = { state: 'succeeded' };
+           var data = { state: 'succeeded', description: 'The operation has completed (although it had been forgotten about).' };
            response.json(data);
            this.saveRequest(request);
            this.saveResponse(data);
@@ -453,7 +453,7 @@ class ServiceBrokerInterface {
         var finishTime = this.bindingCreatesInProgress[serviceBindingId] || null;
         // But if we don't, presume that the operation finished and we have forgotten about it
         if (!finishTime) {
-           var data = { state: 'succeeded' };
+           var data = { state: 'succeeded', description: 'The operation has completed (although it had been forgotten about).' };
            response.json(data);
            return;
         }
