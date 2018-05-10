@@ -26,7 +26,7 @@ class ServiceBroker {
         };
 
         // Expose a syslog drain service if requested
-        if (process.env.EXPOSE_SYSLOG_DRAIN_SERVICE) {
+        if (process.env.SYSLOG_DRAIN_URL) {
             this.catalog.services.push({
                 name: cfenv.getAppEnv().name + '-syslog-drain',
                 description: 'Provides an example syslog drain service.',

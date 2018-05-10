@@ -41,8 +41,8 @@ npm test
 * To set the BasicAuth credentials, set the `BROKER_USERNAME` and
   `BROKER_PASSWORD` environmental variables. Otherwise the defaults of `admin`
   and `password` will be used.
-* To expose a syslog drain service, set the `EXPOSE_SYSLOG_DRAIN_SERVICE`
-  environmental variable to `true`.
+* To expose a syslog drain service, set the `SYSLOG_DRAIN_URL`
+  environmental variable to a url.
 * To expose a volume mount service, set the `EXPOSE_VOLUME_MOUNT_SERVICE`
   environmental variable to `true`.
 * To generate many plans with a range of configuration parameter schemas, set

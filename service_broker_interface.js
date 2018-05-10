@@ -314,7 +314,7 @@ class ServiceBrokerInterface {
         }
         else if (service.requires && service.requires.indexOf('syslog_drain') > -1) {
            data = {
-              syslog_drain_url: 'http://ladida'
+              syslog_drain_url: process.env.SYSLOG_DRAIN_URL
            };
         }
         else if (service.requires && service.requires.indexOf('volume_mount') > -1) {
