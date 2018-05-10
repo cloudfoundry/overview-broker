@@ -34,6 +34,8 @@ class ServiceBroker {
                 tags: [ 'overview-broker' ],
                 requires: [ 'syslog_drain' ],
                 bindable: true,
+                bindings_retrievable: true,
+                instances_retrievable: true,
                 plan_updateable: true,
                 plans: this.generatePlansForService(cfenv.getAppEnv().name + '-syslog-drain'),
                 metadata: { shareable: true }
@@ -49,6 +51,8 @@ class ServiceBroker {
                 tags: [ 'overview-broker' ],
                 requires: [ 'volume_mount' ],
                 bindable: true,
+                bindings_retrievable: true,
+                instances_retrievable: true,
                 plan_updateable: true,
                 plans: this.generatePlansForService(cfenv.getAppEnv().name + '-volume-mount'),
                 metadata: { shareable: true }
