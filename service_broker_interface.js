@@ -319,15 +319,17 @@ class ServiceBrokerInterface {
            };
         }
         else if (service.requires && service.requires.indexOf('volume_mount') > -1) {
-           data = {
-              driver: 'nfs',
-              container_dir: '/tmp',
-              mode: 'r',
-              device_type: 'shared',
-              device: {
-                 volume_id: 1
-              }
-           };
+            data = {
+                volume_mounts: [{
+                    driver: 'nfs',
+                    container_dir: '/tmp',
+                    mode: 'r',
+                    device_type: 'shared',
+                    device: {
+                        volume_id: '1'
+                    }
+                }]
+            };
         }
 
         this.serviceInstances[serviceInstanceId].bindings[bindingId] = {
