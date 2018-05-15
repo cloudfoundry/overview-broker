@@ -97,7 +97,7 @@ describe('Service Broker Interface', function() {
                     space_guid: spaceGuid,
                     context: {}
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     response.body.should.be.type('object');
@@ -242,7 +242,7 @@ describe('Service Broker Interface', function() {
                     space_guid: spaceGuid,
                     context: {}
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     response.body.should.be.type('object');
@@ -271,7 +271,7 @@ describe('Service Broker Interface', function() {
                     space_guid: spaceGuid,
                     context: {}
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     response.body.should.be.type('object');
@@ -296,7 +296,7 @@ describe('Service Broker Interface', function() {
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);
-                    response.body.should.be.empty();
+                    response.body.should.have.property('dashboard_url');
                     done();
                 })
                 .catch(error => {
@@ -415,7 +415,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should revert to synchronous if accepts_incomplete=false', function(done) {
+        it('should be synchronous if accepts_incomplete=false', function(done) {
             request(server)
                 .patch(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
                 .auth(brokerUsername, brokerPassword)
@@ -428,7 +428,7 @@ describe('Service Broker Interface', function() {
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);
-                    response.body.should.be.empty();
+                    response.body.should.have.property('dashboard_url');
                     done();
                 })
                 .catch(error => {
@@ -453,7 +453,7 @@ describe('Service Broker Interface', function() {
                     space_guid: spaceGuid,
                     context: {}
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     response.body.should.be.type('object');
@@ -592,7 +592,7 @@ describe('Service Broker Interface', function() {
                     space_guid: spaceGuid,
                     context: {}
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     done();
@@ -614,7 +614,7 @@ describe('Service Broker Interface', function() {
                     bind_resource: {},
                     parameters: {}
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     response.body.should.be.type('object');
@@ -746,7 +746,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should fail asynchronously if accepts_incomplete=false', function(done) {
+        it('should be synchronous if accepts_incomplete=false', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}?accepts_incomplete=false`)
                 .auth(brokerUsername, brokerPassword)
@@ -758,7 +758,7 @@ describe('Service Broker Interface', function() {
                     bind_resource: {},
                     parameters: {},
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     response.body.should.be.type('object');
@@ -789,7 +789,7 @@ describe('Service Broker Interface', function() {
                     space_guid: spaceGuid,
                     context: {}
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     request(server)
@@ -803,7 +803,7 @@ describe('Service Broker Interface', function() {
                             bind_resource: {},
                             parameters: {}
                          })
-                        .expect(200)
+                        .expect(201)
                         .then(response => {
                             done();
                         })
@@ -994,7 +994,7 @@ describe('Service Broker Interface', function() {
                     space_guid: spaceGuid,
                     context: {}
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     response.body.should.be.type('object');
@@ -1064,7 +1064,7 @@ describe('Service Broker Interface', function() {
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);
-                    response.body.should.be.empty();
+                    response.body.should.have.property('dashboard_url');
                     done();
                 })
                 .catch(error => {
@@ -1132,7 +1132,7 @@ describe('Service Broker Interface', function() {
                     context: {},
                     parameters: validParameters
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     done();
@@ -1154,7 +1154,7 @@ describe('Service Broker Interface', function() {
                     bind_resource: {},
                     parameters: validParameters
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     response.body.should.be.type('object');
@@ -1228,7 +1228,7 @@ describe('Service Broker Interface', function() {
                     space_guid: spaceGuid,
                     context: {}
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     done();
@@ -1290,7 +1290,7 @@ describe('Service Broker Interface', function() {
                     space_guid: spaceGuid,
                     context: {}
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     request(server)
                         .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
@@ -1303,7 +1303,7 @@ describe('Service Broker Interface', function() {
                             bind_resource: {},
                             parameters: {}
                          })
-                        .expect(200)
+                        .expect(201)
                         .then(response => {
                             should.exist(response.body);
                             done();
@@ -1364,7 +1364,7 @@ describe('Service Broker Interface', function() {
                     space_guid: spaceGuid,
                     context: {}
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
                     should.exist(response.body);
                     done();
@@ -1384,7 +1384,6 @@ describe('Service Broker Interface', function() {
                     should.exist(response.body);
                     response.body.should.have.property(instanceId);
                     response.body[instanceId].should.have.property('dashboard_url');
-                    response.body[instanceId].should.have.property('metrics_url');
                     done();
                 })
                 .catch(error => {

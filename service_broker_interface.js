@@ -113,11 +113,9 @@ class ServiceBrokerInterface {
 
         this.saveRequest(request);
 
-        let dashboardUrl = this.serviceBroker.getDashboardUrl();
-        let metricsUrl = `${cfenv.getAppEnv().url}/v2/service_instances/${serviceInstanceId}/metrics`;
-        var data = {
-            dashboard_url: dashboardUrl,
-            metrics_url: metricsUrl
+        let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
+        let data = {
+            dashboard_url: dashboardUrl
         };
 
         this.serviceInstances[serviceInstanceId] = {
@@ -155,7 +153,7 @@ class ServiceBrokerInterface {
 
         // Else return the data synchronously
         this.saveResponse(data);
-        response.json(data);
+        response.status(201).json(data);
     }
 
     updateServiceInstance(request, response) {
@@ -200,6 +198,11 @@ class ServiceBrokerInterface {
         this.serviceInstances[serviceInstanceId].last_updated = moment().toString();
         this.saveRequest(request);
 
+        let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
+        let data = {
+            dashboard_url: dashboardUrl
+        };
+
         if (request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
@@ -211,14 +214,14 @@ class ServiceBrokerInterface {
                endTime.setSeconds(endTime.getSeconds() + 1);
             }
             this.instanceUpdatesInProgress[serviceInstanceId] = endTime;
-            this.saveResponse({});
-            response.status(202).json({});
+            this.saveResponse(data);
+            response.status(202).json(data);
             return;
         }
 
-        this.saveResponse({});
+        this.saveResponse(data);
         // Else return the data synchronously
-        response.json({});
+        response.json(data);
     }
 
     deleteServiceInstance(request, response) {
@@ -360,7 +363,7 @@ class ServiceBrokerInterface {
 
         // Else return the data synchronously
         this.saveResponse(data);
-        response.json(data);
+        response.status(201).json(data);
     }
 
     deleteServiceBinding(request, response) {
