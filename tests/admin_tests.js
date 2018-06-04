@@ -111,6 +111,16 @@ describe('Admin', function() {
                 });
         });
 
+        it('should set to failasync', function(done) {
+            request(server)
+                .post('/admin/setErrorMode')
+                .send({ mode: 'failasync' })
+                .expect(200)
+                .then(response => {
+                    done();
+                });
+        });
+
     });
 
 });

@@ -59,6 +59,9 @@ function errorModeChanged(el) {
         case 'Respond with invalid JSON to any request':
             errorMode = 'invalidjson';
             break;
+        case 'Fail asynchronous operations (after they have finished)':
+            errorMode = 'failasync';
+            break;
         default:
             console.error(`Unknown error mode detected: ${el.value}`);
             return;
@@ -84,14 +87,14 @@ function responseModeChanged(el) {
     var responseMode = null;
     switch(el.value) {
         case 'Asynchronous responses where possible':
-            responseMode = 'async';
-            break;
+        responseMode = 'async';
+        break;
         case 'Synchronous responses always':
-            responseMode = 'sync';
-            break;
+        responseMode = 'sync';
+        break;
         default:
-            console.error(`Unknown response mode detected: ${el.value}`);
-            return;
+        console.error(`Unknown response mode detected: ${el.value}`);
+        return;
     }
     jQuery.post('/admin/setResponseMode', { mode: responseMode }, function() {
         swal({

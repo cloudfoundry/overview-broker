@@ -54,6 +54,7 @@ html
                   option(selected=(errorMode == 'unprocessable')) Respond to all requests with an HTTP 422
                   option(selected=(errorMode == 'timeout')) Do not respond to any request (timeout)
                   option(selected=(errorMode == 'invalidjson')) Respond with invalid JSON to any request
+                  option(selected=(errorMode == 'failasync')) Fail asynchronous operations (after they have finished)
               div.form-group
                 label(for='responseModeSelect') Response mode:
                 select.form-control(id='responseModeSelect', onchange='responseModeChanged(this)')

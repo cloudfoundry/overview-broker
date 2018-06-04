@@ -1,9 +1,9 @@
 var express = require('express'),
-    moment = require('moment'),
-    cfenv = require('cfenv'),
-    randomstring = require('randomstring'),
-    Logger = require('./logger'),
-    ServiceBroker = require('./service_broker');
+moment = require('moment'),
+cfenv = require('cfenv'),
+randomstring = require('randomstring'),
+Logger = require('./logger'),
+ServiceBroker = require('./service_broker');
 
 class ServiceBrokerInterface {
 
@@ -140,10 +140,10 @@ class ServiceBrokerInterface {
             // unless an explicit delay was requested
             var endTime = new Date();
             if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
-               endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
+                endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
             }
             else {
-               endTime.setSeconds(endTime.getSeconds() + 1);
+                endTime.setSeconds(endTime.getSeconds() + 1);
             }
             this.instanceProvisionsInProgress[serviceInstanceId] = endTime;
             this.saveResponse(data);
@@ -208,10 +208,10 @@ class ServiceBrokerInterface {
             // unless an explicit delay was requested
             var endTime = new Date();
             if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
-               endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
+                endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
             }
             else {
-               endTime.setSeconds(endTime.getSeconds() + 1);
+                endTime.setSeconds(endTime.getSeconds() + 1);
             }
             this.instanceUpdatesInProgress[serviceInstanceId] = endTime;
             this.saveResponse(data);
@@ -250,10 +250,10 @@ class ServiceBrokerInterface {
             // unless an explicit delay was requested
             var endTime = new Date();
             if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
-               endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
+                endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
             }
             else {
-               endTime.setSeconds(endTime.getSeconds() + 1);
+                endTime.setSeconds(endTime.getSeconds() + 1);
             }
             this.instanceDeprovisionsInProgress[serviceInstanceId] = endTime;
             response.status(202).json({});
@@ -279,8 +279,8 @@ class ServiceBrokerInterface {
         // Validate serviceId and planId
         var service = this.serviceBroker.getService(request.body.service_id);
         if (!service) {
-           response.status(400).send(`Could not find service ${request.body.service_id}`);
-           return;
+            response.status(400).send(`Could not find service ${request.body.service_id}`);
+            return;
         }
         var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
         if (!plan) {
@@ -312,14 +312,14 @@ class ServiceBrokerInterface {
 
         var data = {};
         if (!service.requires || service.requires.length == 0) {
-           data = {
-              credentials: this.bindingCredentials
-           };
+            data = {
+                credentials: this.bindingCredentials
+            };
         }
         else if (service.requires && service.requires.indexOf('syslog_drain') > -1) {
-           data = {
-              syslog_drain_url: process.env.SYSLOG_DRAIN_URL
-           };
+            data = {
+                syslog_drain_url: process.env.SYSLOG_DRAIN_URL
+            };
         }
         else if (service.requires && service.requires.indexOf('volume_mount') > -1) {
             data = {
@@ -350,10 +350,10 @@ class ServiceBrokerInterface {
             // unless an explicit delay was requested
             var endTime = new Date();
             if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
-               endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
+                endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
             }
             else {
-               endTime.setSeconds(endTime.getSeconds() + 1);
+                endTime.setSeconds(endTime.getSeconds() + 1);
             }
             this.bindingCreatesInProgress[bindingId] = endTime;
             this.saveResponse({});
@@ -392,10 +392,10 @@ class ServiceBrokerInterface {
             // unless an explicit delay was requested
             var endTime = new Date();
             if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
-               endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
+                endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
             }
             else {
-               endTime.setSeconds(endTime.getSeconds() + 1);
+                endTime.setSeconds(endTime.getSeconds() + 1);
             }
             this.bindingCreatesInProgress[bindingId] = endTime;
             response.status(202).json({});
@@ -420,27 +420,33 @@ class ServiceBrokerInterface {
         var finishTime = this.instanceProvisionsInProgress[serviceInstanceId] || this.instanceUpdatesInProgress[serviceInstanceId] || this.instanceDeprovisionsInProgress[serviceInstanceId] || null;
         // But if we don't, presume that the operation finished and we have forgotten about it
         if (!finishTime) {
-           var data = { state: 'succeeded', description: 'The operation has completed (although it had been forgotten about).' };
-           response.json(data);
-           this.saveRequest(request);
-           this.saveResponse(data);
-           return;
+            var data = { state: 'succeeded', description: 'The operation has completed (although it had been forgotten about).' };
+            response.json(data);
+            this.saveRequest(request);
+            this.saveResponse(data);
+            return;
         }
 
         // Check if the operation is still going
         var data = {};
         if (finishTime >= new Date()) {
-           data.state = 'in progress';
-           data.description = 'The operation is in progress...';
+            data.state = 'in progress';
+            data.description = 'The operation is in progress...';
         }
         else {
-           data.state = 'succeeded';
-           data.description = 'The operation has finished!';
+            if (process.env.errorMode == 'failasync') {
+                data.state = 'failed';
+                data.description = 'The operation has failed (failasync error mode enabled)';
+            }
+            else {
+                data.state = 'succeeded';
+                data.description = 'The operation has finished!';
+            }
 
-           // Since it has finished, we should forget about the operation
-           delete this.instanceProvisionsInProgress[serviceInstanceId];
-           delete this.instanceUpdatesInProgress[serviceInstanceId];
-           delete this.instanceDeprovisionsInProgress[serviceInstanceId];
+            // Since it has finished, we should forget about the operation
+            delete this.instanceProvisionsInProgress[serviceInstanceId];
+            delete this.instanceUpdatesInProgress[serviceInstanceId];
+            delete this.instanceDeprovisionsInProgress[serviceInstanceId];
         }
         this.saveRequest(request);
         this.saveResponse(data);
@@ -461,23 +467,29 @@ class ServiceBrokerInterface {
         var finishTime = this.bindingCreatesInProgress[serviceBindingId] || null;
         // But if we don't, presume that the operation finished and we have forgotten about it
         if (!finishTime) {
-           var data = { state: 'succeeded', description: 'The operation has completed (although it had been forgotten about).' };
-           response.json(data);
-           return;
+            var data = { state: 'succeeded', description: 'The operation has completed (although it had been forgotten about).' };
+            response.json(data);
+            return;
         }
 
         // Check if the operation is still going
         var data = {};
         if (finishTime >= new Date()) {
-           data.state = 'in progress';
-           data.description = 'The operation is in progress...';
+            data.state = 'in progress';
+            data.description = 'The operation is in progress...';
         }
         else {
-           data.state = 'succeeded';
-           data.description = 'The operation has finished!';
+            if (process.env.errorMode == 'failasync') {
+                data.state = 'failed';
+                data.description = 'The operation has failed (failasync error mode enabled)';
+            }
+            else {
+                data.state = 'succeeded';
+                data.description = 'The operation has finished!';
+            }
 
-           // Since it has finished, we should forget about the operation
-           delete this.bindingCreatesInProgress[serviceBindingId];
+            // Since it has finished, we should forget about the operation
+            delete this.bindingCreatesInProgress[serviceBindingId];
         }
         this.saveRequest(request);
         this.saveResponse(data);

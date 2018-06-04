@@ -24,14 +24,15 @@ function start(callback) {
     serviceBrokerInterface = new ServiceBrokerInterface();
 
     /* Error modes */
-    var errorMode = ''; // Disabled by default
+    process.env.errorMode = ''; // Disabled by default
     const supportedErrorModes = [
         '', // Disabled
         'timeout', // Do not respond to any request
         'servererror', // Return HTTP 500 to every request
         'notfound', // Return HTTP 404 to every request
         'unprocessable', // Return HTTP 422 to every request
-        'invalidjson' // Return invalid JSON to every request
+        'invalidjson', // Return invalid JSON to every request
+        'failasync' // Fail asynchronous operations (after they have finished)
     ];
 
     /* Response modes */
@@ -47,7 +48,7 @@ function start(callback) {
     });
     app.get('/dashboard', function(request, response) {
         var data = serviceBrokerInterface.getDashboardData();
-        data.errorMode = errorMode;
+        data.errorMode = process.env.errorMode;
         data.responseMode = process.env.responseMode;
         response.render('dashboard', data);
     });
@@ -62,8 +63,8 @@ function start(callback) {
             response.status(400).send('Invalid error mode');
             return;
         }
-        errorMode = request.body.mode;
-        console.log(`Error mode is now ${errorMode || 'disabled'}`);
+        process.env.errorMode = request.body.mode;
+        console.log(`Error mode is now ${process.env.errorMode || 'disabled'}`);
         response.json({});
     });
     app.post('/admin/setResponseMode', function(request, response) {
@@ -90,14 +91,14 @@ function start(callback) {
     }));
 
     app.all('*', function(request, response, next) {
-        switch (errorMode) {
+        switch (process.env.errorMode) {
             case 'timeout':
                 console.log('timing out');
                 return;
             case 'servererror':
                 response.status(500).json({
                     error: 'ErrorMode',
-                    description: 'Error mode enabled'
+                    description: 'Error mode enabled (servererror)'
                 });
                 return;
             case 'notfound':
@@ -106,10 +107,10 @@ function start(callback) {
             case 'unprocessable':
                 response.status(422).json({
                     error: 'ErrorMode',
-                    description: 'Error mode enabled'
+                    description: 'Error mode enabled (unprocessable)'
                 });
             case 'invalidjson':
-                response.send('{ "this is not valid json" }');
+                response.send('{ "invalidjson error mode enabled" }');
                 return;
             default:
                 break;
