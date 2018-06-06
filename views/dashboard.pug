@@ -67,14 +67,14 @@ html
           div.card
             h6.card-header
               a.text-info(data-toggle='collapse', href='#request') Last Request
-            div#request.card-body.collapse(style={'padding': '0px'})
-              pre(style={'background': 'none', 'border': 'none', 'height': '400px'}) !{syntaxHighlight(lastRequest)}
+            div#request.card-body.collapse.show(style={'padding': '0px'})
+              pre(style={'background': 'none', 'border': 'none', 'height': '300px'}) !{syntaxHighlight(lastRequest)}
         div.col-12.col-sm-6
           div.card
             h6.card-header
               a.text-info(data-toggle='collapse', href='#response') Last Response
-            div#response.card-body.collapse(style={'padding': '0px'})
-              pre(style={'background': 'none', 'border': 'none', 'height': '400px'}) !{syntaxHighlight(lastResponse)}
+            div#response.card-body.collapse.show(style={'padding': '0px'})
+              pre(style={'background': 'none', 'border': 'none', 'height': '300px'}) !{syntaxHighlight(lastResponse)}
       - let numServices = Object.keys(serviceInstances).length
       if numServices > 0
         div.row.mb-2
