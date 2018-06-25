@@ -92,6 +92,9 @@ function responseModeChanged(el) {
         case 'Synchronous responses always':
         responseMode = 'sync';
         break;
+        case 'Asynchronous responses always':
+        responseMode = 'asyncalways';
+        break;
         default:
         console.error(`Unknown response mode detected: ${el.value}`);
         return;

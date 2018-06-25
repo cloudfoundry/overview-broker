@@ -39,7 +39,8 @@ function start(callback) {
     process.env.responseMode = 'async'; // Support async responses by default
     const supportedResponseModes = [
         'async', // Asynchronous responses where possible
-        'sync' // Synchronous responses always
+        'sync', // Synchronous responses always
+        'asyncalways' // Asynchronous responses always
     ];
 
     /* Unauthenticated routes */

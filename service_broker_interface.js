@@ -135,7 +135,7 @@ class ServiceBrokerInterface {
             data: data
         };
 
-        if (request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') {
+        if ((request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -203,7 +203,7 @@ class ServiceBrokerInterface {
             dashboard_url: dashboardUrl
         };
 
-        if (request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') {
+        if ((request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -245,7 +245,7 @@ class ServiceBrokerInterface {
         this.logger.debug(`Deleting service ${serviceInstanceId}`);
         delete this.serviceInstances[serviceInstanceId];
 
-        if (request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') {
+        if ((request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -345,7 +345,7 @@ class ServiceBrokerInterface {
             data: data
         };
 
-        if (request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') {
+        if ((request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -387,7 +387,7 @@ class ServiceBrokerInterface {
             // We must have lost this state
         }
 
-        if (request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') {
+        if ((request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways') {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();

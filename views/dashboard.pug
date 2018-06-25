@@ -60,6 +60,7 @@ html
                 select.form-control(id='responseModeSelect', onchange='responseModeChanged(this)')
                   option(selected=(responseMode == 'async')) Asynchronous responses where possible
                   option(selected=(responseMode == 'sync')) Synchronous responses always
+                  option(selected=(responseMode == 'asyncalways')) Asynchronous responses always
               div.form-group
                 button.btn.btn-primary(onclick="editCatalog(\'" + JSON.stringify(catalog) + "\', true)") Edit the catalog
       div.row.mb-2
