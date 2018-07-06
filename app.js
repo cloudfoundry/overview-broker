@@ -92,26 +92,27 @@ function start(callback) {
     }));
 
     app.all('*', function(request, response, next) {
+        serviceBrokerInterface.saveRequest(request);
         switch (process.env.errorMode) {
             case 'timeout':
                 console.log('timing out');
                 return;
             case 'servererror':
-                response.status(500).json({
+                serviceBrokerInterface.sendJSONResponse(response, 500, {
                     error: 'ErrorMode',
                     description: 'Error mode enabled (servererror)'
                 });
                 return;
             case 'notfound':
-                response.status(404).json({});
+                serviceBrokerInterface.sendJSONResponse(response, 404, {});
                 return;
             case 'unprocessable':
-                response.status(422).json({
+                serviceBrokerInterface.sendJSONResponse(response, 422, {
                     error: 'ErrorMode',
                     description: 'Error mode enabled (unprocessable)'
                 });
             case 'invalidjson':
-                response.send('{ "invalidjson error mode enabled" }');
+                serviceBrokerInterface.sendResponse(response, 200, '{ "invalidjson error mode enabled" }');
                 return;
             default:
                 break;

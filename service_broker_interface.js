@@ -58,7 +58,7 @@ class ServiceBrokerInterface {
         request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
-            response.status(412).send(errors);
+            this.sendResponse(response, 412, errors);
             return;
         }
         next();
@@ -66,9 +66,7 @@ class ServiceBrokerInterface {
 
     getCatalog(request, response) {
         var data = this.serviceBroker.getCatalog();
-        this.saveRequest(request);
-        this.saveResponse(data);
-        response.json(data);
+        this.sendJSONResponse(response, 200, data);
     }
 
     createServiceInstance(request, response) {
@@ -79,7 +77,7 @@ class ServiceBrokerInterface {
         request.checkBody('space_guid', 'Missing space_guid').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
-            response.status(400).send(errors);
+            this.sendResponse(response, 400, errors);
             return;
         }
 
@@ -87,7 +85,7 @@ class ServiceBrokerInterface {
         var service = this.serviceBroker.getService(request.body.service_id);
         var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
         if (!plan) {
-            response.status(400).send(`Could not find service ${request.body.service_id}, plan ${request.body.plan_id}`);
+            this.sendResponse(response, 400, `Could not find service ${request.body.service_id}, plan ${request.body.plan_id}`);
             return;
         }
 
@@ -102,7 +100,7 @@ class ServiceBrokerInterface {
         if (schema) {
             var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
             if (validationErrors) {
-                response.status(400).send(validationErrors);
+                this.sendResponse(response, 400, validationErrors);
                 return;
             }
         }
@@ -110,8 +108,6 @@ class ServiceBrokerInterface {
         // Create the service
         var serviceInstanceId = request.params.instance_id;
         this.logger.debug(`Creating service ${serviceInstanceId}`);
-
-        this.saveRequest(request);
 
         let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
         let data = {
@@ -146,14 +142,12 @@ class ServiceBrokerInterface {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
             this.instanceProvisionsInProgress[serviceInstanceId] = endTime;
-            this.saveResponse(data);
-            response.status(202).json(data);
+            this.sendJSONResponse(response, 202, data);
             return;
         }
 
         // Else return the data synchronously
-        this.saveResponse(data);
-        response.status(201).json(data);
+        this.sendJSONResponse(response, 201, data);
     }
 
     updateServiceInstance(request, response) {
@@ -161,14 +155,14 @@ class ServiceBrokerInterface {
         request.checkBody('service_id', 'Missing service_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
-            response.status(400).send(errors);
+            this.sendResponse(response, 400, errors);
             return;
         }
 
         // Validate serviceId and planId
         var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
         if (!plan) {
-            response.status(400).send('Could not find service %s, plan %s', request.body.service_id, request.body.plan_id);
+            this.sendResponse(response, 400, 'Could not find service %s, plan %s', request.body.service_id, request.body.plan_id);
             return;
         }
 
@@ -183,7 +177,7 @@ class ServiceBrokerInterface {
         if (schema) {
             var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
             if (validationErrors) {
-                response.status(400).send(validationErrors);
+                this.sendResponse(response, 400, validationErrors);
                 return;
             }
         }
@@ -196,7 +190,6 @@ class ServiceBrokerInterface {
         this.serviceInstances[serviceInstanceId].parameters = request.body.parameters;
         this.serviceInstances[serviceInstanceId].context = request.body.context;
         this.serviceInstances[serviceInstanceId].last_updated = moment().toString();
-        this.saveRequest(request);
 
         let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
         let data = {
@@ -214,14 +207,12 @@ class ServiceBrokerInterface {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
             this.instanceUpdatesInProgress[serviceInstanceId] = endTime;
-            this.saveResponse(data);
-            response.status(202).json(data);
+            this.sendJSONResponse(response, 202, data);
             return;
         }
 
-        this.saveResponse(data);
         // Else return the data synchronously
-        response.json(data);
+        this.sendJSONResponse(response, 200, data);
     }
 
     deleteServiceInstance(request, response) {
@@ -230,7 +221,7 @@ class ServiceBrokerInterface {
         request.checkQuery('plan_id', 'Missing plan_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
-            response.status(400).send(errors);
+            this.sendResponse(response, 400, errors);
             return;
         }
 
@@ -256,13 +247,11 @@ class ServiceBrokerInterface {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
             this.instanceDeprovisionsInProgress[serviceInstanceId] = endTime;
-            response.status(202).json({});
+            this.sendJSONResponse(response, 202, {});
             return;
         }
 
-        this.saveRequest(request);
-        this.saveResponse({});
-        response.json({});
+        this.sendJSONResponse(response, 200, {});
     }
 
     createServiceBinding(request, response) {
@@ -272,19 +261,19 @@ class ServiceBrokerInterface {
         request.checkBody('plan_id', 'Missing plan_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
-            response.status(400).send(errors);
+            this.sendResponse(response, 400, errors);
             return;
         }
 
         // Validate serviceId and planId
         var service = this.serviceBroker.getService(request.body.service_id);
         if (!service) {
-            response.status(400).send(`Could not find service ${request.body.service_id}`);
+            this.sendResponse(response, 400, `Could not find service ${request.body.service_id}`);
             return;
         }
         var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
         if (!plan) {
-            response.status(400).send(`Could not find service/plan ${request.body.service_id}/${request.body.plan_id}`);
+            this.sendResponse(response, 400, `Could not find service/plan ${request.body.service_id}/${request.body.plan_id}`);
             return;
         }
 
@@ -299,7 +288,7 @@ class ServiceBrokerInterface {
         if (schema) {
             var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
             if (validationErrors) {
-                response.status(400).send(validationErrors);
+                this.sendResponse(response, 400, validationErrors);
                 return;
             }
         }
@@ -307,8 +296,6 @@ class ServiceBrokerInterface {
         var serviceInstanceId = request.params.instance_id;
         var bindingId = request.params.binding_id;
         this.logger.debug(`Creating service binding ${bindingId} for service ${serviceInstanceId}`);
-
-        this.saveRequest(request);
 
         var data = {};
         if (!service.requires || service.requires.length == 0) {
@@ -356,14 +343,12 @@ class ServiceBrokerInterface {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
             this.bindingCreatesInProgress[bindingId] = endTime;
-            this.saveResponse({});
-            response.status(202).json({});
+            this.sendJSONResponse(response, 202, {});
             return;
         }
 
         // Else return the data synchronously
-        this.saveResponse(data);
-        response.status(201).json(data);
+        this.sendJSONResponse(response, 201, data);
     }
 
     deleteServiceBinding(request, response) {
@@ -373,7 +358,7 @@ class ServiceBrokerInterface {
         request.checkQuery('plan_id', 'Missing plan_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
-            response.status(400).send(errors);
+            this.sendResponse(response, 400, errors);
             return;
         }
 
@@ -398,20 +383,18 @@ class ServiceBrokerInterface {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
             this.bindingCreatesInProgress[bindingId] = endTime;
-            response.status(202).json({});
+            this.sendJSONResponse(response, 202, {});
             return;
         }
 
-        this.saveRequest(request);
-        this.saveResponse({});
-        response.json({});
+        this.sendJSONResponse(response, 200, {});
     }
 
     getLastServiceInstanceOperation(request, response) {
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
-            response.status(400).send(errors);
+            this.sendResponse(response, 400, errors);
             return;
         }
 
@@ -421,9 +404,7 @@ class ServiceBrokerInterface {
         // But if we don't, presume that the operation finished and we have forgotten about it
         if (!finishTime) {
             var data = { state: 'succeeded', description: 'The operation has completed (although it had been forgotten about).' };
-            response.json(data);
-            this.saveRequest(request);
-            this.saveResponse(data);
+            this.sendJSONResponse(response, 200, data);
             return;
         }
 
@@ -448,9 +429,7 @@ class ServiceBrokerInterface {
             delete this.instanceUpdatesInProgress[serviceInstanceId];
             delete this.instanceDeprovisionsInProgress[serviceInstanceId];
         }
-        this.saveRequest(request);
-        this.saveResponse(data);
-        response.json(data);
+        this.sendJSONResponse(response, 200, data);
     }
 
     getLastServiceBindingOperation(request, response) {
@@ -458,7 +437,7 @@ class ServiceBrokerInterface {
         request.checkParams('binding_id', 'Missing binding_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
-            response.status(400).send(errors);
+            this.sendResponse(response, 400, errors);
             return;
         }
 
@@ -468,7 +447,7 @@ class ServiceBrokerInterface {
         // But if we don't, presume that the operation finished and we have forgotten about it
         if (!finishTime) {
             var data = { state: 'succeeded', description: 'The operation has completed (although it had been forgotten about).' };
-            response.json(data);
+            this.sendJSONResponse(response, 200, data);
             return;
         }
 
@@ -491,22 +470,20 @@ class ServiceBrokerInterface {
             // Since it has finished, we should forget about the operation
             delete this.bindingCreatesInProgress[serviceBindingId];
         }
-        this.saveRequest(request);
-        this.saveResponse(data);
-        response.json(data);
+        this.sendJSONResponse(response, 200, data);
     }
 
     getServiceInstance(request, response) {
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
-            response.status(400).send(errors);
+            this.sendResponse(response, 400, errors);
             return;
         }
 
         let serviceInstanceId = request.params.instance_id;
         if (!this.serviceInstances[serviceInstanceId]) {
-            response.status(404).send(`Could not find service instance ${serviceInstanceId}`);
+            this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
             return;
         }
 
@@ -515,9 +492,7 @@ class ServiceBrokerInterface {
         data.plan_id = this.serviceInstances[serviceInstanceId].plan_id;
         data.parameters = this.serviceInstances[serviceInstanceId].parameters;
 
-        this.saveRequest(request);
-        this.saveResponse(data);
-        response.json(data);
+        this.sendJSONResponse(response, 200, data);
     }
 
     getServiceBinding(request, response) {
@@ -525,27 +500,25 @@ class ServiceBrokerInterface {
         request.checkParams('binding_id', 'Missing binding_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
-            response.status(400).send(errors);
+            this.sendResponse(response, 400, errors);
             return;
         }
 
         let serviceInstanceId = request.params.instance_id;
         let serviceBindingId = request.params.binding_id;
         if (!this.serviceInstances[serviceInstanceId]) {
-            response.status(404).send(`Could not find service instance ${serviceInstanceId}`);
+            this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
             return;
         }
         if (!this.serviceInstances[serviceInstanceId].bindings[serviceBindingId]) {
-            response.status(404).send(`Could not find service binding ${serviceBindingId}`);
+            this.sendResponse(response, 404, `Could not find service binding ${serviceBindingId}`);
             return;
         }
 
         var data = Object.assign({}, this.serviceInstances[serviceInstanceId].bindings[serviceBindingId].data);
         data.parameters = this.serviceInstances[serviceInstanceId].bindings[serviceBindingId].parameters;
 
-        this.saveRequest(request);
-        this.saveResponse(data);
-        response.json(data);
+        this.sendJSONResponse(response, 200, data);
     }
 
     getDashboardData() {
@@ -563,13 +536,13 @@ class ServiceBrokerInterface {
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
-            response.status(400).send(errors);
+            this.sendResponse(response, 400, errors);
             return;
         }
 
         let serviceInstanceId = request.params.instance_id;
         if (!this.serviceInstances[serviceInstanceId]) {
-            response.status(404).send(`Could not find service instance ${serviceInstanceId}`);
+            this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
             return;
         }
 
@@ -601,24 +574,24 @@ total_requests{service_instance="${request.params.instance_id}", service_name="$
         Object.keys(serviceInstances).forEach(function(key) {
             data[key] = serviceInstances[key].data;
         });
-        response.json(data);
+        this.sendJSONResponse(response, 200, data);
     }
 
     clean(request, response) {
         this.serviceInstances = {};
         this.lastRequest = {};
         this.lastResponse = {};
-        response.json({});
+        this.sendJSONResponse(response, 200, {});
     }
 
     updateCatalog(request, response) {
         let data = request.body.catalog;
         let error = this.serviceBroker.setCatalog(data);
         if (error) {
-            response.status(400).send(error);
+            this.sendResponse(response, 400, error);
             return;
         }
-        response.json({});
+        this.sendJSONResponse(response, 200, {});
     }
 
     saveRequest(request) {
@@ -630,8 +603,20 @@ total_requests{service_instance="${request.params.instance_id}", service_name="$
         };
     }
 
-    saveResponse(data) {
-        this.lastResponse = data;
+    sendResponse(response, httpCode, data) {
+        response.status(httpCode).send(data);
+        this.lastResponse = {
+            code: httpCode,
+            body: data
+        };
+    }
+
+    sendJSONResponse(response, httpCode, data) {
+        response.status(httpCode).json(data);
+        this.lastResponse = {
+            code: httpCode,
+            body: data
+        };
     }
 
     getServiceBroker() {
