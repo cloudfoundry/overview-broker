@@ -234,7 +234,12 @@ class ServiceBrokerInterface {
 
         var serviceInstanceId = request.params.instance_id;
         this.logger.debug(`Deleting service ${serviceInstanceId}`);
-        delete this.serviceInstances[serviceInstanceId];
+        if (serviceInstanceId in this.serviceInstances) {
+           delete this.serviceInstances[serviceInstanceId];
+        } else {
+            this.sendJSONResponse(response, 410, {});
+            return;
+        }
 
         if ((request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways') {
             // Set the end time for the operation to be one second from now
@@ -365,11 +370,12 @@ class ServiceBrokerInterface {
         var serviceInstanceId = request.params.instance_id;
         var bindingId = request.params.binding_id;
         this.logger.debug(`Deleting service binding ${bindingId} for service ${serviceInstanceId}`);
-        try {
+        if (serviceInstanceId in this.serviceInstances && bindingId in this.serviceInstances[serviceInstanceId].bindings) {
             delete this.serviceInstances[serviceInstanceId].bindings[bindingId];
         }
-        catch (e) {
-            // We must have lost this state
+        else {
+            this.sendJSONResponse(response, 410, {});
+            return;
         }
 
         if ((request.query.accepts_incomplete == 'true' && process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways') {
