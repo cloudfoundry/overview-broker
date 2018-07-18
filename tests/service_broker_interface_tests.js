@@ -485,6 +485,24 @@ describe('Service Broker Interface', function() {
                 });
         });
 
+        it('should return 410 when the instance does not exist', function(done) {
+            request(server)
+                .delete(`/v2/service_instances/NON_EXISTENT_ID`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .query({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId
+                 })
+                .expect(410)
+                .then(response => {
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
         it('should fail without required parameters', function(done) {
             request(server)
                 .delete(`/v2/service_instances/${instanceId}`)
@@ -829,6 +847,24 @@ describe('Service Broker Interface', function() {
                 .then(response => {
                     should.exist(response.body);
                     response.body.should.be.empty();
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should return 410 if the binding does not exist', function(done) {
+            request(server)
+                .delete(`/v2/service_instances/${instanceId}/service_bindings/NON_EXISTENT`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .query({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId
+                })
+                .expect(410)
+                .then(response => {
                     done();
                 })
                 .catch(error => {
