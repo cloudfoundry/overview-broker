@@ -1,5 +1,24 @@
 'use strict';
 
+function help() {
+    var content = document.createElement('div');
+    content.innerHTML = `<h2>👋  Hey, I'm Overview Broker!</h2><br><br>` +
+        `I am a simple service broker that you can use to test service instance and service binding workflows.<br><br>` +
+        `The easiest way to use me is to register this URL with your platform:<br>` + `<code>${window.location.origin}</code><br><br>` +
+        `For example, in Cloud Foundry, you can do this by running the following command (you will need to use different credentials if you deployed me yourself and <a target="_blank" href="https://github.com/mattmcneeney/overview-broker/blob/master/README.md#configuration">configured these</a>):<br><br>` +
+        `<code>cf create-service-broker overview-broker admin password ${window.location.origin}</code>`;
+    swal({
+        content: content,
+        icon: 'info',
+        buttons: {
+            thanks: {
+                text: 'Thanks!',
+                visible: true
+            }
+        }
+    });
+}
+
 function cleanData() {
     swal({
         title: 'Are you sure?',
