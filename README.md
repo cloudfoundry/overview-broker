@@ -15,6 +15,8 @@ Fun features this broker provides include:
 * Asynchronous service instance provisions and updates
 * Asynchronous service binding creates and deletes
 * Fetching service instances and bindings
+* Generic extensions for fetching the [Health](extensions/health.yaml) and
+  [Info](extensions/info.yaml) of a service instance
 
 > The [Open Service Broker API](https://www.openservicebrokerapi.org/) project
 allows developers, ISVs, and SaaS vendors a single, simple, and elegant way to

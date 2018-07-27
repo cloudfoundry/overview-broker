@@ -53,6 +53,15 @@ function start(callback) {
         data.responseMode = process.env.responseMode;
         response.render('dashboard', data);
     });
+    app.get('/health', function(request, response) {
+        response.sendFile('health.yaml', { root: 'extensions' });
+    });
+    app.get('/info', function(request, response) {
+        response.sendFile('info.yaml', { root: 'extensions' });
+    });
+    app.get('/logs', function(request, response) {
+        response.sendFile('logs.yaml', { root: 'extensions' });
+    });
     app.post('/admin/clean', function(request, response) {
         serviceBrokerInterface.clean(request, response);
     });
@@ -79,9 +88,12 @@ function start(callback) {
     });
     app.use('/images', express.static('images'));
 
-    /* Metrics (unauthenticated) */
-    app.get('/v2/service_instances/:instance_id/metrics', function(request, response) {
-        serviceBrokerInterface.getMetrics(request, response);
+    /* Extensions (unauthenticated) */
+    app.get('/v2/service_instances/:instance_id/health', function(request, response) {
+        serviceBrokerInterface.getHealth(request, response);
+    });
+    app.get('/v2/service_instances/:instance_id/info', function(request, response) {
+        serviceBrokerInterface.getInfo(request, response);
     });
 
     /* Authenticated routes (uses Basic Auth) */

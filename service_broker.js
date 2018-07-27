@@ -97,6 +97,26 @@ class ServiceBroker {
         });
     }
 
+    getServiceInstanceExtensionAPIs(serviceId) {
+        return [
+            {
+                discovery_url: '/logs',
+                server_url: `${cfenv.getAppEnv().url}/v2/service_instances/${serviceId}`,
+                adheres_to: 'http://broker.sapi.life/logs'
+            },
+            {
+                discovery_url: '/health',
+                server_url: `${cfenv.getAppEnv().url}/v2/service_instances/${serviceId}`,
+                adheres_to: 'http://broker.sapi.life/health'
+            },
+            {
+                discovery_url: '/info',
+                server_url: `${cfenv.getAppEnv().url}/v2/service_instances/${serviceId}`,
+                adheres_to: 'http://broker.sapi.life/info'
+            }
+        ]
+    };
+
     validateParameters(schema, parameters) {
         var result = validate(parameters, schema);
         if (!result.valid) {

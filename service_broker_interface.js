@@ -111,7 +111,8 @@ class ServiceBrokerInterface {
 
         let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
         let data = {
-            dashboard_url: dashboardUrl
+            dashboard_url: dashboardUrl,
+            extension_apis: this.serviceBroker.getServiceInstanceExtensionAPIs(serviceInstanceId)
         };
 
         this.serviceInstances[serviceInstanceId] = {
@@ -563,7 +564,24 @@ class ServiceBrokerInterface {
         };
     }
 
-    getMetrics(request, response) {
+    getHealth(request, response) {
+        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
+        var errors = request.validationErrors();
+        if (errors) {
+            this.sendResponse(response, 400, errors);
+            return;
+        }
+
+        let serviceInstanceId = request.params.instance_id;
+        if (!this.serviceInstances[serviceInstanceId]) {
+            this.sendJSONResponse(response, 200, { alive: false });
+            return;
+        }
+
+        this.sendJSONResponse(response, 200, { alive: true });
+    }
+
+    getInfo(request, response) {
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
@@ -577,26 +595,30 @@ class ServiceBrokerInterface {
             return;
         }
 
-        let serviceInstance = this.serviceInstances[serviceInstanceId];
+        let data = {
+            server_url: cfenv.getAppEnv().url,
+            npm_config_node_version: process.env.npm_config_node_version,
+            npm_package_version: process.env.npm_package_version,
+        };
+        this.sendJSONResponse(response, 200, data);
+    }
 
-        let metrics = `
-# HELP alive Counting service instances that are responding
-# TYPE alive gauge
-alive {service_instance="${request.params.instance_id}", service_name="${serviceInstance.service_name}", plan_name="${serviceInstance.plan_name}"} 1 ${new Date().getTime() }
+    getLogs(request, response) {
+        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
+        var errors = request.validationErrors();
+        if (errors) {
+            this.sendResponse(response, 400, errors);
+            return;
+        }
 
-# HELP health The service instance is healthy
-# TYPE health gauge
-health{service_instance="${request.params.instance_id}", service_name="${serviceInstance.service_name}", plan_name="${serviceInstance.plan_name}"} ${Math.round(Math.random() * 1)} ${new Date().getTime() }
+        let serviceInstanceId = request.params.instance_id;
+        if (!this.serviceInstances[serviceInstanceId]) {
+            this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
+            return;
+        }
 
-# HELP cpu The service instance CPU load
-# TYPE cpu gauge
-cpu{service_instance="${request.params.instance_id}", service_name="${serviceInstance.service_name}", plan_name="${serviceInstance.plan_name}"} ${Math.floor(Math.random() * 100)} ${new Date().getTime() }
-
-# HELP total_requests Total requests to the service instance
-# TYPE total_requests counter
-total_requests{service_instance="${request.params.instance_id}", service_name="${serviceInstance.service_name}", plan_name="${serviceInstance.plan_name}"} ${new Date().getSeconds()} ${new Date().getTime() }
-        `;
-        response.send(metrics);
+        
+        this.sendJSONResponse(response, 200, data);
     }
 
     listInstances(request, response) {

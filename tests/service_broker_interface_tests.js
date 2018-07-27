@@ -1429,6 +1429,60 @@ describe('Service Broker Interface', function() {
 
     });
 
+    describe('extensions', function() {
+
+        beforeEach(function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: { foo: 'bar' },
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(201)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fetch health', function(done) {
+            request(server)
+                .get(`/v2/service_instances/${instanceId}/health`)
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.have.property('alive');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fetch info', function(done) {
+            request(server)
+                .get(`/v2/service_instances/${instanceId}/info`)
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+    });
+
     describe('clean', function() {
 
         it('should succeed', function(done) {
