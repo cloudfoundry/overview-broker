@@ -21,36 +21,6 @@ class ServiceBrokerInterface {
         this.instanceUpdatesInProgress = {};
         this.bindingCreatesInProgress = {};
         this.instanceDeprovisionsInProgress = {};
-
-        if (process.env.FAKE_DATA) {
-            this.showFakeData()
-        }
-    }
-
-    showFakeData() {
-        this.serviceInstances['b1daaff9-1430-4b20-9846-cb2ae0987861'] = {
-            created: moment().toString(),
-            last_updated: 'never',
-            service_id: '1',
-            plan_id: '1',
-            api_version: '2.13',
-            parameters: {
-                name: 'Cloud Foundry Service Instance',
-                rainbow: true
-            },
-            context: { platform: 'cloudfoundry', space_guid: '15b5c1e9-5e2d-4afe-946a-4fbea279ccf8' }
-        };
-        this.serviceInstances['8aaf022d-ec8d-40aa-a22e-fa7f6c2b20f5'] = {
-            created: moment().toString(),
-            last_updated: 'never',
-            service_id: '1',
-            plan_id: '1',
-            api_version: '2.13',
-            parameters: {
-                name: 'Kubernetes Service Instance'
-            },
-            context: { platform: 'kubernetes', namespace: 'dev' }
-        };
     }
 
     checkRequest(request, response, next) {
