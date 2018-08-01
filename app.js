@@ -30,6 +30,7 @@ function start(callback) {
         'timeout', // Do not respond to any request
         'servererror', // Return HTTP 500 to every request
         'notfound', // Return HTTP 404 to every request
+        'gone', // Return HTTP 410 to every request
         'unprocessable', // Return HTTP 422 to every request
         'invalidjson', // Return invalid JSON to every request
         'failasync' // Fail asynchronous operations (after they have finished)
@@ -117,6 +118,9 @@ function start(callback) {
                 return;
             case 'notfound':
                 serviceBrokerInterface.sendJSONResponse(response, 404, {});
+                return;
+            case 'gone':
+                serviceBrokerInterface.sendJSONResponse(response, 410, {});
                 return;
             case 'unprocessable':
                 serviceBrokerInterface.sendJSONResponse(response, 422, {

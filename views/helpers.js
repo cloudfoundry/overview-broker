@@ -73,6 +73,9 @@ function errorModeChanged(el) {
         case 'Respond to all requests with an HTTP 404':
             errorMode = 'notfound';
             break;
+        case 'Respond to all requests with an HTTP 410':
+            errorMode = 'gone';
+            break;
         case 'Respond to all requests with an HTTP 422':
             errorMode = 'unprocessable';
             break;

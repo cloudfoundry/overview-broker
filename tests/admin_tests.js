@@ -91,6 +91,16 @@ describe('Admin', function() {
                 });
         });
 
+        it('should set to gone', function(done) {
+            request(server)
+                .post('/admin/setErrorMode')
+                .send({ mode: 'gone' })
+                .expect(200)
+                .then(response => {
+                    done();
+                });
+        });
+
         it('should set to unprocessable', function(done) {
             request(server)
                 .post('/admin/setErrorMode')
