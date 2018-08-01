@@ -52,7 +52,8 @@ npm test
 * By default, all asynchronous operations take 1 second to complete. To override
   this, set the `ASYNCHRONOUS_DELAY_IN_SECONDS` environmental variable to the
   number of seconds all operations should take.
-
+* To change the name of the service(s) exposed by the service broker, set the
+  `SERVICE_NAME` environmental variable.
 
 ---
 

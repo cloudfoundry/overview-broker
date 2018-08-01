@@ -8,19 +8,20 @@ class ServiceBroker {
 
     constructor() {
         this.logger = new Logger();
+        let serviceName = process.env.SERVICE_NAME || 'overview-broker';
         this.catalog = {
             services: [
                 {
-                    name: cfenv.getAppEnv().name,
+                    name: serviceName,
                     description: 'Provides an overview of any service instances and bindings that have been created by a platform.',
-                    id: sha256(cfenv.getAppEnv().name).substring(0, 32),
+                    id: sha256(serviceName).substring(0, 32),
                     tags: [ 'overview-broker' ],
                     bindable: true,
                     plan_updateable: true,
                     bindings_retrievable: true,
                     instances_retrievable: true,
                     metadata: { shareable: true },
-                    plans: this.generatePlansForService(cfenv.getAppEnv().name),
+                    plans: this.generatePlansForService(serviceName),
                 }
             ]
         };
@@ -28,16 +29,16 @@ class ServiceBroker {
         // Expose a syslog drain service if requested
         if (process.env.SYSLOG_DRAIN_URL) {
             this.catalog.services.push({
-                name: cfenv.getAppEnv().name + '-syslog-drain',
+                name: serviceName + '-syslog-drain',
                 description: 'Provides an example syslog drain service.',
-                id: sha256(cfenv.getAppEnv().name + '-syslog-drain').substring(0, 32),
+                id: sha256(serviceName + '-syslog-drain').substring(0, 32),
                 tags: [ 'overview-broker' ],
                 requires: [ 'syslog_drain' ],
                 bindable: true,
                 bindings_retrievable: true,
                 instances_retrievable: true,
                 plan_updateable: true,
-                plans: this.generatePlansForService(cfenv.getAppEnv().name + '-syslog-drain'),
+                plans: this.generatePlansForService(serviceName + '-syslog-drain'),
                 metadata: { shareable: true }
             });
         }
@@ -45,21 +46,21 @@ class ServiceBroker {
         // Expose a volume mount service if requested
         if (process.env.EXPOSE_VOLUME_MOUNT_SERVICE) {
             this.catalog.services.push({
-                name: cfenv.getAppEnv().name + '-volume-mount',
+                name: serviceName + '-volume-mount',
                 description: 'Provides an example volume mount service.',
-                id: sha256(cfenv.getAppEnv().name + '-volume-mount').substring(0, 32),
+                id: sha256(serviceName + '-volume-mount').substring(0, 32),
                 tags: [ 'overview-broker' ],
                 requires: [ 'volume_mount' ],
                 bindable: true,
                 bindings_retrievable: true,
                 instances_retrievable: true,
                 plan_updateable: true,
-                plans: this.generatePlansForService(cfenv.getAppEnv().name + '-volume-mount'),
+                plans: this.generatePlansForService(serviceName + '-volume-mount'),
                 metadata: { shareable: true }
             });
         };
         this.dashboardUrl = `${cfenv.getAppEnv().url}/dashboard`;
-        logger.debug(`Service broker created: ${this.catalog.services[0].name} (${this.catalog.services.length} service${this.catalog.services.length == 1 ? '' : 's'} exposed)`);
+        logger.debug(`Service broker created. (${this.catalog.services.length} service${this.catalog.services.length == 1 ? '' : 's'} exposed)`);
     }
 
     getCatalog() {
