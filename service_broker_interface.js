@@ -604,7 +604,7 @@ class ServiceBrokerInterface {
         this.serviceInstances = {};
         this.lastRequest = {};
         this.lastResponse = {};
-        this.sendJSONResponse(response, 200, {});
+        response.status(200).json({});
     }
 
     updateCatalog(request, response) {
