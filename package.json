@@ -20,7 +20,7 @@
     "jsonschema": "latest",
     "moment": "latest",
     "morgan": "latest",
-    "npm": "^6.2.0",
+    "npm": "^6.4.1",
     "pug": "latest",
     "randomstring": "^1.1.5",
     "request": "latest",
