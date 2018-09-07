@@ -49,20 +49,21 @@ html
               div.form-group
                 label(for='errorModeSelect') Error mode:
                 select.form-control(id='errorModeSelect', onchange='errorModeChanged(this)')
-                  option(selected=(errorMode == '')) Disabled
-                  option(selected=(errorMode == 'servererror')) Respond to all requests with an HTTP 500
-                  option(selected=(errorMode == 'notfound')) Respond to all requests with an HTTP 404
-                  option(selected=(errorMode == 'gone')) Respond to all requests with an HTTP 410
-                  option(selected=(errorMode == 'unprocessable')) Respond to all requests with an HTTP 422
-                  option(selected=(errorMode == 'timeout')) Do not respond to any request (timeout)
-                  option(selected=(errorMode == 'invalidjson')) Respond with invalid JSON to any request
-                  option(selected=(errorMode == 'failasync')) Fail asynchronous operations (after they have finished)
+                  option(code='', selected=(errorMode == '')) Disabled
+                  option(code='servererror', selected=(errorMode == 'servererror')) Respond with HTTP 500
+                  option(code='notfound', selected=(errorMode == 'notfound')) Respond with HTTP 404
+                  option(code='gone', selected=(errorMode == 'gone')) Respond with HTTP 410
+                  option(code='unprocessable', selected=(errorMode == 'unprocessable')) Respond with HTTP 422
+                  option(code='concurrencyerror', selected=(errorMode == 'concurrencyerror')) Respond with HTTP 422 with ConcurencyError code
+                  option(code='timeout', selected=(errorMode == 'timeout')) Do not respond (timeout)
+                  option(code='invalidjson', selected=(errorMode == 'invalidjson')) Respond with invalid JSON
+                  option(code='failasync', selected=(errorMode == 'failasync')) Fail asynchronous operations (after they have finished)
               div.form-group
                 label(for='responseModeSelect') Response mode:
                 select.form-control(id='responseModeSelect', onchange='responseModeChanged(this)')
-                  option(selected=(responseMode == 'async')) Asynchronous responses where possible
-                  option(selected=(responseMode == 'sync')) Synchronous responses always
-                  option(selected=(responseMode == 'asyncalways')) Asynchronous responses always
+                  option(code='async', selected=(responseMode == 'async')) Asynchronous responses where possible
+                  option(code='sync', selected=(responseMode == 'sync')) Synchronous responses always
+                  option(code='asyncalways', selected=(responseMode == 'asyncalways')) Asynchronous responses always
               div.form-group
                 button.btn.btn-primary(onclick="editCatalog(\'" + JSON.stringify(catalog) + "\', true)") Edit the catalog
       div.row.mb-2

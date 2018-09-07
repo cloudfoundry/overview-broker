@@ -32,6 +32,7 @@ function start(callback) {
         'notfound', // Return HTTP 404 to every request
         'gone', // Return HTTP 410 to every request
         'unprocessable', // Return HTTP 422 to every request
+        'concurrencyerror', // Return HTTP 422 with the "ConcurrencyError" error code
         'invalidjson', // Return invalid JSON to every request
         'failasync' // Fail asynchronous operations (after they have finished)
     ];
@@ -127,6 +128,13 @@ function start(callback) {
                     error: 'ErrorMode',
                     description: 'Error mode enabled (unprocessable)'
                 });
+                return;
+            case 'concurrencyerror':
+                serviceBrokerInterface.sendJSONResponse(response, 422, {
+                    error: 'ConcurrencyError',
+                    description: 'Error mode enabled (concurrencyerror)'
+                });
+                return;
             case 'invalidjson':
                 serviceBrokerInterface.sendResponse(response, 200, '{ "invalidjson error mode enabled" }');
                 return;

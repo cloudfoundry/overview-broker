@@ -62,36 +62,7 @@ function cleanData() {
 }
 
 function errorModeChanged(el) {
-    var errorMode = null;
-    switch(el.value) {
-        case 'Disabled':
-            errorMode = '';
-            break;
-        case 'Respond to all requests with an HTTP 500':
-            errorMode = 'servererror';
-            break;
-        case 'Respond to all requests with an HTTP 404':
-            errorMode = 'notfound';
-            break;
-        case 'Respond to all requests with an HTTP 410':
-            errorMode = 'gone';
-            break;
-        case 'Respond to all requests with an HTTP 422':
-            errorMode = 'unprocessable';
-            break;
-        case 'Do not respond to any request (timeout)':
-            errorMode = 'timeout';
-            break;
-        case 'Respond with invalid JSON to any request':
-            errorMode = 'invalidjson';
-            break;
-        case 'Fail asynchronous operations (after they have finished)':
-            errorMode = 'failasync';
-            break;
-        default:
-            console.error(`Unknown error mode detected: ${el.value}`);
-            return;
-    }
+    let errorMode = el.options[el.selectedIndex].attributes.code.value;
     jQuery.post('/admin/setErrorMode', { mode: errorMode }, function() {
         swal({
             title: 'Completed',
@@ -110,21 +81,7 @@ function errorModeChanged(el) {
 }
 
 function responseModeChanged(el) {
-    var responseMode = null;
-    switch(el.value) {
-        case 'Asynchronous responses where possible':
-        responseMode = 'async';
-        break;
-        case 'Synchronous responses always':
-        responseMode = 'sync';
-        break;
-        case 'Asynchronous responses always':
-        responseMode = 'asyncalways';
-        break;
-        default:
-        console.error(`Unknown response mode detected: ${el.value}`);
-        return;
-    }
+    let responseMode = el.options[el.selectedIndex].attributes.code.value;
     jQuery.post('/admin/setResponseMode', { mode: responseMode }, function() {
         swal({
             title: 'Completed',
