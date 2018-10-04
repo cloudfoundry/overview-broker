@@ -72,13 +72,19 @@ html
             h6.card-header
               a.text-info(data-toggle='collapse', href='#request') Last Request
             div#request.card-body.collapse.show(style={'padding': '0px'})
-              pre(style={'background': 'none', 'border': 'none', 'height': '300px'}) !{syntaxHighlight(lastRequest)}
+              pre(style={'background': 'none', 'border': 'none', 'height': '300px'})
+                each request, index in latestRequests
+                  p [#{index+1}] #{request.timestamp}
+                  p !{syntaxHighlight(request.data)}
         div.col-12.col-sm-6
           div.card
             h6.card-header
               a.text-info(data-toggle='collapse', href='#response') Last Response
             div#response.card-body.collapse.show(style={'padding': '0px'})
-              pre(style={'background': 'none', 'border': 'none', 'height': '300px'}) !{syntaxHighlight(lastResponse)}
+              pre(style={'background': 'none', 'border': 'none', 'height': '300px'})
+                each response, index in latestResponses
+                  p [#{index+1}] #{response.timestamp}
+                  p !{syntaxHighlight(response.data)}
       - let numServices = Object.keys(serviceInstances).length
       if numServices > 0
         div.row.mb-2

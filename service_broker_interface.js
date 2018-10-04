@@ -11,8 +11,8 @@ class ServiceBrokerInterface {
         this.serviceBroker = new ServiceBroker();
         this.logger = new Logger();
         this.serviceInstances = {};
-        this.lastRequest = {};
-        this.lastResponse = {};
+        this.latestRequests = [];
+        this.latestResponses = [];
         this.bindingCredentials = {
             username: 'admin',
             password: randomstring.generate(16)
@@ -21,6 +21,8 @@ class ServiceBrokerInterface {
         this.instanceUpdatesInProgress = {};
         this.bindingCreatesInProgress = {};
         this.instanceDeprovisionsInProgress = {};
+        this.numRequestsToSave = 5;
+        this.numResponsesToSave = 5;
     }
 
     checkRequest(request, response, next) {
@@ -528,8 +530,8 @@ class ServiceBrokerInterface {
             title: 'Overview Broker',
             status: 'running',
             serviceInstances: this.serviceInstances,
-            lastRequest: this.lastRequest,
-            lastResponse: this.lastResponse,
+            latestRequests: this.latestRequests,
+            latestResponses: this.latestResponses,
             catalog: this.serviceBroker.getCatalog()
         };
     }
@@ -587,7 +589,7 @@ class ServiceBrokerInterface {
             return;
         }
 
-        
+
         this.sendJSONResponse(response, 200, data);
     }
 
@@ -602,8 +604,8 @@ class ServiceBrokerInterface {
 
     clean(request, response) {
         this.serviceInstances = {};
-        this.lastRequest = {};
-        this.lastResponse = {};
+        this.latestRequests = [];
+        this.latestResponses = [];
         response.status(200).json({});
     }
 
@@ -618,28 +620,41 @@ class ServiceBrokerInterface {
     }
 
     saveRequest(request) {
-        this.lastRequest = {
-            url: request.url,
-            method: request.method,
-            body: request.body,
-            headers: request.headers
-        };
+        this.latestRequests.push({
+            timestamp: moment().toString(),
+            data: {
+                url: request.url,
+                method: request.method,
+                body: request.body,
+                headers: request.headers
+            }
+        });
+        if (this.latestRequests.length > this.numRequestsToSave) {
+            this.latestRequests.shift();
+        }
+    }
+
+    saveResponse(httpCode, data) {
+        this.latestResponses.push({
+            timestamp: moment().toString(),
+            data: {
+                code: httpCode,
+                body: data
+            }
+        });
+        if (this.latestResponses.length > this.numResponsesToSave) {
+            this.latestResponses.shift();
+        }
     }
 
     sendResponse(response, httpCode, data) {
         response.status(httpCode).send(data);
-        this.lastResponse = {
-            code: httpCode,
-            body: data
-        };
+        this.saveResponse(httpCode, data);
     }
 
     sendJSONResponse(response, httpCode, data) {
         response.status(httpCode).json(data);
-        this.lastResponse = {
-            code: httpCode,
-            body: data
-        };
+        this.saveResponse(httpCode, data);
     }
 
     getServiceBroker() {
