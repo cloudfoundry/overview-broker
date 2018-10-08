@@ -8,7 +8,7 @@ class ServiceBroker {
 
     constructor() {
         this.logger = new Logger();
-        let serviceName = process.env.SERVICE_NAME || 'overview-broker';
+        let serviceName = process.env.SERVICE_NAME || 'overview-service';
         this.catalog = {
             services: [
                 {
