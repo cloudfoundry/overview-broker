@@ -77,15 +77,21 @@ class ServiceBrokerInterface {
             }
         }
 
-        // Create the service
+        // Create the service instance
         var serviceInstanceId = request.params.instance_id;
-        this.logger.debug(`Creating service ${serviceInstanceId}`);
+        this.logger.debug(`Creating service instance ${serviceInstanceId}`);
 
         let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
         let data = {
             dashboard_url: dashboardUrl,
             extension_apis: this.serviceBroker.getServiceInstanceExtensionAPIs(serviceInstanceId)
         };
+
+        // Check if the instance already exists
+        if (serviceInstanceId in this.serviceInstances) {
+            this.sendJSONResponse(response, 200, data);
+            return;
+        }
 
         this.serviceInstances[serviceInstanceId] = {
             created: moment().toString(),
@@ -288,6 +294,7 @@ class ServiceBrokerInterface {
 
         var serviceInstanceId = request.params.instance_id;
         var bindingId = request.params.binding_id;
+
         this.logger.debug(`Creating service binding ${bindingId} for service ${serviceInstanceId}`);
 
         var data = {};
@@ -313,6 +320,12 @@ class ServiceBrokerInterface {
                     }
                 }]
             };
+        }
+
+        // Check if the binding already exists
+        if (serviceInstanceId in this.serviceInstances && bindingId in this.serviceInstances[serviceInstanceId].bindings) {
+            this.sendJSONResponse(response, 200, data);
+            return;
         }
 
         this.serviceInstances[serviceInstanceId].bindings[bindingId] = {
@@ -530,8 +543,8 @@ class ServiceBrokerInterface {
             title: 'Overview Broker',
             status: 'running',
             serviceInstances: this.serviceInstances,
-            latestRequests: this.latestRequests,
-            latestResponses: this.latestResponses,
+            latestRequests: this.latestRequests.reverse(),
+            latestResponses: this.latestResponses.reverse(),
             catalog: this.serviceBroker.getCatalog()
         };
     }

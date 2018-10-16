@@ -49,6 +49,18 @@ describe('Service Broker Interface', function() {
         });
     });
 
+    beforeEach(function(done) {
+        request(server)
+            .post('/admin/clean')
+            .auth(brokerUsername, brokerPassword)
+            .then(response => {
+                done();
+            })
+            .catch(error => {
+                done(error);
+            });
+    });
+
     describe('catalog', function() {
 
         it('should fetch the catalog', function(done) {
@@ -595,6 +607,59 @@ describe('Service Broker Interface', function() {
 
     });
 
+    describe('recreating service instances', function() {
+
+        beforeEach(function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(201)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.type('object');
+                    response.body.should.have.property('dashboard_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should return 200', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.have.property('dashboard_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+    });
+
     describe('binding', function() {
 
         beforeEach(function(done) {
@@ -1002,6 +1067,76 @@ describe('Service Broker Interface', function() {
 
     });
 
+    describe('recreating binding', function() {
+
+        beforeEach(function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(201)
+                .then(response => {
+                    should.exist(response.body);
+                    request(server)
+                        .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: simplePlanId,
+                            app_guid: appGuid,
+                            bind_resource: {},
+                            parameters: {}
+                         })
+                        .expect(201)
+                        .then(response => {
+                            done();
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should return 200', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    app_guid: appGuid,
+                    bind_resource: {},
+                    parameters: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.type('object');
+                    response.body.should.have.property('credentials');
+                    response.body.credentials.should.have.property('username');
+                    response.body.credentials.should.have.property('password');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+    });
+
     describe('dashboard', function() {
 
         it('should show dashboard', function(done) {
@@ -1089,19 +1224,37 @@ describe('Service Broker Interface', function() {
 
         it('should update service instance with valid parameters', function(done) {
             request(server)
-                .patch(`/v2/service_instances/${instanceId}`)
+                .put(`/v2/service_instances/${instanceId}`)
                 .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
                     plan_id: complexPlanId,
-                    parameters: validParameters
+                    parameters: validParameters,
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
                  })
-                .expect(200)
+                .expect(201)
                 .then(response => {
-                    should.exist(response.body);
-                    response.body.should.have.property('dashboard_url');
-                    done();
+                    request(server)
+                        .patch(`/v2/service_instances/${instanceId}`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: complexPlanId,
+                            parameters: validParameters
+                         })
+                        .expect(200)
+                        .then(response => {
+                            should.exist(response.body);
+                            response.body.should.have.property('dashboard_url');
+                            done();
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
                 })
                 .catch(error => {
                     done(error);
@@ -1110,18 +1263,36 @@ describe('Service Broker Interface', function() {
 
         it('should fail to update service instance with invalid parameters', function(done) {
             request(server)
-                .patch(`/v2/service_instances/${instanceId}`)
+                .put(`/v2/service_instances/${instanceId}`)
                 .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
                     plan_id: complexPlanId,
-                    parameters: invalidParameters
+                    parameters: validParameters,
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
                  })
-                .expect(400)
+                .expect(201)
                 .then(response => {
-                    should.exist(response.body);
-                    done();
+                    request(server)
+                        .patch(`/v2/service_instances/${instanceId}`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: complexPlanId,
+                            parameters: invalidParameters
+                         })
+                        .expect(400)
+                        .then(response => {
+                            should.exist(response.body);
+                            done();
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
                 })
                 .catch(error => {
                     done(error);
@@ -1130,17 +1301,35 @@ describe('Service Broker Interface', function() {
 
         it('should fail to update service instance with no parameters', function(done) {
             request(server)
-                .patch(`/v2/service_instances/${instanceId}`)
+                .put(`/v2/service_instances/${instanceId}`)
                 .auth(brokerUsername, brokerPassword)
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: complexPlanId
+                    plan_id: complexPlanId,
+                    parameters: validParameters,
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
                  })
-                .expect(400)
+                .expect(201)
                 .then(response => {
-                    should.exist(response.body);
-                    done();
+                    request(server)
+                        .patch(`/v2/service_instances/${instanceId}`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: complexPlanId
+                         })
+                        .expect(400)
+                        .then(response => {
+                            should.exist(response.body);
+                            done();
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
                 })
                 .catch(error => {
                     done(error);
