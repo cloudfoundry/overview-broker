@@ -543,8 +543,8 @@ class ServiceBrokerInterface {
             title: 'Overview Broker',
             status: 'running',
             serviceInstances: this.serviceInstances,
-            latestRequests: this.latestRequests.reverse(),
-            latestResponses: this.latestResponses.reverse(),
+            latestRequests: this.latestRequests.slice().reverse(),
+            latestResponses: this.latestResponses.slice().reverse(),
             catalog: this.serviceBroker.getCatalog()
         };
     }
