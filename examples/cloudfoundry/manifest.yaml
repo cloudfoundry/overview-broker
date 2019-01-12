@@ -2,6 +2,6 @@ applications:
 - name: overview-broker
   buildpack: https://github.com/cloudfoundry/nodejs-buildpack
   instances: 1
-  memory: 512M
-  disk_quota: 512M
+  memory: 256M
+  disk_quota: 256M
   random-route: true
