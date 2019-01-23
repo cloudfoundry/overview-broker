@@ -131,11 +131,15 @@ class ServiceBroker {
     generatePlansForService(serviceName) {
         var plans = [];
 
+        // Set max polling duration to 1 minute unless overriden
+        let maxPollingDuration = parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS) ? (Math.ceil(parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)/60) + 1) : 1;
+
         // Add a very simple plan
         plans.push({
             name: 'simple',
             description: 'A very simple plan.',
-            free: true
+            free: true,
+            maximum_polling_duration: maxPollingDuration
         });
 
         // Add a complex plan with a schema
@@ -180,6 +184,7 @@ class ServiceBroker {
             name: 'complex',
             description: 'A more complicated plan.',
             free: true,
+            maximum_polling_duration: maxPollingDuration,
             schemas: {
                 service_instance: {
                     create: {
@@ -207,6 +212,7 @@ class ServiceBroker {
                     name: name,
                     description: name.replace(/-/g, ' '),
                     free: true,
+                    maximum_polling_duration: maxPollingDuration,
                     schemas: {
                         service_instance: {
                             create: {
