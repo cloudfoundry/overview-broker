@@ -448,6 +448,26 @@ describe('Service Broker Interface', function() {
                 });
         });
 
+        it('should succeed with just context', function(done) {
+            request(server)
+                .patch(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    context: {}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
     });
 
     describe('deprovisioning service instances', function() {

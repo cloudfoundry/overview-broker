@@ -83,8 +83,7 @@ class ServiceBrokerInterface {
 
         let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
         let data = {
-            dashboard_url: dashboardUrl,
-            extension_apis: this.serviceBroker.getServiceInstanceExtensionAPIs(serviceInstanceId)
+            dashboard_url: dashboardUrl
         };
 
         // Check if the instance already exists
@@ -105,7 +104,7 @@ class ServiceBrokerInterface {
             accepts_incomplete: (request.query.accepts_incomplete == 'true'),
             organization_guid: request.body.organization_guid,
             space_guid: request.body.space_guid,
-            context: request.body.context,
+            context: request.body.context || {},
             bindings: {},
             data: data
         };
@@ -171,8 +170,8 @@ class ServiceBrokerInterface {
         this.serviceInstances[serviceInstanceId].api_version = request.header('X-Broker-Api-Version'),
         this.serviceInstances[serviceInstanceId].service_id = request.body.service_id;
         this.serviceInstances[serviceInstanceId].plan_id = request.body.plan_id;
-        this.serviceInstances[serviceInstanceId].parameters = request.body.parameters;
-        this.serviceInstances[serviceInstanceId].context = request.body.context;
+        this.serviceInstances[serviceInstanceId].parameters = request.body.parameters || {};
+        this.serviceInstances[serviceInstanceId].context = request.body.context || {};
         this.serviceInstances[serviceInstanceId].last_updated = moment().toString();
 
         let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;

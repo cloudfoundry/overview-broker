@@ -90,29 +90,35 @@ html
         div.row.mb-2
             - var a = 0
             each serviceData, serviceKey in serviceInstances
-              div.col-12.col-sm-6.mb-2
+              -
+                var serviceDataToDisplay = JSON.parse(JSON.stringify(serviceData))
+                JSON.stringify(serviceDataToDisplay)
+                delete serviceDataToDisplay['created']
+                delete serviceDataToDisplay['last_updated']
+                delete serviceDataToDisplay['data']
+              div.col-12.col-md-6.mb-2
                 div.card.instance
                   div.card-header(class=`${serviceData.parameters.rainbow ? "rainbow" : ""}`)
-                    if serviceData.parameters.name != null
-                      h6 !{serviceData.parameters.name}
-                    else
-                      h6 Service Instance
+                    h6
+                      if serviceDataToDisplay.context.instance_name != null
+                        span !{serviceDataToDisplay.context.instance_name}
+                      else
+                        span Service Instance
+                      if serviceDataToDisplay.context.platform == 'cloudfoundry' && serviceDataToDisplay.context.organization_name != null && serviceDataToDisplay.context.space_name != null
+                        span  (org: #{serviceDataToDisplay.context.organization_name}, space: #{serviceDataToDisplay.context.space_name})
+                      if serviceDataToDisplay.context.platform == 'kubernetes' && serviceDataToDisplay.context.namespace != null
+                          span  (namespace: #{serviceDataToDisplay.context.namespace})
                   div.card-body
+                    div.float-right
+                      if serviceDataToDisplay.context != null && serviceDataToDisplay.context.platform == 'kubernetes'
+                        img(src='../images/kubernetes.png', alt='Kubernetes', style={'height': '40px', 'width': 'auto', 'margin-top': '-10px'})
+                      else
+                        img(src='../images/cloudfoundry.png', alt='Cloud Foundry', style={'height': '40px', 'width': 'auto', 'margin-top': '-10px'})
                     p.text-muted ID: #{serviceKey}
                     p.text-muted Created: #{serviceData.created}
                     if serviceData.last_update
                       p.text-muted Last Update: #{serviceData.last_update}
-                    -
-                      var serviceDataToDisplay = JSON.parse(JSON.stringify(serviceData))
-                      JSON.stringify(serviceDataToDisplay)
-                      delete serviceDataToDisplay['created']
-                      delete serviceDataToDisplay['last_updated']
-                    pre(style={'background': 'none', 'border': 'none', 'margin-bottom': '10px'}) !{syntaxHighlight(serviceDataToDisplay)}
-                    div.float-right
-                      if serviceDataToDisplay.context != null && serviceDataToDisplay.context.platform == 'kubernetes'
-                        img(src='../images/kubernetes.png', alt='Kubernetes')
-                      else
-                        img(src='../images/cloudfoundry.png', alt='Cloud Foundry')
+                    pre(style={'background': 'none', 'border': 'none'}) !{syntaxHighlight(serviceDataToDisplay)}
                 - a+=1
               if (a % 2) == 0
                 div.clearfix
