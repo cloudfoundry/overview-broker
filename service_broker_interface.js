@@ -429,6 +429,11 @@ class ServiceBrokerInterface {
         if (finishTime >= new Date()) {
             data.state = 'in progress';
             data.description = 'The operation is in progress...';
+
+            // Check if we should add a Retry-After header
+            if (parseInt(process.env.POLLING_INTERVAL_IN_SECONDS)) {
+                response.append('Retry-After', parseInt(process.env.POLLING_INTERVAL_IN_SECONDS));
+            }
         }
         else {
             if (process.env.errorMode == 'failasync') {
@@ -472,6 +477,11 @@ class ServiceBrokerInterface {
         if (finishTime >= new Date()) {
             data.state = 'in progress';
             data.description = 'The operation is in progress...';
+
+            // Check if we should add a Retry-After header
+            if (parseInt(process.env.POLLING_INTERVAL_IN_SECONDS)) {
+                response.append('Retry-After', parseInt(process.env.POLLING_INTERVAL_IN_SECONDS));
+            }
         }
         else {
             if (process.env.errorMode == 'failasync') {
@@ -486,6 +496,7 @@ class ServiceBrokerInterface {
             // Since it has finished, we should forget about the operation
             delete this.bindingCreatesInProgress[serviceBindingId];
         }
+
         this.sendJSONResponse(response, 200, data);
     }
 

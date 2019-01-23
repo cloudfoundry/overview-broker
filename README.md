@@ -52,6 +52,12 @@ npm test
 * By default, all asynchronous operations take 1 second to complete. To override
   this, set the `ASYNCHRONOUS_DELAY_IN_SECONDS` environmental variable to the
   number of seconds all operations should take.
+* To specify how long platforms should wait before timing out an asynchronous
+  operation, set the `MAXIMUM_POLLING_DURATION_IN_MINS` environmental variable.
+* To specify how long Platforms should wait in between polling the
+  `/last_operation` endpoint for service instances or bindings, set the
+  `POLLING_INTERVAL_IN_SECONDS` environmental variable to the number of seconds
+  a platform should wait before trying again.
 * To change the name of the service(s) exposed by the service broker, set the
   `SERVICE_NAME` environmental variable.
 

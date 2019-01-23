@@ -21,6 +21,11 @@ describe('Service Broker Interface', function() {
     var brokerPassword = null;
 
     before(function(done) {
+
+        // Setup required environmental variables
+        process.env.MAXIMUM_POLLING_DURATION_IN_MINS = 10;
+        process.env.POLLING_INTERVAL_IN_SECONDS = 10;
+
         app.start(function(s, sbInterface) {
             server = s;
             var serviceBroker = sbInterface.getServiceBroker();
@@ -85,6 +90,7 @@ describe('Service Broker Interface', function() {
                     should.exist(plans[0].name);
                     should.exist(plans[0].description);
                     should.exist(plans[0].free);
+                    should.exist(plans[0].maximum_polling_duration);
                     done();
                 })
                 .catch(error => {
@@ -211,6 +217,7 @@ describe('Service Broker Interface', function() {
                             response.body.should.be.type('object');
                             response.body.should.have.property('state');
                             response.body.state.should.equal('in progress');
+                            response.headers.should.have.property('retry-after');
 
                             // The operation should finish after one second
                             setTimeout(function() {
@@ -397,6 +404,7 @@ describe('Service Broker Interface', function() {
                             response.body.should.be.type('object');
                             response.body.should.have.property('state');
                             response.body.state.should.equal('in progress');
+                            response.headers.should.have.property('retry-after');
 
                             // The operation should finish after one second
                             setTimeout(function() {
@@ -575,6 +583,7 @@ describe('Service Broker Interface', function() {
                             response.body.should.be.type('object');
                             response.body.should.have.property('state');
                             response.body.state.should.equal('in progress');
+                            response.headers.should.have.property('retry-after');
 
                             // The operation should finish after one second
                             setTimeout(function() {
@@ -819,6 +828,7 @@ describe('Service Broker Interface', function() {
                             response.body.should.be.type('object');
                             response.body.should.have.property('state');
                             response.body.state.should.equal('in progress');
+                            response.headers.should.have.property('retry-after');
 
                             // The operation should finish after one second
                             setTimeout(function() {
@@ -1035,6 +1045,7 @@ describe('Service Broker Interface', function() {
                             response.body.should.be.type('object');
                             response.body.should.have.property('state');
                             response.body.state.should.equal('in progress');
+                            response.headers.should.have.property('retry-after');
 
                             // The operation should finish after one second
                             setTimeout(function() {
