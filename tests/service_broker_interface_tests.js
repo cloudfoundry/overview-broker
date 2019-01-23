@@ -23,7 +23,7 @@ describe('Service Broker Interface', function() {
     before(function(done) {
 
         // Setup required environmental variables
-        process.env.MAXIMUM_POLLING_DURATION_IN_MINS = 10;
+        process.env.MAXIMUM_POLLING_DURATION_IN_SECONDS = 120;
         process.env.POLLING_INTERVAL_IN_SECONDS = 10;
 
         app.start(function(s, sbInterface) {

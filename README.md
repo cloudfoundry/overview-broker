@@ -53,7 +53,8 @@ npm test
   this, set the `ASYNCHRONOUS_DELAY_IN_SECONDS` environmental variable to the
   number of seconds all operations should take.
 * To specify how long platforms should wait before timing out an asynchronous
-  operation, set the `MAXIMUM_POLLING_DURATION_IN_MINS` environmental variable.
+  operation, set the `MAXIMUM_POLLING_DURATION_IN_SECONDS` environmental
+  variable.
 * To specify how long Platforms should wait in between polling the
   `/last_operation` endpoint for service instances or bindings, set the
   `POLLING_INTERVAL_IN_SECONDS` environmental variable to the number of seconds
