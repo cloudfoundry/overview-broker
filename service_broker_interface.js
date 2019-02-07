@@ -657,11 +657,12 @@ class ServiceBrokerInterface {
         }
     }
 
-    saveResponse(httpCode, data) {
+    saveResponse(httpCode, data, headers) {
         this.latestResponses.push({
             timestamp: moment().toString(),
             data: {
                 code: httpCode,
+                headers: headers,
                 body: data
             }
         });
@@ -672,12 +673,12 @@ class ServiceBrokerInterface {
 
     sendResponse(response, httpCode, data) {
         response.status(httpCode).send(data);
-        this.saveResponse(httpCode, data);
+        this.saveResponse(httpCode, data, response.headers);
     }
 
     sendJSONResponse(response, httpCode, data) {
         response.status(httpCode).json(data);
-        this.saveResponse(httpCode, data);
+        this.saveResponse(httpCode, data, response.headers);
     }
 
     getServiceBroker() {
