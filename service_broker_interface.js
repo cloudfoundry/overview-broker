@@ -673,12 +673,13 @@ class ServiceBrokerInterface {
 
     sendResponse(response, httpCode, data) {
         response.status(httpCode).send(data);
-        this.saveResponse(httpCode, data, response.headers);
+        this.saveResponse(httpCode, data, response.getHeaders());
     }
 
     sendJSONResponse(response, httpCode, data) {
         response.status(httpCode).json(data);
-        this.saveResponse(httpCode, data, response.headers);
+        this.saveResponse(httpCode, data, response.getHeaders());
+
     }
 
     getServiceBroker() {
