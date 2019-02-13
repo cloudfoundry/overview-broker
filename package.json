@@ -13,25 +13,25 @@
   "dependencies": {
     "body-parser": "latest",
     "cfenv": "latest",
-    "cron": "latest",
-    "express": "latest",
-    "express-basic-auth": "latest",
-    "express-validator": "latest",
+    "cron": "^1.6.0",
+    "express": "^4.16.4",
+    "express-basic-auth": "^1.1.6",
+    "express-validator": "^5.3.1",
     "jsonschema": "latest",
-    "moment": "latest",
-    "morgan": "latest",
-    "npm": "^6.4.1",
+    "moment": "^2.24.0",
+    "morgan": "^1.9.1",
+    "npm": "^6.7.0",
     "pug": "latest",
     "randomstring": "^1.1.5",
-    "request": "latest",
+    "request": "^2.88.0",
     "sha256": "latest",
     "uuid": "latest"
   },
   "devDependencies": {
-    "mocha": "latest",
-    "should": "latest",
     "assert": "latest",
-    "supertest": "latest"
+    "mocha": "latest",
+    "should": "^13.2.3",
+    "supertest": "^3.4.2"
   },
   "engines": {
     "node": "8.x.x"
