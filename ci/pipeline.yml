@@ -1,0 +1,25 @@
+---
+jobs:
+- name: deploy-best-broker
+  plan:
+  - get: overview-broker
+    trigger: true
+  - put: cf
+    params:
+      manifest: overview-broker/examples/cloudfoundry/manifest.yaml
+
+resources:
+- name: overview-broker
+  type: git
+  source:
+    uri: https://github.com/mattmcneeney/overview-broker
+    branch: master
+
+- name: cf
+  type: cf
+  source:
+    api: ((CF_API))
+    username: ((CF_USERNAME))
+    password: ((CF_PASSWORD))
+    organization: ((CF_ORGANIZATION))
+    space: ((CF_SPACE))
