@@ -1,5 +1,5 @@
 applications:
-- name: overview-broker
+- name: the-best-broker
   buildpack: https://github.com/cloudfoundry/nodejs-buildpack
   instances: 1
   memory: 256M
