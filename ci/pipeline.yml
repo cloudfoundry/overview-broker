@@ -6,6 +6,7 @@ jobs:
     trigger: true
   - put: cf
     params:
+      path: overview-broker
       manifest: overview-broker/examples/cloudfoundry/manifest.yaml
 
 resources:
