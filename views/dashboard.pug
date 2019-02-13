@@ -47,6 +47,10 @@ html
               a.text-primary(data-toggle='collapse', href='#settings') Settings
             div#settings.card-body.collapse
               div.form-group
+                label Environmental variables:
+                pre(style={'background': '#eee', 'border-radius': '4px'})
+                  span !{syntaxHighlight(env)}
+              div.form-group
                 label(for='errorModeSelect') Error mode:
                 select.form-control(id='errorModeSelect', onchange='errorModeChanged(this)')
                   option(code='', selected=(errorMode == '')) Disabled

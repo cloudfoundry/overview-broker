@@ -555,7 +555,18 @@ class ServiceBrokerInterface {
             serviceInstances: this.serviceInstances,
             latestRequests: this.latestRequests.slice().reverse(),
             latestResponses: this.latestResponses.slice().reverse(),
-            catalog: this.serviceBroker.getCatalog()
+            catalog: this.serviceBroker.getCatalog(),
+            env: {
+                BROKER_USERNAME: process.env.BROKER_USERNAME || 'admin',
+                BROKER_PASSWORD: process.env.BROKER_PASSWORD || 'password',
+                SYSLOG_DRAIN_URL: process.env.SYSLOG_DRAIN_URL,
+                EXPOSE_VOLUME_MOUNT_SERVICE: process.env.EXPOSE_VOLUME_MOUNT_SERVICE,
+                ENABLE_EXAMPLE_SCHEMAS: process.env.ENABLE_EXAMPLE_SCHEMAS,
+                ASYNCHRONOUS_DELAY_IN_SECONDS: process.env.ASYNCHRONOUS_DELAY_IN_SECONDS,
+                MAXIMUM_POLLING_DURATION_IN_SECONDS: process.env.MAXIMUM_POLLING_DURATION_IN_SECONDS,
+                POLLING_INTERVAL_IN_SECONDS: process.env.POLLING_INTERVAL_IN_SECONDS,
+                SERVICE_NAME: process.env.SERVICE_NAME
+            }
         };
     }
 
