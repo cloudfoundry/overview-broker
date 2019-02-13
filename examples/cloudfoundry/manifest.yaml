@@ -4,9 +4,4 @@ applications:
   instances: 1
   memory: 256M
   disk_quota: 256M
-  random-route: true
-  env:
-    BROKER_USERNAME: admin
-    BROKER_PASSWORD: password
-    ASYNCHRONOUS_DELAY_IN_SECONDS: 10
-    MAXIMUM_POLLING_DURATION_IN_SECONDS: 120
+  random-route: false
