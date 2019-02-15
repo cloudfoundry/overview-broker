@@ -11,4 +11,5 @@ inputs:
 - name: overview-broker
 
 run:
-  path: cd overview-broker && npm install && npm test
+  dir: overview-broker
+  path: ci/scripts/unit.sh

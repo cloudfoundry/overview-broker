@@ -7,16 +7,16 @@ jobs:
     - task: unit
       file: overview-broker/ci/tasks/unit.yml
 
-#
-# - name: deploy-best-broker
-#   plan:
-#   - get: overview-broker
-#     passed: [unit]
-#     trigger: true
-#   - put: cf
-#     params:
-#       path: overview-broker
-#       manifest: overview-broker/examples/cloudfoundry/manifest.yaml
+
+- name: deploy-best-broker
+  plan:
+  - get: overview-broker
+    passed: [absolute-unit]
+    trigger: true
+  - put: cf
+    params:
+      path: overview-broker
+      manifest: overview-broker/examples/cloudfoundry/manifest.yaml
 
 resources:
 - name: overview-broker
@@ -25,11 +25,11 @@ resources:
     uri: https://github.com/mattmcneeney/overview-broker
     branch: master
 
-# - name: cf
-#   type: cf
-#   source:
-#     api: ((CF_API))
-#     username: ((CF_USERNAME))
-#     password: ((CF_PASSWORD))
-#     organization: ((CF_ORGANIZATION))
-#     space: ((CF_SPACE))
+- name: cf
+  type: cf
+  source:
+    api: ((CF_API))
+    username: ((CF_USERNAME))
+    password: ((CF_PASSWORD))
+    organization: ((CF_ORGANIZATION))
+    space: ((CF_SPACE))
