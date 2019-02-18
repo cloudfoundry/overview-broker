@@ -159,6 +159,12 @@ class ServiceBrokerInterface {
             return;
         }
 
+        // Check if we only support asynchronous operations
+        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
+            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
+            return;
+        }
+
         // Validate any configuration parameters if we have a schema
         var schema = null;
         try {
@@ -196,11 +202,6 @@ class ServiceBrokerInterface {
         let data = {
             dashboard_url: dashboardUrl
         };
-
-        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
-            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
-            return;
-        }
 
         if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways')) {
             // Set the end time for the operation to be one second from now
@@ -242,16 +243,30 @@ class ServiceBrokerInterface {
             console.warn('Could not find service %s, plan %s', request.query.service_id, request.query.plan_id);
         }
 
+        // Check if we only support asynchronous operations
+        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
+            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
+            return;
+        }
+
         var serviceInstanceId = request.params.instance_id;
         this.logger.debug(`Deleting service ${serviceInstanceId}`);
 
         // Check if an operation is in progress
         var operation = this.instanceOperations[serviceInstanceId];
         if (operation && operation.state == 'in progress') {
-            this.sendJSONResponse(response, 422,  { error: 'ConcurrencyError' });
-            return;
+            // If a provision is in progress, we can cancel it
+            if (operation.type == 'provision') {
+                delete this.instanceOperations[serviceInstanceId];
+            }
+            // Else it must be an update so we should fail
+            else {
+                this.sendJSONResponse(response, 422,  { error: 'ConcurrencyError' });
+                return;
+            }
         }
 
+        // Delete the service instance from memory
         if (serviceInstanceId in this.serviceInstances) {
            delete this.serviceInstances[serviceInstanceId];
         } else {
@@ -259,11 +274,7 @@ class ServiceBrokerInterface {
             return;
         }
 
-        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
-            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
-            return;
-        }
-
+        // Perform asynchronous deprovision
         if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways')) {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
@@ -283,6 +294,7 @@ class ServiceBrokerInterface {
             return;
         }
 
+        // Perform synchronous deprovision
         this.sendJSONResponse(response, 200, {});
     }
 
@@ -309,6 +321,12 @@ class ServiceBrokerInterface {
             return;
         }
 
+        // Check if we only support asynchronous operations
+        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
+            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
+            return;
+        }
+
         // Validate any configuration parameters if we have a schema
         var schema = null;
         try {
@@ -330,6 +348,7 @@ class ServiceBrokerInterface {
 
         this.logger.debug(`Creating service binding ${bindingId} for service ${serviceInstanceId}`);
 
+        // Generate the binding info depending on the type of binding
         var data = {};
         if (!service.requires || service.requires.length == 0) {
             data = {
@@ -368,6 +387,7 @@ class ServiceBrokerInterface {
             return;
         }
 
+        // Save the binding to memory
         this.serviceInstances[serviceInstanceId].bindings[bindingId] = {
             api_version: request.header('X-Broker-Api-Version'),
             service_id: request.body.service_id,
@@ -378,11 +398,7 @@ class ServiceBrokerInterface {
             data: data
         };
 
-        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
-            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
-            return;
-        }
-
+        // Perform asynchronous binding
         if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways')) {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
@@ -402,7 +418,7 @@ class ServiceBrokerInterface {
             return;
         }
 
-        // Else return the data synchronously
+        // Perform synchronous binding
         this.sendJSONResponse(response, 201, data);
     }
 
@@ -420,6 +436,12 @@ class ServiceBrokerInterface {
         var serviceInstanceId = request.params.instance_id;
         var bindingId = request.params.binding_id;
 
+        // Check if we only support asynchronous operations
+        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
+            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
+            return;
+        }
+
         // Check if an operation is in progress
         var operation = this.bindingOperations[bindingId];
         if (operation && operation.state == 'in progress') {
@@ -429,6 +451,7 @@ class ServiceBrokerInterface {
 
         this.logger.debug(`Deleting service binding ${bindingId} for service ${serviceInstanceId}`);
 
+        // Delete the service instance from memory
         if (serviceInstanceId in this.serviceInstances && bindingId in this.serviceInstances[serviceInstanceId].bindings) {
             delete this.serviceInstances[serviceInstanceId].bindings[bindingId];
         }
@@ -437,11 +460,7 @@ class ServiceBrokerInterface {
             return;
         }
 
-        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
-            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
-            return;
-        }
-
+        // Perform asynchronous deprovision
         if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways')) {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
@@ -461,6 +480,7 @@ class ServiceBrokerInterface {
             return;
         }
 
+        // Perform synchronous deprovision
         this.sendJSONResponse(response, 200, {});
     }
 

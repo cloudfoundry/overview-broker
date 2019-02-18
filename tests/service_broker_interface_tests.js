@@ -1724,7 +1724,7 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should fail to delete if provision in progress', function(done) {
+        it('should start to delete if provision in progress', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
                 .auth(brokerUsername, brokerPassword)
@@ -1740,14 +1740,14 @@ describe('Service Broker Interface', function() {
                 .expect(202)
                 .then(response => {
                     request(server)
-                        .delete(`/v2/service_instances/${instanceId}`)
+                        .delete(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
                         .auth(brokerUsername, brokerPassword)
                         .set('X-Broker-Api-Version', apiVersion)
                         .query({
                             service_id: brokerServiceId,
                             plan_id: simplePlanId
                          })
-                        .expect(422)
+                        .expect(202)
                         .then(response => {
                             done();
                         })
