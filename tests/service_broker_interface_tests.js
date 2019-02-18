@@ -833,7 +833,7 @@ describe('Service Broker Interface', function() {
                             // The operation should finish after one second
                             setTimeout(function() {
                                 request(server)
-                                    .get(`/v2/service_instances/${instanceId}/last_operation`)
+                                    .get(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}/last_operation`)
                                     .auth(brokerUsername, brokerPassword)
                                     .set('X-Broker-Api-Version', apiVersion)
                                     .send({

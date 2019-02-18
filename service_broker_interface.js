@@ -19,8 +19,9 @@ class ServiceBrokerInterface {
         };
         this.instanceProvisionsInProgress = {};
         this.instanceUpdatesInProgress = {};
-        this.bindingCreatesInProgress = {};
         this.instanceDeprovisionsInProgress = {};
+        this.bindingCreatesInProgress = {};
+        this.bindingDeletesInProgress = {};
         this.numRequestsToSave = 5;
         this.numResponsesToSave = 5;
     }
@@ -124,7 +125,10 @@ class ServiceBrokerInterface {
             else {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
-            this.instanceProvisionsInProgress[serviceInstanceId] = endTime;
+            this.instanceProvisionsInProgress[serviceInstanceId] = {
+                state: 'in progress',
+                endTime: endTime
+            };
             this.sendJSONResponse(response, 202, data);
             return;
         }
@@ -194,7 +198,10 @@ class ServiceBrokerInterface {
             else {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
-            this.instanceUpdatesInProgress[serviceInstanceId] = endTime;
+            this.instanceUpdatesInProgress[serviceInstanceId] = {
+                state: 'in progress',
+                endTime: endTime
+            };
             this.sendJSONResponse(response, 202, data);
             return;
         }
@@ -244,7 +251,10 @@ class ServiceBrokerInterface {
             else {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
-            this.instanceDeprovisionsInProgress[serviceInstanceId] = endTime;
+            this.instanceDeprovisionsInProgress[serviceInstanceId] = {
+                state: 'in progress',
+                endTime: endTime
+            };
             this.sendJSONResponse(response, 202, {});
             return;
         }
@@ -352,7 +362,10 @@ class ServiceBrokerInterface {
             else {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
-            this.bindingCreatesInProgress[bindingId] = endTime;
+            this.bindingCreatesInProgress[bindingId] = {
+                state: 'in progress',
+                endTime: endTime
+            };
             this.sendJSONResponse(response, 202, {});
             return;
         }
@@ -398,7 +411,10 @@ class ServiceBrokerInterface {
             else {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
-            this.bindingCreatesInProgress[bindingId] = endTime;
+            this.bindingDeletesInProgress[bindingId] = {
+                state: 'in progress',
+                endTime: endTime
+            };
             this.sendJSONResponse(response, 202, {});
             return;
         }
@@ -416,41 +432,12 @@ class ServiceBrokerInterface {
 
         // We should know about the operation
         var serviceInstanceId = request.params.instance_id;
-        var finishTime = this.instanceProvisionsInProgress[serviceInstanceId] || this.instanceUpdatesInProgress[serviceInstanceId] || this.instanceDeprovisionsInProgress[serviceInstanceId] || null;
-        // But if we don't, presume that the operation finished and we have forgotten about it
-        if (!finishTime) {
-            var data = { state: 'succeeded', description: 'The operation has completed (although it had been forgotten about).' };
-            this.sendJSONResponse(response, 200, data);
-            return;
-        }
+        var operation = this.instanceProvisionsInProgress[serviceInstanceId] ||
+            this.instanceUpdatesInProgress[serviceInstanceId] ||
+            this.instanceDeprovisionsInProgress[serviceInstanceId] ||
+            null;
 
-        // Check if the operation is still going
-        var data = {};
-        if (finishTime >= new Date()) {
-            data.state = 'in progress';
-            data.description = 'The operation is in progress...';
-
-            // Check if we should add a Retry-After header
-            if (parseInt(process.env.POLLING_INTERVAL_IN_SECONDS)) {
-                response.append('Retry-After', parseInt(process.env.POLLING_INTERVAL_IN_SECONDS));
-            }
-        }
-        else {
-            if (process.env.errorMode == 'failasync') {
-                data.state = 'failed';
-                data.description = 'The operation has failed (failasync error mode enabled)';
-            }
-            else {
-                data.state = 'succeeded';
-                data.description = 'The operation has finished!';
-            }
-
-            // Since it has finished, we should forget about the operation
-            delete this.instanceProvisionsInProgress[serviceInstanceId];
-            delete this.instanceUpdatesInProgress[serviceInstanceId];
-            delete this.instanceDeprovisionsInProgress[serviceInstanceId];
-        }
-        this.sendJSONResponse(response, 200, data);
+        this.getLastOperation(operation, request, response);
     }
 
     getLastServiceBindingOperation(request, response) {
@@ -464,40 +451,57 @@ class ServiceBrokerInterface {
 
         // We should know about the operation
         var serviceBindingId = request.params.binding_id;
-        var finishTime = this.bindingCreatesInProgress[serviceBindingId] || null;
-        // But if we don't, presume that the operation finished and we have forgotten about it
-        if (!finishTime) {
-            var data = { state: 'succeeded', description: 'The operation has completed (although it had been forgotten about).' };
-            this.sendJSONResponse(response, 200, data);
+        var operation = this.bindingCreatesInProgress[serviceBindingId] ||
+            this.bindingDeletesInProgress[serviceBindingId] ||
+            null;
+
+        this.getLastOperation(operation, request, response);
+    }
+
+    getLastOperation(operation, request, response) {
+        let now = new Date();
+
+        // If we don't know about the operation, presume that it failed and we have forgotten about it
+        if (!operation) {
+            this.sendJSONResponse(response, 200, {
+                state: 'failed',
+                description: 'The operation could not be found.'
+            });
+            return;
+        }
+
+        // The operation may have already succeeded or failed
+        if (operation.state == 'succeeded' || operation.state == 'failed') {
+            this.sendJSONResponse(response, 200, {
+                state: operation.state,
+                description: `The operation has ${operation.state}`
+            });
             return;
         }
 
         // Check if the operation is still going
-        var data = {};
-        if (finishTime >= new Date()) {
-            data.state = 'in progress';
-            data.description = 'The operation is in progress...';
-
-            // Check if we should add a Retry-After header
-            if (parseInt(process.env.POLLING_INTERVAL_IN_SECONDS)) {
-                response.append('Retry-After', parseInt(process.env.POLLING_INTERVAL_IN_SECONDS));
+        if (operation.state == 'in progress') {
+            // Check if the operation should still be going
+            if (operation.endTime >= now) {
+                // Check if we should add a Retry-After header
+                if (parseInt(process.env.POLLING_INTERVAL_IN_SECONDS)) {
+                    response.append('Retry-After', parseInt(process.env.POLLING_INTERVAL_IN_SECONDS));
+                }
+                this.sendJSONResponse(response, 200, {
+                    state: operation.state,
+                    description: 'The operation is in progress...'
+                });
             }
-        }
-        else {
-            if (process.env.errorMode == 'failasync') {
-                data.state = 'failed';
-                data.description = 'The operation has failed (failasync error mode enabled)';
-            }
+            // Else the operation should be finished
             else {
-                data.state = 'succeeded';
-                data.description = 'The operation has finished!';
+                // Check if we should fail the operation
+                operation.state = process.env.errorMode == 'failasync' ? 'failed' : 'succeeded';
+                this.sendJSONResponse(response, 200, {
+                    state: operation.state,
+                    description: `The operation has ${operation.state}`
+                });
             }
-
-            // Since it has finished, we should forget about the operation
-            delete this.bindingCreatesInProgress[serviceBindingId];
         }
-
-        this.sendJSONResponse(response, 200, data);
     }
 
     getServiceInstance(request, response) {
@@ -640,6 +644,11 @@ class ServiceBrokerInterface {
         this.serviceInstances = {};
         this.latestRequests = [];
         this.latestResponses = [];
+        this.instanceProvisionsInProgress = {};
+        this.instanceUpdatesInProgress = {};
+        this.instanceDeprovisionsInProgress = {};
+        this.bindingCreatesInProgress = {};
+        this.bindingDeletesInProgress = {};
         response.status(200).json({});
     }
 
