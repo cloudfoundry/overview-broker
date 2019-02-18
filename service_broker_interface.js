@@ -17,11 +17,8 @@ class ServiceBrokerInterface {
             username: 'admin',
             password: randomstring.generate(16)
         };
-        this.instanceProvisionsInProgress = {};
-        this.instanceUpdatesInProgress = {};
-        this.instanceDeprovisionsInProgress = {};
-        this.bindingCreatesInProgress = {};
-        this.bindingDeletesInProgress = {};
+        this.instanceOperations = {};
+        this.bindingOperations = {};
         this.numRequestsToSave = 5;
         this.numResponsesToSave = 5;
     }
@@ -80,12 +77,20 @@ class ServiceBrokerInterface {
 
         // Create the service instance
         var serviceInstanceId = request.params.instance_id;
+
         this.logger.debug(`Creating service instance ${serviceInstanceId}`);
 
         let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
         let data = {
             dashboard_url: dashboardUrl
         };
+
+        // Check if a provision is already in progress
+        var operation = this.instanceOperations[serviceInstanceId];
+        if (operation && operation.type == 'provision' && operation.state == 'in progress') {
+            this.sendJSONResponse(response, 202, data);
+            return;
+        }
 
         // Check if the instance already exists
         if (serviceInstanceId in this.serviceInstances) {
@@ -125,7 +130,8 @@ class ServiceBrokerInterface {
             else {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
-            this.instanceProvisionsInProgress[serviceInstanceId] = {
+            this.instanceOperations[serviceInstanceId] = {
+                type: 'provision',
                 state: 'in progress',
                 endTime: endTime
             };
@@ -171,6 +177,14 @@ class ServiceBrokerInterface {
 
         var serviceInstanceId = request.params.instance_id;
         this.logger.debug(`Updating service ${serviceInstanceId}`);
+
+        // Check if an operation is in progress
+        var operation = this.instanceOperations[serviceInstanceId];
+        if (operation && operation.state == 'in progress') {
+            this.sendJSONResponse(response, 422,  { error: 'ConcurrencyError' });
+            return;
+        }
+
         this.serviceInstances[serviceInstanceId].api_version = request.header('X-Broker-Api-Version'),
         this.serviceInstances[serviceInstanceId].service_id = request.body.service_id;
         this.serviceInstances[serviceInstanceId].plan_id = request.body.plan_id;
@@ -198,7 +212,8 @@ class ServiceBrokerInterface {
             else {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
-            this.instanceUpdatesInProgress[serviceInstanceId] = {
+            this.instanceOperations[serviceInstanceId] = {
+                type: 'update',
                 state: 'in progress',
                 endTime: endTime
             };
@@ -229,6 +244,14 @@ class ServiceBrokerInterface {
 
         var serviceInstanceId = request.params.instance_id;
         this.logger.debug(`Deleting service ${serviceInstanceId}`);
+
+        // Check if an operation is in progress
+        var operation = this.instanceOperations[serviceInstanceId];
+        if (operation && operation.state == 'in progress') {
+            this.sendJSONResponse(response, 422,  { error: 'ConcurrencyError' });
+            return;
+        }
+
         if (serviceInstanceId in this.serviceInstances) {
            delete this.serviceInstances[serviceInstanceId];
         } else {
@@ -251,7 +274,8 @@ class ServiceBrokerInterface {
             else {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
-            this.instanceDeprovisionsInProgress[serviceInstanceId] = {
+            this.instanceOperations[serviceInstanceId] = {
+                type: 'deprovision',
                 state: 'in progress',
                 endTime: endTime
             };
@@ -331,6 +355,13 @@ class ServiceBrokerInterface {
             };
         }
 
+        // Check if a bind is already in progress
+        var operation = this.bindingOperations[bindingId];
+        if (operation && operation.type == 'binding' && operation.state == 'in progress') {
+            this.sendJSONResponse(response, 202, data);
+            return;
+        }
+
         // Check if the binding already exists
         if (serviceInstanceId in this.serviceInstances && bindingId in this.serviceInstances[serviceInstanceId].bindings) {
             this.sendJSONResponse(response, 200, data);
@@ -362,7 +393,8 @@ class ServiceBrokerInterface {
             else {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
-            this.bindingCreatesInProgress[bindingId] = {
+            this.bindingOperations[bindingId] = {
+                type: 'binding',
                 state: 'in progress',
                 endTime: endTime
             };
@@ -387,7 +419,16 @@ class ServiceBrokerInterface {
 
         var serviceInstanceId = request.params.instance_id;
         var bindingId = request.params.binding_id;
+
+        // Check if an operation is in progress
+        var operation = this.bindingOperations[bindingId];
+        if (operation && operation.state == 'in progress') {
+            this.sendJSONResponse(response, 422,  { error: 'ConcurrencyError' });
+            return;
+        }
+
         this.logger.debug(`Deleting service binding ${bindingId} for service ${serviceInstanceId}`);
+
         if (serviceInstanceId in this.serviceInstances && bindingId in this.serviceInstances[serviceInstanceId].bindings) {
             delete this.serviceInstances[serviceInstanceId].bindings[bindingId];
         }
@@ -411,7 +452,8 @@ class ServiceBrokerInterface {
             else {
                 endTime.setSeconds(endTime.getSeconds() + 1);
             }
-            this.bindingDeletesInProgress[bindingId] = {
+            this.bindingOperations[bindingId] = {
+                type: 'unbinding',
                 state: 'in progress',
                 endTime: endTime
             };
@@ -429,14 +471,8 @@ class ServiceBrokerInterface {
             this.sendResponse(response, 400, errors);
             return;
         }
-
-        // We should know about the operation
         var serviceInstanceId = request.params.instance_id;
-        var operation = this.instanceProvisionsInProgress[serviceInstanceId] ||
-            this.instanceUpdatesInProgress[serviceInstanceId] ||
-            this.instanceDeprovisionsInProgress[serviceInstanceId] ||
-            null;
-
+        var operation = this.instanceOperations[serviceInstanceId];
         this.getLastOperation(operation, request, response);
     }
 
@@ -448,13 +484,8 @@ class ServiceBrokerInterface {
             this.sendResponse(response, 400, errors);
             return;
         }
-
-        // We should know about the operation
         var serviceBindingId = request.params.binding_id;
-        var operation = this.bindingCreatesInProgress[serviceBindingId] ||
-            this.bindingDeletesInProgress[serviceBindingId] ||
-            null;
-
+        var operation = this.bindingOperations[serviceBindingId];
         this.getLastOperation(operation, request, response);
     }
 
@@ -502,6 +533,27 @@ class ServiceBrokerInterface {
                 });
             }
         }
+    }
+
+    isInstanceOperationInProgress(serviceInstanceId) {
+        var operation = this.instanceOperations[serviceInstanceId];
+        if (
+            this.instanceOperations[serviceInstanceId] &&
+            this.instanceOperations[serviceInstanceId].state == 'in progress'
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    isBindingOperationInProgress(bindingId) {
+        if (
+            this.bindingOperations[serviceInstanceId] &&
+            this.bindingOperations[serviceInstanceId].state == 'in progress'
+        ) {
+            return true;
+        }
+        return false;
     }
 
     getServiceInstance(request, response) {
@@ -644,11 +696,8 @@ class ServiceBrokerInterface {
         this.serviceInstances = {};
         this.latestRequests = [];
         this.latestResponses = [];
-        this.instanceProvisionsInProgress = {};
-        this.instanceUpdatesInProgress = {};
-        this.instanceDeprovisionsInProgress = {};
-        this.bindingCreatesInProgress = {};
-        this.bindingDeletesInProgress = {};
+        this.instanceOperations = {};
+        this.bindingOperations = {};
         response.status(200).json({});
     }
 

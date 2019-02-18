@@ -248,6 +248,46 @@ describe('Service Broker Interface', function() {
                 });
         });
 
+        it('should succeed asynchronously if repeated', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(202)
+                .then(response => {
+                    request(server)
+                        .put(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: simplePlanId,
+                            parameters: {},
+                            organization_guid: organizationGuid,
+                            space_guid: spaceGuid,
+                            context: {}
+                         })
+                        .expect(202)
+                        .then(response => {
+                            done();
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
         it('should revert to synchronous if accepts_incomplete=false', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
@@ -849,6 +889,46 @@ describe('Service Broker Interface', function() {
                                         done();
                                     });
                             }, 1000);
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should succeed asynchronously if repeated', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}?accepts_incomplete=true`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(202)
+                .then(response => {
+                    request(server)
+                        .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}?accepts_incomplete=true`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: simplePlanId,
+                            parameters: {},
+                            organization_guid: organizationGuid,
+                            space_guid: spaceGuid,
+                            context: {}
+                         })
+                        .expect(202)
+                        .then(response => {
+                            done();
                         })
                         .catch(error => {
                             done(error);
@@ -1597,6 +1677,187 @@ describe('Service Broker Interface', function() {
                 .expect(404)
                 .then(response => {
                     done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+    });
+
+    describe('concurrency', function() {
+
+        it('should fail to update if provision in progress', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(202)
+                .then(response => {
+                    request(server)
+                        .patch(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: simplePlanId,
+                            parameters: {}
+                         })
+                        .expect(422)
+                        .then(response => {
+                            done();
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail to delete if provision in progress', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(202)
+                .then(response => {
+                    request(server)
+                        .delete(`/v2/service_instances/${instanceId}`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .query({
+                            service_id: brokerServiceId,
+                            plan_id: simplePlanId
+                         })
+                        .expect(422)
+                        .then(response => {
+                            done();
+                        })
+                        .catch(error => {
+                            done(error);
+                        });
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail to delete if update in progress', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}?accepts_incomplete=false`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(201)
+                .then(response => {
+                    request(server)
+                        .patch(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: simplePlanId,
+                            parameters: {}
+                         })
+                        .expect(202)
+                        .then(response => {
+                            request(server)
+                                .delete(`/v2/service_instances/${instanceId}`)
+                                .auth(brokerUsername, brokerPassword)
+                                .set('X-Broker-Api-Version', apiVersion)
+                                .query({
+                                    service_id: brokerServiceId,
+                                    plan_id: simplePlanId
+                                 })
+                                .expect(422)
+                                .then(response => {
+                                    done();
+                                })
+                                .catch(error => {
+                                    done(error);
+                                });
+                        })
+                        .catch(error => {
+                            done(error);
+                        })
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail to unbind if bind in progress', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}?accepts_incomplete=true`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: simplePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                .expect(202)
+                .then(response => {
+                    request(server)
+                        .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}?accepts_incomplete=true`)
+                        .auth(brokerUsername, brokerPassword)
+                        .set('X-Broker-Api-Version', apiVersion)
+                        .send({
+                            service_id: brokerServiceId,
+                            plan_id: simplePlanId,
+                            app_guid: appGuid,
+                            bind_resource: {},
+                            parameters: {}
+                         })
+                        .expect(202)
+                        .then(response => {
+                            request(server)
+                                .delete(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}?accepts_incomplete=true`)
+                                .auth(brokerUsername, brokerPassword)
+                                .set('X-Broker-Api-Version', apiVersion)
+                                .query({
+                                    service_id: brokerServiceId,
+                                    plan_id: simplePlanId
+                                })
+                                .expect(422)
+                                .then(response => {
+                                    done();
+                                })
+                                .catch(error => {
+                                    done(error);
+                                });
+                        })
+                        .catch(error => {
+                            done(error);
+                        })
                 })
                 .catch(error => {
                     done(error);
