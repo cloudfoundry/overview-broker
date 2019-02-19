@@ -1,8 +1,5 @@
 # Overview Broker
 
-![Open Service Broker API](images/openservicebrokerapi.png)
-
-
 | Job | Status |
 | :-: | :----: |
 | Unit | ![Unit status](http://ism.ci.cf-app.com/api/v1/teams/main/pipelines/best-broker/jobs/absolute-unit/badge) |
@@ -26,7 +23,11 @@ Other fun features this broker provides include:
 * Generic extensions for fetching the [Health](extensions/health.yaml) and
   [Info](extensions/info.yaml) for a service instance
 
-> The [Open Service Broker API](https://www.openservicebrokerapi.org/) project
+### What is the Open Service Broker API?
+
+![Open Service Broker API](images/openservicebrokerapi.png)
+
+The [Open Service Broker API](https://www.openservicebrokerapi.org) project
 allows developers, ISVs, and SaaS vendors a single, simple, and elegant way to
 deliver services to applications running within cloud native platforms such as
 Cloud Foundry, OpenShift, and Kubernetes. The project includes individuals from
