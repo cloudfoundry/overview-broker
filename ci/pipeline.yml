@@ -7,7 +7,6 @@ jobs:
     - task: unit
       file: overview-broker/ci/tasks/unit.yml
 
-
 - name: deploy-best-broker
   plan:
   - get: overview-broker
@@ -17,6 +16,15 @@ jobs:
     params:
       path: overview-broker
       manifest: overview-broker/examples/cloudfoundry/manifest.yaml
+
+- name: push-to-dockerhub
+  plan:
+  - get: overview-broker
+    passed: [deploy-best-broker]
+    trigger: true
+  - put: dockerhub
+    params:
+      build: overview-broker
 
 resources:
 - name: overview-broker
@@ -33,3 +41,10 @@ resources:
     password: ((CF_PASSWORD))
     organization: ((CF_ORGANIZATION))
     space: ((CF_SPACE))
+
+- name: dockerhub
+  type: docker-image
+  source:
+    repository: mattmcneeney/overview-broker
+    username: ((DOCKERHUB_USERNAME))
+    password: ((DOCKERHUB_PASSWORD))

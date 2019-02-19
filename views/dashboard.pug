@@ -74,7 +74,7 @@ html
         div.col-12.col-sm-6
           div.card
             h6.card-header
-              a.text-info(data-toggle='collapse', href='#request') Last Request
+              a.text-info(data-toggle='collapse', href='#request') Recent Requests
             div#request.card-body.collapse.show(style={'padding': '0px'})
               pre(style={'background': 'none', 'border': 'none', 'height': '300px'})
                 each request, index in latestRequests
@@ -83,7 +83,7 @@ html
         div.col-12.col-sm-6
           div.card
             h6.card-header
-              a.text-info(data-toggle='collapse', href='#response') Last Response
+              a.text-info(data-toggle='collapse', href='#response') Recent Responses
             div#response.card-body.collapse.show(style={'padding': '0px'})
               pre(style={'background': 'none', 'border': 'none', 'height': '300px'})
                 each response, index in latestResponses

@@ -7,21 +7,24 @@
 | :-: | :----: |
 | Unit | ![Unit status](http://ism.ci.cf-app.com/api/v1/teams/main/pipelines/best-broker/jobs/absolute-unit/badge) |
 | Deploy | ![Deploy status](http://ism.ci.cf-app.com/api/v1/teams/main/pipelines/best-broker/jobs/deploy-best-broker/badge) |
+| [Dockerhub](https://hub.docker.com/r/mattmcneeney/overview-broker) | ![Dockerhub status](http://ism.ci.cf-app.com/api/v1/teams/main/pipelines/best-broker/jobs/push-to-dockerhub/badge) |
 
 A simple service broker conforming to the [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker/)
 specification that hosts a dashboard showing information on service instances
 and bindings created by any platform the broker is registered with.
 
-Fun features this broker provides include:
+Other fun features this broker provides include:
+* Edit the broker catalog without redeploys to speed up testing
+* History of recent requests and responses
+* Ability to enable different error modes to test platform integrations
+* Change the response mode on the fly (sync only/async only/async where possible)
 * A range of configuration parameter schemas for provision service instance,
   update service instance and create service binding
-* Ability to enable different error modes to test platform integrations
-* Edit the broker catalog without redeploys to speed up testing
-* Asynchronous service instance provisions and updates
+* Asynchronous service instance provisions, updates and deletes
 * Asynchronous service binding creates and deletes
 * Fetching service instances and bindings
 * Generic extensions for fetching the [Health](extensions/health.yaml) and
-  [Info](extensions/info.yaml) of a service instance
+  [Info](extensions/info.yaml) for a service instance
 
 > The [Open Service Broker API](https://www.openservicebrokerapi.org/) project
 allows developers, ISVs, and SaaS vendors a single, simple, and elegant way to
@@ -29,22 +32,32 @@ deliver services to applications running within cloud native platforms such as
 Cloud Foundry, OpenShift, and Kubernetes. The project includes individuals from
 Fujitsu, Google, IBM, Pivotal, RedHat and SAP.
 
-### Installation
+### Quick start
+
+#### Dockerhub
+
+The latest version of `overview-broker` can always be found on
+[Dockerhub](https://hub.docker.com/r/mattmcneeney/overview-broker). You can
+pull and run the latest image with:
 ```bash
+docker pull mattmcneeney/overview-broker
+docker run mattmcneeney/overview-broker
+```
+
+#### Build it
+```bash
+git clone git@github.com:mattmcneeney/overview-broker.git
+cd overview-broker
 npm install
-```
 
-### Running
-```bash
+# Start overview-broker
 npm start
-```
 
-### Tests
-```bash
+# Or to run the tests
 npm test
 ```
 
-### Configuration
+#### Configuration
 * To set the BasicAuth credentials, set the `BROKER_USERNAME` and
   `BROKER_PASSWORD` environmental variables. Otherwise the defaults of `admin`
   and `password` will be used.
