@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "NODE_ENV=testing mocha --recursive --timeout 10000 tests"
+    "test": "NODE_ENV=testing mocha --recursive --timeout 10000 --exit tests"
   },
   "author": "Matthew McNeeney <mmcneeney@pivotal.io>",
   "repository": "https://github.com/mattmcneeney/overview-broker",
@@ -13,7 +13,6 @@
   "dependencies": {
     "body-parser": "latest",
     "cfenv": "latest",
-    "cron": "^1.6.0",
     "express": "^4.16.4",
     "express-basic-auth": "^1.1.6",
     "express-validator": "^5.3.1",

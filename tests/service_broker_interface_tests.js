@@ -13,6 +13,7 @@ describe('Service Broker Interface', function() {
     const apiVersion = '2.11';
 
     var server = null;
+    var serviceBrokerInterface = null;
     var brokerServiceId = null;
     var simplePlanId = null;
     var complexPlanId = null;
@@ -28,6 +29,7 @@ describe('Service Broker Interface', function() {
 
         app.start(function(s, sbInterface) {
             server = s;
+            serviceBrokerInterface = sbInterface;
             var serviceBroker = sbInterface.getServiceBroker();
             brokerServiceId = serviceBroker.getCatalog().services[0].id;
             brokerUsername = process.env.BROKER_USERNAME || 'admin';

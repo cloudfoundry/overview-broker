@@ -21,6 +21,10 @@ class ServiceBrokerInterface {
         this.bindingOperations = {};
         this.numRequestsToSave = 5;
         this.numResponsesToSave = 5;
+
+        // Check for completed asynchronous operations every 10 seconds
+        var self = this;
+        setInterval(() => { self.checkAsyncOperations() }, 10000);
     }
 
     checkRequest(request, response, next) {
@@ -493,7 +497,7 @@ class ServiceBrokerInterface {
         }
         var serviceInstanceId = request.params.instance_id;
         var operation = this.instanceOperations[serviceInstanceId];
-        this.getLastOperation(operation, request, response);
+        this.getLastOperation(operation, serviceInstanceId, request, response);
     }
 
     getLastServiceBindingOperation(request, response) {
@@ -504,15 +508,33 @@ class ServiceBrokerInterface {
             this.sendResponse(response, 400, errors);
             return;
         }
-        var serviceBindingId = request.params.binding_id;
-        var operation = this.bindingOperations[serviceBindingId];
-        this.getLastOperation(operation, request, response);
+        var bindingId = request.params.binding_id;
+        var operation = this.bindingOperations[bindingId];
+        this.getLastOperation(operation, bindingId, request, response);
     }
 
-    getLastOperation(operation, request, response) {
-        let now = new Date();
+    checkAsyncOperations() {
+        this.logger.debug('Checking for completed asynchronous operations');
+        var self = this;
+        Object.keys(this.instanceOperations).forEach(function(key) {
+            self.updateOperation(self.instanceOperations[key], key);
+        });
+        Object.keys(this.bindingOperations).forEach(function(key) {
+            self.updateOperation(this.bindingOperations[key], key);
+        });
+    }
 
-        // If we don't know about the operation, presume that it failed and we have forgotten about it
+    updateOperation(operation, id) {
+        // Check if the operation has finished
+        if (operation.state == 'in progress' && operation.endTime < new Date()) {
+            // Check if we should fail the operation
+            operation.state = process.env.errorMode == 'failasync' ? 'failed' : 'succeeded';
+            this.logger.debug(`Operation of type ${operation.type} completed with state ${operation.state} (id: ${id})`);
+        }
+    }
+
+    getLastOperation(operation, id, request, response) {
+        // If we don't know about the operation, presume that it failed since we have forgotten about it
         if (!operation) {
             this.sendJSONResponse(response, 200, {
                 state: 'failed',
@@ -521,59 +543,22 @@ class ServiceBrokerInterface {
             return;
         }
 
-        // The operation may have already succeeded or failed
-        if (operation.state == 'succeeded' || operation.state == 'failed') {
-            this.sendJSONResponse(response, 200, {
-                state: operation.state,
-                description: `The operation has ${operation.state}`
-            });
-            return;
-        }
+        // Update the operation in case it has finished
+        this.updateOperation(operation, id);
 
         // Check if the operation is still going
         if (operation.state == 'in progress') {
-            // Check if the operation should still be going
-            if (operation.endTime >= now) {
-                // Check if we should add a Retry-After header
-                if (parseInt(process.env.POLLING_INTERVAL_IN_SECONDS)) {
-                    response.append('Retry-After', parseInt(process.env.POLLING_INTERVAL_IN_SECONDS));
-                }
-                this.sendJSONResponse(response, 200, {
-                    state: operation.state,
-                    description: 'The operation is in progress...'
-                });
-            }
-            // Else the operation should be finished
-            else {
-                // Check if we should fail the operation
-                operation.state = process.env.errorMode == 'failasync' ? 'failed' : 'succeeded';
-                this.sendJSONResponse(response, 200, {
-                    state: operation.state,
-                    description: `The operation has ${operation.state}`
-                });
+            // Check if we should add a Retry-After header
+            if (parseInt(process.env.POLLING_INTERVAL_IN_SECONDS)) {
+                response.append('Retry-After', parseInt(process.env.POLLING_INTERVAL_IN_SECONDS));
             }
         }
-    }
 
-    isInstanceOperationInProgress(serviceInstanceId) {
-        var operation = this.instanceOperations[serviceInstanceId];
-        if (
-            this.instanceOperations[serviceInstanceId] &&
-            this.instanceOperations[serviceInstanceId].state == 'in progress'
-        ) {
-            return true;
-        }
-        return false;
-    }
-
-    isBindingOperationInProgress(bindingId) {
-        if (
-            this.bindingOperations[serviceInstanceId] &&
-            this.bindingOperations[serviceInstanceId].state == 'in progress'
-        ) {
-            return true;
-        }
-        return false;
+        // Return the operation status
+        this.sendJSONResponse(response, 200, {
+            state: operation.state,
+            description: `Operation ${operation.state}`
+        });
     }
 
     getServiceInstance(request, response) {
@@ -608,18 +593,18 @@ class ServiceBrokerInterface {
         }
 
         let serviceInstanceId = request.params.instance_id;
-        let serviceBindingId = request.params.binding_id;
+        let bindingId = request.params.binding_id;
         if (!this.serviceInstances[serviceInstanceId]) {
             this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
             return;
         }
-        if (!this.serviceInstances[serviceInstanceId].bindings[serviceBindingId]) {
-            this.sendResponse(response, 404, `Could not find service binding ${serviceBindingId}`);
+        if (!this.serviceInstances[serviceInstanceId].bindings[bindingId]) {
+            this.sendResponse(response, 404, `Could not find service binding ${bindingId}`);
             return;
         }
 
-        var data = Object.assign({}, this.serviceInstances[serviceInstanceId].bindings[serviceBindingId].data);
-        data.parameters = this.serviceInstances[serviceInstanceId].bindings[serviceBindingId].parameters;
+        var data = Object.assign({}, this.serviceInstances[serviceInstanceId].bindings[bindingId].data);
+        data.parameters = this.serviceInstances[serviceInstanceId].bindings[bindingId].parameters;
 
         this.sendJSONResponse(response, 200, data);
     }
