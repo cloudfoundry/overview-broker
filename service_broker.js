@@ -135,8 +135,7 @@ class ServiceBroker {
         plans.push({
             name: 'simple',
             description: 'A very simple plan.',
-            free: true,
-            maximum_polling_duration: process.env.MAXIMUM_POLLING_DURATION_IN_SECONDS || undefined
+            free: true
         });
 
         // Add a complex plan with a schema
@@ -181,7 +180,6 @@ class ServiceBroker {
             name: 'complex',
             description: 'A more complicated plan.',
             free: true,
-            maximum_polling_duration: process.env.MAXIMUM_POLLING_DURATION_IN_SECONDS || undefined,
             schemas: {
                 service_instance: {
                     create: {
@@ -209,7 +207,6 @@ class ServiceBroker {
                     name: name,
                     description: name.replace(/-/g, ' '),
                     free: true,
-                    maximum_polling_duration: process.env.MAXIMUM_POLLING_DURATION_IN_SECONDS || undefined,
                     schemas: {
                         service_instance: {
                             create: {
@@ -232,6 +229,9 @@ class ServiceBroker {
         // Add an id to each plan
         plans.forEach(function(plan) {
             plan.id = sha256(`${serviceName}-${plan.name}`).substring(0, 32);
+            if (parseInt(process.env.MAXIMUM_POLLING_DURATION_IN_SECONDS)) {
+                plan.maximum_polling_duration = parseInt(process.env.MAXIMUM_POLLING_DURATION_IN_SECONDS);
+            }
         });
 
         // All plans generated

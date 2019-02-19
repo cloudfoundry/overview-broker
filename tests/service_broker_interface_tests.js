@@ -91,6 +91,7 @@ describe('Service Broker Interface', function() {
                     should.exist(plans[0].description);
                     should.exist(plans[0].free);
                     should.exist(plans[0].maximum_polling_duration);
+                    (plans[0].maximum_polling_duration).should.be.type('number');
                     done();
                 })
                 .catch(error => {
