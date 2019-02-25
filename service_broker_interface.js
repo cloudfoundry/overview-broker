@@ -21,6 +21,7 @@ class ServiceBrokerInterface {
         this.bindingOperations = {};
         this.numRequestsToSave = 5;
         this.numResponsesToSave = 5;
+        this.started = moment().toString();
 
         // Check for completed asynchronous operations every 10 seconds
         var self = this;
@@ -612,7 +613,7 @@ class ServiceBrokerInterface {
     getDashboardData() {
         return {
             title: 'Overview Broker',
-            status: 'running',
+            started: this.started,
             serviceInstances: this.serviceInstances,
             latestRequests: this.latestRequests.slice().reverse(),
             latestResponses: this.latestResponses.slice().reverse(),

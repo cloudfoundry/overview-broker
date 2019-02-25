@@ -47,6 +47,10 @@ html
               a.text-primary(data-toggle='collapse', href='#settings') Settings
             div#settings.card-body.collapse
               div.form-group
+                label Started:
+                pre(style={'background': '#eee', 'border-radius': '4px'})
+                  span #{started}
+              div.form-group
                 label Environmental variables:
                 pre(style={'background': '#eee', 'border-radius': '4px'})
                   span !{syntaxHighlight(env)}
