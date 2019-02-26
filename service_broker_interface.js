@@ -521,7 +521,7 @@ class ServiceBrokerInterface {
             self.updateOperation(self.instanceOperations[key], key);
         });
         Object.keys(this.bindingOperations).forEach(function(key) {
-            self.updateOperation(this.bindingOperations[key], key);
+            self.updateOperation(self.bindingOperations[key], key);
         });
     }
 
