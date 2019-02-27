@@ -1,0 +1,15 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: timbru31/java-node
+    tag: '11-adoptopenjdk-alpine-slim'
+
+inputs:
+- name: osb-checker-kotlin
+- name: overview-broker
+
+run:
+  path: overview-broker/ci/scripts/conformance.sh

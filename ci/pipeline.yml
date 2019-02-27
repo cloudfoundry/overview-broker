@@ -7,10 +7,19 @@ jobs:
     - task: unit
       file: overview-broker/ci/tasks/unit.yml
 
+- name: conformance
+  plan:
+    - get: overview-broker
+      passed: [absolute-unit]
+      trigger: true
+    - get: osb-checker-kotlin
+    - task: conformance
+      file: overview-broker/ci/tasks/conformance.yml
+
 - name: deploy-best-broker
   plan:
   - get: overview-broker
-    passed: [absolute-unit]
+    passed: [conformance]
     trigger: true
   - put: cf
     params:
@@ -31,6 +40,12 @@ resources:
   type: git
   source:
     uri: https://github.com/mattmcneeney/overview-broker
+    branch: master
+
+- name: osb-checker-kotlin
+  type: git
+  source:
+    uri: https://github.com/evoila/osb-checker-kotlin.git
     branch: master
 
 - name: cf

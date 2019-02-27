@@ -383,6 +383,12 @@ class ServiceBrokerInterface {
         var operation = this.bindingOperations[bindingId];
         if (operation && operation.type == 'binding' && operation.state == 'in progress') {
             this.sendJSONResponse(response, 202, data);
+
+        }
+
+        // Check if the instance already exists
+        if (!this.serviceInstances[serviceInstanceId]) {
+            this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
             return;
         }
 
@@ -515,7 +521,6 @@ class ServiceBrokerInterface {
     }
 
     checkAsyncOperations() {
-        this.logger.debug('Checking for completed asynchronous operations');
         var self = this;
         Object.keys(this.instanceOperations).forEach(function(key) {
             self.updateOperation(self.instanceOperations[key], key);
