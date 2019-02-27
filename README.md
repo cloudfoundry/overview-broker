@@ -3,6 +3,7 @@
 | Job | Status |
 | :-: | :----: |
 | Unit | ![Unit status](http://ism.ci.cf-app.com/api/v1/teams/main/pipelines/best-broker/jobs/absolute-unit/badge) |
+| Conformance | ![Conformance status](http://ism.ci.cf-app.com/api/v1/teams/main/pipelines/best-broker/jobs/conformance/badge) |
 | Deploy | ![Deploy status](http://ism.ci.cf-app.com/api/v1/teams/main/pipelines/best-broker/jobs/deploy-best-broker/badge) |
 | [Dockerhub](https://hub.docker.com/r/mattmcneeney/overview-broker) | ![Dockerhub status](http://ism.ci.cf-app.com/api/v1/teams/main/pipelines/best-broker/jobs/push-to-dockerhub/badge) |
 
