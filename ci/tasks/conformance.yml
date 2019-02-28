@@ -4,7 +4,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: timbru31/java-node
+    repository: mattmcneeney/jdk-11-node-10
     tag: 'latest'
 
 inputs:
