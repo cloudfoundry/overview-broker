@@ -55,6 +55,12 @@ function start(callback) {
         data.responseMode = process.env.responseMode;
         response.render('dashboard', data);
     });
+    app.get('/data', function(request, response) {
+        var data = serviceBrokerInterface.getDashboardData();
+        data.errorMode = process.env.errorMode;
+        data.responseMode = process.env.responseMode;
+        response.json(data);
+    });
     app.get('/health', function(request, response) {
         response.sendFile('health.yaml', { root: 'extensions' });
     });
