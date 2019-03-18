@@ -60,6 +60,6 @@ resources:
 - name: dockerhub
   type: docker-image
   source:
-    repository: mattmcneeney/overview-broker
+    repository: ismteam/overview-broker
     username: ((DOCKERHUB_USERNAME))
     password: ((DOCKERHUB_PASSWORD))
