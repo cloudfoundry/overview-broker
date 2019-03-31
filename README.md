@@ -81,6 +81,8 @@ npm test
   a platform should wait before trying again.
 * To change the name of the service(s) exposed by the service broker, set the
   `SERVICE_NAME` environmental variable.
+  * To change the description of the service(s) exposed by the service broker,
+  set the `SERVICE_DESCRIPTION` environmental variable.
 
 ---
 

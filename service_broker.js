@@ -13,7 +13,7 @@ class ServiceBroker {
             services: [
                 {
                     name: serviceName,
-                    description: 'Provides an overview of any service instances and bindings that have been created by a platform.',
+                    description: process.env.SERVICE_DESCRIPTION || 'Provides an overview of any service instances and bindings that have been created by a platform.',
                     id: sha256(serviceName).substring(0, 32),
                     tags: [ 'overview-broker' ],
                     bindable: true,
