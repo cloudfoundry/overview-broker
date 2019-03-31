@@ -632,7 +632,8 @@ class ServiceBrokerInterface {
                 ASYNCHRONOUS_DELAY_IN_SECONDS: process.env.ASYNCHRONOUS_DELAY_IN_SECONDS,
                 MAXIMUM_POLLING_DURATION_IN_SECONDS: process.env.MAXIMUM_POLLING_DURATION_IN_SECONDS,
                 POLLING_INTERVAL_IN_SECONDS: process.env.POLLING_INTERVAL_IN_SECONDS,
-                SERVICE_NAME: process.env.SERVICE_NAME
+                SERVICE_NAME: process.env.SERVICE_NAME,
+                SERVICE_DESCRIPTION: process.env.SERVICE_DESCRIPTION
             }
         };
     }
