@@ -173,8 +173,7 @@ class ServiceBroker {
                         }
                     }
                 }
-            },
-            required: [ 'name' ]
+            }
         };
         plans.push({
             name: 'large',
