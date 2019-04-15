@@ -131,15 +131,15 @@ class ServiceBroker {
     generatePlansForService(serviceName) {
         var plans = [];
 
-        // Add a very simple plan
+        // Add a small plan
         plans.push({
-            name: 'simple',
-            description: 'A very simple plan.',
+            name: 'small',
+            description: 'A small instance of the service.',
             free: true
         });
 
-        // Add a complex plan with a schema
-        var complexPlanSchema = {
+        // Add a large plan with a schema
+        var largePlanSchema = {
             $schema: 'http://json-schema.org/draft-04/schema#',
             additionalProperties: false,
             type: 'object',
@@ -177,8 +177,8 @@ class ServiceBroker {
             required: [ 'name' ]
         };
         plans.push({
-            name: 'complex',
-            description: 'A more complicated plan.',
+            name: 'large',
+            description: 'A large instance of the service.',
             free: true,
             schemas: {
                 service_instance: {
