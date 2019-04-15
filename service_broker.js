@@ -183,15 +183,15 @@ class ServiceBroker {
             schemas: {
                 service_instance: {
                     create: {
-                        parameters: complexPlanSchema
+                        parameters: largePlanSchema
                     },
                     update: {
-                        parameters: complexPlanSchema
+                        parameters: largePlanSchema
                     }
                 },
                 service_binding: {
                     create: {
-                        parameters: complexPlanSchema
+                        parameters: largePlanSchema
                     }
                 }
             }

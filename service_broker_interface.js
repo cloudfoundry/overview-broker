@@ -383,7 +383,7 @@ class ServiceBrokerInterface {
         var operation = this.bindingOperations[bindingId];
         if (operation && operation.type == 'binding' && operation.state == 'in progress') {
             this.sendJSONResponse(response, 202, data);
-
+            return;
         }
 
         // Check if the instance already exists

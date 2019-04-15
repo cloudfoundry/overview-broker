@@ -15,8 +15,8 @@ describe('Service Broker Interface', function() {
     var server = null;
     var serviceBrokerInterface = null;
     var brokerServiceId = null;
-    var simplePlanId = null;
-    var complexPlanId = null;
+    var smallPlanId = null;
+    var largePlanId = null;
 
     var brokerUsername = null;
     var brokerPassword = null;
@@ -36,11 +36,11 @@ describe('Service Broker Interface', function() {
             brokerPassword = process.env.BROKER_PASSWORD || 'password';
             serviceBroker.getCatalog().services[0].plans.forEach(function(plan) {
                 switch (plan.name) {
-                    case 'simple':
-                        simplePlanId = plan.id;
+                    case 'small':
+                        smallPlanId = plan.id;
                         break;
-                    case 'complex':
-                        complexPlanId = plan.id;
+                    case 'large':
+                        largePlanId = plan.id;
                         break;
                     default:
                         break;
@@ -112,7 +112,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -152,7 +152,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: uuidv4(),
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -198,7 +198,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -212,7 +212,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId
+                            plan_id: smallPlanId
                          })
                         .expect(200)
                         .then(response => {
@@ -230,7 +230,7 @@ describe('Service Broker Interface', function() {
                                     .set('X-Broker-Api-Version', apiVersion)
                                     .send({
                                        service_id: brokerServiceId,
-                                       plan_id: simplePlanId
+                                       plan_id: smallPlanId
                                     })
                                     .expect(200)
                                     .then(response => {
@@ -258,7 +258,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -272,7 +272,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId,
+                            plan_id: smallPlanId,
                             parameters: {},
                             organization_guid: organizationGuid,
                             space_guid: spaceGuid,
@@ -298,7 +298,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -327,7 +327,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -352,7 +352,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {}
                  })
                 .expect(200)
@@ -388,7 +388,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: uuidv4(),
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {}
                  })
                 .expect(400)
@@ -428,7 +428,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {}
                  })
                 .expect(202)
@@ -439,7 +439,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId
+                            plan_id: smallPlanId
                          })
                         .expect(200)
                         .then(response => {
@@ -457,7 +457,7 @@ describe('Service Broker Interface', function() {
                                     .set('X-Broker-Api-Version', apiVersion)
                                     .send({
                                        service_id: brokerServiceId,
-                                       plan_id: simplePlanId
+                                       plan_id: smallPlanId
                                     })
                                     .expect(200)
                                     .then(response => {
@@ -485,7 +485,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {}
                  })
                 .expect(200)
@@ -506,7 +506,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     context: {}
                  })
                 .expect(200)
@@ -530,7 +530,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -555,7 +555,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId
+                    plan_id: smallPlanId
                  })
                 .expect(200)
                 .then(response => {
@@ -575,7 +575,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId
+                    plan_id: smallPlanId
                  })
                 .expect(410)
                 .then(response => {
@@ -608,7 +608,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId
+                    plan_id: smallPlanId
                  })
                 .expect(202)
                 .then(response => {
@@ -618,7 +618,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId
+                            plan_id: smallPlanId
                          })
                         .expect(200)
                         .then(response => {
@@ -636,7 +636,7 @@ describe('Service Broker Interface', function() {
                                     .set('X-Broker-Api-Version', apiVersion)
                                     .send({
                                        service_id: brokerServiceId,
-                                       plan_id: simplePlanId
+                                       plan_id: smallPlanId
                                     })
                                     .expect(200)
                                     .then(response => {
@@ -664,7 +664,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId
+                    plan_id: smallPlanId
                  })
                 .expect(200)
                 .then(response => {
@@ -688,7 +688,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -713,7 +713,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -741,7 +741,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -764,7 +764,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     app_guid: appGuid,
                     bind_resource: {},
                     parameters: {}
@@ -805,7 +805,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: uuidv4(),
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     app_guid: appGuid,
                     bind_resource: {},
                     parameters: {}
@@ -849,7 +849,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -863,7 +863,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId
+                            plan_id: smallPlanId
                          })
                         .expect(200)
                         .then(response => {
@@ -881,7 +881,7 @@ describe('Service Broker Interface', function() {
                                     .set('X-Broker-Api-Version', apiVersion)
                                     .send({
                                        service_id: brokerServiceId,
-                                       plan_id: simplePlanId
+                                       plan_id: smallPlanId
                                     })
                                     .expect(200)
                                     .then(response => {
@@ -909,7 +909,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -923,7 +923,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId,
+                            plan_id: smallPlanId,
                             parameters: {},
                             organization_guid: organizationGuid,
                             space_guid: spaceGuid,
@@ -949,7 +949,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     app_guid: appGuid,
                     bind_resource: {},
                     parameters: {},
@@ -979,7 +979,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -994,7 +994,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId,
+                            plan_id: smallPlanId,
                             app_guid: appGuid,
                             bind_resource: {},
                             parameters: {}
@@ -1019,7 +1019,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId
+                    plan_id: smallPlanId
                 })
                 .expect(200)
                 .then(response => {
@@ -1039,7 +1039,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId
+                    plan_id: smallPlanId
                 })
                 .expect(410)
                 .then(response => {
@@ -1072,7 +1072,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: uuidv4(),
-                    plan_id: simplePlanId
+                    plan_id: smallPlanId
                 })
                 .expect(400)
                 .then(response => {
@@ -1110,7 +1110,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId
+                    plan_id: smallPlanId
                  })
                 .expect(202)
                 .then(response => {
@@ -1120,7 +1120,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId
+                            plan_id: smallPlanId
                          })
                         .expect(200)
                         .then(response => {
@@ -1138,7 +1138,7 @@ describe('Service Broker Interface', function() {
                                     .set('X-Broker-Api-Version', apiVersion)
                                     .send({
                                        service_id: brokerServiceId,
-                                       plan_id: simplePlanId
+                                       plan_id: smallPlanId
                                     })
                                     .expect(200)
                                     .then(response => {
@@ -1166,7 +1166,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .query({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId
+                    plan_id: smallPlanId
                  })
                 .expect(200)
                 .then(response => {
@@ -1190,7 +1190,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1205,7 +1205,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId,
+                            plan_id: smallPlanId,
                             app_guid: appGuid,
                             bind_resource: {},
                             parameters: {}
@@ -1230,7 +1230,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     app_guid: appGuid,
                     bind_resource: {},
                     parameters: {}
@@ -1273,7 +1273,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: complexPlanId,
+                    plan_id: largePlanId,
                     parameters: validParameters,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1298,7 +1298,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: complexPlanId,
+                    plan_id: largePlanId,
                     parameters: invalidParameters,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1321,7 +1321,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: complexPlanId,
+                    plan_id: largePlanId,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
                     context: {}
@@ -1343,7 +1343,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: complexPlanId,
+                    plan_id: largePlanId,
                     parameters: validParameters,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1357,7 +1357,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: complexPlanId,
+                            plan_id: largePlanId,
                             parameters: validParameters
                          })
                         .expect(200)
@@ -1382,7 +1382,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: complexPlanId,
+                    plan_id: largePlanId,
                     parameters: validParameters,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1396,7 +1396,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: complexPlanId,
+                            plan_id: largePlanId,
                             parameters: invalidParameters
                          })
                         .expect(400)
@@ -1420,7 +1420,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: complexPlanId,
+                    plan_id: largePlanId,
                     parameters: validParameters,
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1434,7 +1434,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: complexPlanId
+                            plan_id: largePlanId
                          })
                         .expect(400)
                         .then(response => {
@@ -1464,7 +1464,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: complexPlanId,
+                    plan_id: largePlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1488,7 +1488,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: complexPlanId,
+                    plan_id: largePlanId,
                     app_guid: appGuid,
                     bind_resource: {},
                     parameters: validParameters
@@ -1514,7 +1514,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: complexPlanId,
+                    plan_id: largePlanId,
                     app_guid: appGuid,
                     bind_resource: {},
                     parameters: invalidParameters
@@ -1536,7 +1536,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: complexPlanId,
+                    plan_id: largePlanId,
                     app_guid: appGuid,
                     bind_resource: {}
                  })
@@ -1561,7 +1561,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: { foo: 'bar' },
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1623,7 +1623,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1637,7 +1637,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId,
+                            plan_id: smallPlanId,
                             app_guid: appGuid,
                             bind_resource: {},
                             parameters: {}
@@ -1697,7 +1697,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1711,7 +1711,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId,
+                            plan_id: smallPlanId,
                             parameters: {}
                          })
                         .expect(422)
@@ -1734,7 +1734,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1748,7 +1748,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .query({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId
+                            plan_id: smallPlanId
                          })
                         .expect(202)
                         .then(response => {
@@ -1770,7 +1770,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1784,7 +1784,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId,
+                            plan_id: smallPlanId,
                             parameters: {}
                          })
                         .expect(202)
@@ -1795,7 +1795,7 @@ describe('Service Broker Interface', function() {
                                 .set('X-Broker-Api-Version', apiVersion)
                                 .query({
                                     service_id: brokerServiceId,
-                                    plan_id: simplePlanId
+                                    plan_id: smallPlanId
                                  })
                                 .expect(422)
                                 .then(response => {
@@ -1821,7 +1821,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: {},
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1835,7 +1835,7 @@ describe('Service Broker Interface', function() {
                         .set('X-Broker-Api-Version', apiVersion)
                         .send({
                             service_id: brokerServiceId,
-                            plan_id: simplePlanId,
+                            plan_id: smallPlanId,
                             app_guid: appGuid,
                             bind_resource: {},
                             parameters: {}
@@ -1848,7 +1848,7 @@ describe('Service Broker Interface', function() {
                                 .set('X-Broker-Api-Version', apiVersion)
                                 .query({
                                     service_id: brokerServiceId,
-                                    plan_id: simplePlanId
+                                    plan_id: smallPlanId
                                 })
                                 .expect(422)
                                 .then(response => {
@@ -1878,7 +1878,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: { foo: 'bar' },
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
@@ -1922,7 +1922,7 @@ describe('Service Broker Interface', function() {
                 .set('X-Broker-Api-Version', apiVersion)
                 .send({
                     service_id: brokerServiceId,
-                    plan_id: simplePlanId,
+                    plan_id: smallPlanId,
                     parameters: { foo: 'bar' },
                     organization_guid: organizationGuid,
                     space_guid: spaceGuid,
