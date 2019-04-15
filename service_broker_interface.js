@@ -120,12 +120,12 @@ class ServiceBrokerInterface {
             data: data
         };
 
-        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
+        if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
             this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
             return;
         }
 
-        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways')) {
+        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -165,7 +165,7 @@ class ServiceBrokerInterface {
         }
 
         // Check if we only support asynchronous operations
-        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
+        if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
             this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
             return;
         }
@@ -208,7 +208,7 @@ class ServiceBrokerInterface {
             dashboard_url: dashboardUrl
         };
 
-        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways')) {
+        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -249,7 +249,7 @@ class ServiceBrokerInterface {
         }
 
         // Check if we only support asynchronous operations
-        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
+        if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
             this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
             return;
         }
@@ -280,7 +280,7 @@ class ServiceBrokerInterface {
         }
 
         // Perform asynchronous deprovision
-        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways')) {
+        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -327,7 +327,7 @@ class ServiceBrokerInterface {
         }
 
         // Check if we only support asynchronous operations
-        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
+        if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
             this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
             return;
         }
@@ -410,7 +410,7 @@ class ServiceBrokerInterface {
         };
 
         // Perform asynchronous binding
-        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways')) {
+        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();
@@ -448,7 +448,7 @@ class ServiceBrokerInterface {
         var bindingId = request.params.binding_id;
 
         // Check if we only support asynchronous operations
-        if (process.env.responseMode == 'asyncalways' && request.query.accepts_incomplete != 'true') {
+        if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
             this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
             return;
         }
@@ -472,7 +472,7 @@ class ServiceBrokerInterface {
         }
 
         // Perform asynchronous deprovision
-        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'async') || process.env.responseMode == 'asyncalways')) {
+        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
             // Set the end time for the operation to be one second from now
             // unless an explicit delay was requested
             var endTime = new Date();

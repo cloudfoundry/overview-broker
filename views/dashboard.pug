@@ -69,9 +69,9 @@ html
               div.form-group
                 label(for='responseModeSelect') Response mode:
                 select.form-control(id='responseModeSelect', onchange='responseModeChanged(this)')
-                  option(code='async', selected=(responseMode == 'async')) Asynchronous responses where possible
+                  option(code='default', selected=(responseMode == 'default')) Asynchronous responses where possible
                   option(code='sync', selected=(responseMode == 'sync')) Synchronous responses always
-                  option(code='asyncalways', selected=(responseMode == 'asyncalways')) Asynchronous responses always
+                  option(code='async', selected=(responseMode == 'async')) Asynchronous responses always
               div.form-group
                 button.btn.btn-primary(onclick="editCatalog(\'" + JSON.stringify(catalog) + "\', true)") Edit the catalog
       div.row.mb-2

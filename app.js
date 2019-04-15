@@ -38,11 +38,11 @@ function start(callback) {
     ];
 
     /* Response modes */
-    process.env.responseMode = 'async'; // Support async responses by default
+    process.env.responseMode = process.env.RESPONSE_MODE || 'default';
     const supportedResponseModes = [
-        'async', // Asynchronous responses where possible
+        'default', // Asynchronous responses where possible
         'sync', // Synchronous responses always
-        'asyncalways' // Asynchronous responses always
+        'default' // Asynchronous responses always
     ];
 
     /* Unauthenticated routes */

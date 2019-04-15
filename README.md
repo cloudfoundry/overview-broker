@@ -81,8 +81,12 @@ npm test
   a platform should wait before trying again.
 * To change the name of the service(s) exposed by the service broker, set the
   `SERVICE_NAME` environmental variable.
-  * To change the description of the service(s) exposed by the service broker,
+* To change the description of the service(s) exposed by the service broker,
   set the `SERVICE_DESCRIPTION` environmental variable.
+* To set the response mode of the service broker (note that this can also be
+  changed via the broker dashboard), set the `RESPONSE_MODE` environmental
+  variable to `default` (asynchronous responses where possible), `sync`
+  (synchronous responses always) or `async` (asynchronous responses always).
 
 ---
 
