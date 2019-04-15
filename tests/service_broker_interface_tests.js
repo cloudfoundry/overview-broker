@@ -130,21 +130,6 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should fail without required parameters', function(done) {
-            request(server)
-                .put(`/v2/service_instances/${instanceId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .expect(400)
-                .then(response => {
-                    should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
         it('should fail without invalid serviceId', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}`)
@@ -1314,28 +1299,6 @@ describe('Service Broker Interface', function() {
                 });
         });
 
-        it('should fail to create service instance with no parameters', function(done) {
-            request(server)
-                .put(`/v2/service_instances/${instanceId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .send({
-                    service_id: brokerServiceId,
-                    plan_id: largePlanId,
-                    organization_guid: organizationGuid,
-                    space_guid: spaceGuid,
-                    context: {}
-                 })
-                .expect(400)
-                .then(response => {
-                    should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
         it('should update service instance with valid parameters', function(done) {
             request(server)
                 .put(`/v2/service_instances/${instanceId}`)
@@ -1398,43 +1361,6 @@ describe('Service Broker Interface', function() {
                             service_id: brokerServiceId,
                             plan_id: largePlanId,
                             parameters: invalidParameters
-                         })
-                        .expect(400)
-                        .then(response => {
-                            should.exist(response.body);
-                            done();
-                        })
-                        .catch(error => {
-                            done(error);
-                        });
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-        it('should fail to update service instance with no parameters', function(done) {
-            request(server)
-                .put(`/v2/service_instances/${instanceId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .send({
-                    service_id: brokerServiceId,
-                    plan_id: largePlanId,
-                    parameters: validParameters,
-                    organization_guid: organizationGuid,
-                    space_guid: spaceGuid,
-                    context: {}
-                 })
-                .expect(201)
-                .then(response => {
-                    request(server)
-                        .patch(`/v2/service_instances/${instanceId}`)
-                        .auth(brokerUsername, brokerPassword)
-                        .set('X-Broker-Api-Version', apiVersion)
-                        .send({
-                            service_id: brokerServiceId,
-                            plan_id: largePlanId
                          })
                         .expect(400)
                         .then(response => {
@@ -1518,27 +1444,6 @@ describe('Service Broker Interface', function() {
                     app_guid: appGuid,
                     bind_resource: {},
                     parameters: invalidParameters
-                 })
-                .expect(400)
-                .then(response => {
-                    should.exist(response.body);
-                    done();
-                })
-                .catch(error => {
-                    done(error);
-                });
-        });
-
-        it('should fail to create service binding with no parameters', function(done) {
-            request(server)
-                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
-                .auth(brokerUsername, brokerPassword)
-                .set('X-Broker-Api-Version', apiVersion)
-                .send({
-                    service_id: brokerServiceId,
-                    plan_id: largePlanId,
-                    app_guid: appGuid,
-                    bind_resource: {}
                  })
                 .expect(400)
                 .then(response => {
