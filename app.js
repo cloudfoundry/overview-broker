@@ -24,7 +24,7 @@ function start(callback) {
     serviceBrokerInterface = new ServiceBrokerInterface();
 
     /* Error modes */
-    process.env.errorMode = ''; // Disabled by default
+    process.env.errorMode = process.env.ERROR_MODE || ''; // Disabled by default
     const supportedErrorModes = [
         '', // Disabled
         'timeout', // Do not respond to any request

@@ -85,8 +85,10 @@ npm test
   set the `SERVICE_DESCRIPTION` environmental variable.
 * To set the response mode of the service broker (note that this can also be
   changed via the broker dashboard), set the `RESPONSE_MODE` environmental
-  variable to `default` (asynchronous responses where possible), `sync`
-  (synchronous responses always) or `async` (asynchronous responses always).
+  variable to one of the [available modes](app.js#L42).
+* To set the error mode of the service broker (note that this can also be
+ changed via the broker dashboard), set the `ERROR_MODE` environmental
+ variable to one of the [available modes](app.js#L28).
 
 ---
 
