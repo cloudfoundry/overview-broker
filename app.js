@@ -33,6 +33,7 @@ function start(callback) {
         'gone', // Return HTTP 410 to every request
         'unprocessable', // Return HTTP 422 to every request
         'concurrencyerror', // Return HTTP 422 with the "ConcurrencyError" error code
+        'maintenanceinfoconflict', // Return HTTP 422 with the "MaintenanceInfoConflict" error code
         'invalidjson', // Return invalid JSON to every request
         'failasync' // Fail asynchronous operations (after they have finished)
     ];
@@ -139,6 +140,12 @@ function start(callback) {
                 serviceBrokerInterface.sendJSONResponse(response, 422, {
                     error: 'ConcurrencyError',
                     description: 'Error mode enabled (concurrencyerror)'
+                });
+                return;
+            case 'maintenanceinfoconflict':
+                serviceBrokerInterface.sendJSONResponse(response, 422, {
+                    error: 'MaintenanceInfoConflict',
+                    description: 'Error mode enabled (maintenanceinfoconflict)'
                 });
                 return;
             case 'invalidjson':

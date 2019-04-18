@@ -63,6 +63,7 @@ html
                   option(code='gone', selected=(errorMode == 'gone')) Respond with HTTP 410
                   option(code='unprocessable', selected=(errorMode == 'unprocessable')) Respond with HTTP 422
                   option(code='concurrencyerror', selected=(errorMode == 'concurrencyerror')) Respond with HTTP 422 with ConcurencyError code
+                  option(code='maintenanceinfoconflict', selected=(errorMode == 'maintenanceinfoconflict')) Respond with HTTP 422 with MaintenanceInfoConflict code
                   option(code='timeout', selected=(errorMode == 'timeout')) Do not respond (timeout)
                   option(code='invalidjson', selected=(errorMode == 'invalidjson')) Respond with invalid JSON
                   option(code='failasync', selected=(errorMode == 'failasync')) Fail asynchronous operations (after they have finished)
