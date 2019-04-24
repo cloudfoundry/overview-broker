@@ -1,4 +1,4 @@
-FROM node:10
+FROM node:10-slim
 LABEL maintainer "Matt McNeeney <matt@mattmc.co.uk>"
 
 COPY . /
