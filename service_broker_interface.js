@@ -13,10 +13,6 @@ class ServiceBrokerInterface {
         this.serviceInstances = {};
         this.latestRequests = [];
         this.latestResponses = [];
-        this.bindingCredentials = {
-            username: 'admin',
-            password: randomstring.generate(16)
-        };
         this.instanceOperations = {};
         this.bindingOperations = {};
         this.numRequestsToSave = 5;
@@ -357,7 +353,10 @@ class ServiceBrokerInterface {
         var data = {};
         if (!service.requires || service.requires.length == 0) {
             data = {
-                credentials: this.bindingCredentials
+                credentials: {
+                    username: 'admin',
+                    password: randomstring.generate(16)
+                }
             };
         }
         else if (service.requires && service.requires.indexOf('syslog_drain') > -1) {
