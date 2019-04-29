@@ -43,7 +43,7 @@ function start(callback) {
     const supportedResponseModes = [
         'default', // Asynchronous responses where possible
         'sync', // Synchronous responses always
-        'default' // Asynchronous responses always
+        'async' // Asynchronous responses always
     ];
 
     /* Unauthenticated routes */
