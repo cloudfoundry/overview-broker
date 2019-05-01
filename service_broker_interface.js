@@ -52,6 +52,12 @@ class ServiceBrokerInterface {
             return;
         }
 
+        // Check if we only support asynchronous operations
+        if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
+            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
+            return;
+        }
+
         // Validate serviceId and planId
         var service = this.serviceBroker.getService(request.body.service_id);
         var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
@@ -115,11 +121,6 @@ class ServiceBrokerInterface {
             bindings: {},
             data: data
         };
-
-        if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
-            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
-            return;
-        }
 
         if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
             // Set the end time for the operation to be one second from now
