@@ -351,6 +351,27 @@ describe('Service Broker Interface', function() {
                 });
         });
 
+        it('should succeed without a plan', function(done) {
+            request(server)
+                .patch(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    parameters: {'foo': 'bar'}
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.have.property('dashboard_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+
         it('should fail without required parameters', function(done) {
             request(server)
                 .patch(`/v2/service_instances/${instanceId}`)

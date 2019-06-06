@@ -160,8 +160,8 @@ class ServiceBrokerInterface {
         if (request.body.plan_id) {
             plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
         } else {
-            service_id = this.serviceInstances[serviceInstanceId].service_id;
-            plan_id = this.serviceInstances[serviceInstanceId].plan_id;
+            let service_id = this.serviceInstances[serviceInstanceId].service_id;
+            let plan_id = this.serviceInstances[serviceInstanceId].plan_id;
             plan = this.serviceBroker.getPlanForService(service_id, plan_id);
         }
 
