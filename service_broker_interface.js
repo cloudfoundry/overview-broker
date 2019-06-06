@@ -154,8 +154,18 @@ class ServiceBrokerInterface {
             return;
         }
 
+        var serviceInstanceId = request.params.instance_id;
+
+        var plan = null;
+        if (request.body.plan_id) {
+            plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
+        } else {
+            service_id = this.serviceInstances[serviceInstanceId].service_id;
+            plan_id = this.serviceInstances[serviceInstanceId].plan_id;
+            plan = this.serviceBroker.getPlanForService(service_id, plan_id);
+        }
+
         // Validate serviceId and planId
-        var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
         if (!plan) {
             this.sendResponse(response, 400, 'Could not find service %s, plan %s', request.body.service_id, request.body.plan_id);
             return;
@@ -183,7 +193,6 @@ class ServiceBrokerInterface {
             }
         }
 
-        var serviceInstanceId = request.params.instance_id;
         this.logger.debug(`Updating service ${serviceInstanceId}`);
 
         // Check if an operation is in progress
@@ -195,7 +204,7 @@ class ServiceBrokerInterface {
 
         this.serviceInstances[serviceInstanceId].api_version = request.header('X-Broker-Api-Version'),
         this.serviceInstances[serviceInstanceId].service_id = request.body.service_id;
-        this.serviceInstances[serviceInstanceId].plan_id = request.body.plan_id;
+        this.serviceInstances[serviceInstanceId].plan_id = plan.id;
         this.serviceInstances[serviceInstanceId].parameters = request.body.parameters || {};
         this.serviceInstances[serviceInstanceId].context = request.body.context || {};
         this.serviceInstances[serviceInstanceId].last_updated = moment().toString();
