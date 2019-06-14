@@ -125,12 +125,12 @@ npm test
 
 * Now for the exciting part... it's time to create a new service instance:
     ```bash
-    cf create-service overview-service simple my-instance
+    cf create-service overview-service small my-instance
     ```
     You can give your service a specific name in the dashboard by providing the
     `name` configuration parameter:
     ```bash
-    cf create-service overview-service simple my-instance -c '{ "name": "My Service Instance" }'
+    cf create-service overview-service small my-instance -c '{ "name": "My Service Instance" }'
     ```
 * If you now head back to the dashboard, you should see your new service
 instance information.

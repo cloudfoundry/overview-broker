@@ -4,4 +4,4 @@ metadata:
   name: overview-broker-instance
 spec:
   clusterServiceClassExternalName: overview-broker
-  clusterServicePlanExternalName: simple
+  clusterServicePlanExternalName: small
