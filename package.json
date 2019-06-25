@@ -9,17 +9,16 @@
   },
   "author": "Matthew McNeeney <mmcneeney@pivotal.io>",
   "repository": "https://github.com/mattmcneeney/overview-broker",
-  "license": "ISC",
+  "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "body-parser": "latest",
-    "cfenv": "^1.2.0",
-    "express": "^4.16.4",
-    "express-basic-auth": "^1.1.6",
+    "cfenv": "^1.2.2",
+    "express": "^4.17.1",
+    "express-basic-auth": "^1.2.0",
     "express-validator": "^5.3.1",
     "jsonschema": "latest",
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
-    "npm": "^6.9.0",
     "pug": "latest",
     "randomstring": "^1.1.5",
     "request": "^2.88.0",
@@ -28,9 +27,9 @@
   },
   "devDependencies": {
     "assert": "latest",
-    "mocha": "^6.0.2",
+    "mocha": "^6.1.4",
     "should": "^13.2.3",
-    "supertest": "^3.4.2"
+    "supertest": "^4.0.2"
   },
   "engines": {
     "node": "10.x.x"
