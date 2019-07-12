@@ -1,6 +1,5 @@
 var express = require('express'),
     bodyParser = require('body-parser'),
-    expressValidator = require('express-validator'),
     basicAuth = require('express-basic-auth'),
     morgan = require('morgan'),
     Logger = require('./logger'),
@@ -12,7 +11,6 @@ function start(callback) {
 
     app.use(bodyParser.json()); // support json encoded bodies
     app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-    app.use(expressValidator());
 
     if (process.env.NODE_ENV != 'testing') {
         app.use(morgan('tiny'));
@@ -98,12 +96,8 @@ function start(callback) {
     app.use('/images', express.static('images'));
 
     /* Extensions (unauthenticated) */
-    app.get('/v2/service_instances/:instance_id/health', function(request, response) {
-        serviceBrokerInterface.getHealth(request, response);
-    });
-    app.get('/v2/service_instances/:instance_id/info', function(request, response) {
-        serviceBrokerInterface.getInfo(request, response);
-    });
+    app.get('/v2/service_instances/:instance_id/health', serviceBrokerInterface.getHealth());
+    app.get('/v2/service_instances/:instance_id/info', serviceBrokerInterface.getInfo());
 
     /* Authenticated routes (uses Basic Auth) */
     var users = {};
@@ -112,80 +106,65 @@ function start(callback) {
         users: users
     }));
 
-    app.all('*', function(request, response, next) {
-        serviceBrokerInterface.saveRequest(request);
-        switch (process.env.errorMode) {
-            case 'timeout':
-                console.log('timing out');
-                return;
-            case 'servererror':
-                serviceBrokerInterface.sendJSONResponse(response, 500, {
-                    error: 'ErrorMode',
-                    description: 'Error mode enabled (servererror)'
-                });
-                return;
-            case 'notfound':
-                serviceBrokerInterface.sendJSONResponse(response, 404, {});
-                return;
-            case 'gone':
-                serviceBrokerInterface.sendJSONResponse(response, 410, {});
-                return;
-            case 'unprocessable':
-                serviceBrokerInterface.sendJSONResponse(response, 422, {
-                    error: 'ErrorMode',
-                    description: 'Error mode enabled (unprocessable)'
-                });
-                return;
-            case 'concurrencyerror':
-                serviceBrokerInterface.sendJSONResponse(response, 422, {
-                    error: 'ConcurrencyError',
-                    description: 'Error mode enabled (concurrencyerror)'
-                });
-                return;
-            case 'maintenanceinfoconflict':
-                serviceBrokerInterface.sendJSONResponse(response, 422, {
-                    error: 'MaintenanceInfoConflict',
-                    description: 'Error mode enabled (maintenanceinfoconflict)'
-                });
-                return;
-            case 'invalidjson':
-                serviceBrokerInterface.sendResponse(response, 200, '{ "invalidjson error mode enabled" }');
-                return;
-            default:
-                break;
-        }
-        serviceBrokerInterface.checkRequest(request, response, next);
-    });
+    app.all(
+        '*',
+        function(request, response, next) {
+            serviceBrokerInterface.saveRequest(request);
+            switch (process.env.errorMode) {
+                case 'timeout':
+                    console.log('timing out');
+                    return;
+                case 'servererror':
+                    serviceBrokerInterface.sendJSONResponse(response, 500, {
+                        error: 'ErrorMode',
+                        description: 'Error mode enabled (servererror)'
+                    });
+                    return;
+                case 'notfound':
+                    serviceBrokerInterface.sendJSONResponse(response, 404, {});
+                    return;
+                case 'gone':
+                    serviceBrokerInterface.sendJSONResponse(response, 410, {});
+                    return;
+                case 'unprocessable':
+                    serviceBrokerInterface.sendJSONResponse(response, 422, {
+                        error: 'ErrorMode',
+                        description: 'Error mode enabled (unprocessable)'
+                    });
+                    return;
+                case 'concurrencyerror':
+                    serviceBrokerInterface.sendJSONResponse(response, 422, {
+                        error: 'ConcurrencyError',
+                        description: 'Error mode enabled (concurrencyerror)'
+                    });
+                    return;
+                case 'maintenanceinfoconflict':
+                    serviceBrokerInterface.sendJSONResponse(response, 422, {
+                        error: 'MaintenanceInfoConflict',
+                        description: 'Error mode enabled (maintenanceinfoconflict)'
+                    });
+                    return;
+                case 'invalidjson':
+                    serviceBrokerInterface.sendResponse(response, 200, '{ "invalidjson error mode enabled" }');
+                    return;
+                default:
+                    next();
+            }
+        },
+        serviceBrokerInterface.checkRequest()
+    );
     app.get('/v2/catalog', function(request, response) {
         serviceBrokerInterface.getCatalog(request, response);
     });
-    app.put('/v2/service_instances/:instance_id', function(request, response) {
-        serviceBrokerInterface.createServiceInstance(request, response);
-    });
-    app.patch('/v2/service_instances/:instance_id', function(request, response) {
-        serviceBrokerInterface.updateServiceInstance(request, response);
-    });
-    app.delete('/v2/service_instances/:instance_id', function(request, response) {
-        serviceBrokerInterface.deleteServiceInstance(request, response);
-    });
-    app.put('/v2/service_instances/:instance_id/service_bindings/:binding_id', function(request, response) {
-        serviceBrokerInterface.createServiceBinding(request, response);
-    });
-    app.delete('/v2/service_instances/:instance_id/service_bindings/:binding_id', function(request, response) {
-        serviceBrokerInterface.deleteServiceBinding(request, response);
-    });
-    app.get('/v2/service_instances/:instance_id/last_operation', function(request, response) {
-        serviceBrokerInterface.getLastServiceInstanceOperation(request, response);
-    });
-    app.get('/v2/service_instances/:instance_id/service_bindings/:binding_id/last_operation', function(request, response) {
-        serviceBrokerInterface.getLastServiceBindingOperation(request, response);
-    });
-    app.get('/v2/service_instances/:instance_id', function(request, response) {
-        serviceBrokerInterface.getServiceInstance(request, response);
-    });
-    app.get('/v2/service_instances/:instance_id/service_bindings/:binding_id', function(request, response) {
-        serviceBrokerInterface.getServiceBinding(request, response);
-    });
+    app.put('/v2/service_instances/:instance_id', serviceBrokerInterface.createServiceInstance());
+    app.patch('/v2/service_instances/:instance_id', serviceBrokerInterface.updateServiceInstance());
+    app.delete('/v2/service_instances/:instance_id', serviceBrokerInterface.deleteServiceInstance());
+    app.put('/v2/service_instances/:instance_id/service_bindings/:binding_id', serviceBrokerInterface.createServiceBinding());
+    app.delete('/v2/service_instances/:instance_id/service_bindings/:binding_id', serviceBrokerInterface.deleteServiceBinding());
+    app.get('/v2/service_instances/:instance_id/last_operation', serviceBrokerInterface.getLastServiceInstanceOperation());
+    app.get('/v2/service_instances/:instance_id/service_bindings/:binding_id/last_operation', serviceBrokerInterface.getLastServiceBindingOperation());
+    app.get('/v2/service_instances/:instance_id', serviceBrokerInterface.getServiceInstance());
+    app.get('/v2/service_instances/:instance_id/service_bindings/:binding_id', serviceBrokerInterface.getServiceBinding());
 
     /* Listing */
     app.get('/v2/service_instances', function(request, response) {
