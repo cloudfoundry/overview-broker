@@ -1,9 +1,11 @@
 var express = require('express'),
-moment = require('moment'),
-cfenv = require('cfenv'),
-randomstring = require('randomstring'),
-Logger = require('./logger'),
-ServiceBroker = require('./service_broker');
+    moment = require('moment'),
+    cfenv = require('cfenv'),
+    randomstring = require('randomstring'),
+    Logger = require('./logger'),
+    ServiceBroker = require('./service_broker');
+
+const { header, body, param, query, validationResult } = require('express-validator');
 
 class ServiceBrokerInterface {
 
@@ -24,15 +26,19 @@ class ServiceBrokerInterface {
         setInterval(() => { self.checkAsyncOperations() }, 10000);
     }
 
-    checkRequest(request, response, next) {
-        // Check for version header
-        request.checkHeaders('X-Broker-Api-Version', 'Missing broker api version').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            this.sendResponse(response, 412, errors);
-            return;
-        }
-        next();
+    checkRequest() {
+        return [
+            // Check for version header
+            header('X-Broker-Api-Version', 'Missing broker api version').exists(),
+            (request, response, next) => {
+                const errors = validationResult(request);
+                if (!errors.isEmpty()) {
+                    this.sendResponse(response, 412, errors);
+                    return;
+                }
+                next();
+            }
+        ]
     }
 
     getCatalog(request, response) {
@@ -40,493 +46,520 @@ class ServiceBrokerInterface {
         this.sendJSONResponse(response, 200, data);
     }
 
-    createServiceInstance(request, response) {
-        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
-        request.checkBody('service_id', 'Missing service_id').notEmpty();
-        request.checkBody('plan_id', 'Missing plan_id').notEmpty();
-        request.checkBody('organization_guid', 'Missing organization_guid').notEmpty();
-        request.checkBody('space_guid', 'Missing space_guid').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            this.sendResponse(response, 400, errors);
-            return;
-        }
-
-        // Check if we only support asynchronous operations
-        if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
-            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
-            return;
-        }
-
-        // Validate serviceId and planId
-        var service = this.serviceBroker.getService(request.body.service_id);
-        var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
-        if (!plan) {
-            this.sendResponse(response, 400, `Could not find service ${request.body.service_id}, plan ${request.body.plan_id}`);
-            return;
-        }
-
-        // Validate any configuration parameters if we have a schema
-        var schema = null;
-        try {
-            schema = plan.schemas.service_instance.create.parameters;
-        }
-        catch (e) {
-            // No schema to validate with
-        }
-        if (schema) {
-            var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
-            if (validationErrors) {
-                this.sendResponse(response, 400, validationErrors);
-                return;
-            }
-        }
-
-        // Create the service instance
-        var serviceInstanceId = request.params.instance_id;
-
-        this.logger.debug(`Creating service instance ${serviceInstanceId}`);
-
-        let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
-        let data = {
-            dashboard_url: dashboardUrl
-        };
-
-        // Check if a provision is already in progress
-        var operation = this.instanceOperations[serviceInstanceId];
-        if (operation && operation.type == 'provision' && operation.state == 'in progress') {
-            this.sendJSONResponse(response, 202, data);
-            return;
-        }
-
-        // Check if the instance already exists
-        if (serviceInstanceId in this.serviceInstances) {
-            this.sendJSONResponse(response, 200, data);
-            return;
-        }
-
-        this.serviceInstances[serviceInstanceId] = {
-            created: moment().toString(),
-            last_updated: 'never',
-            api_version: request.header('X-Broker-Api-Version'),
-            service_id: request.body.service_id,
-            service_name: service.name,
-            plan_id: request.body.plan_id,
-            plan_name: plan.name,
-            parameters: request.body.parameters || {},
-            accepts_incomplete: (request.query.accepts_incomplete == 'true'),
-            organization_guid: request.body.organization_guid,
-            space_guid: request.body.space_guid,
-            context: request.body.context || {},
-            bindings: {},
-            data: data
-        };
-
-        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
-            // Set the end time for the operation to be one second from now
-            // unless an explicit delay was requested
-            var endTime = new Date();
-            if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
-                endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
-            }
-            else {
-                endTime.setSeconds(endTime.getSeconds() + 1);
-            }
-            this.instanceOperations[serviceInstanceId] = {
-                type: 'provision',
-                state: 'in progress',
-                endTime: endTime
-            };
-            this.sendJSONResponse(response, 202, data);
-            return;
-        }
-
-        // Else return the data synchronously
-        this.sendJSONResponse(response, 201, data);
-    }
-
-    updateServiceInstance(request, response) {
-        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
-        request.checkBody('service_id', 'Missing service_id').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            this.sendResponse(response, 400, errors);
-            return;
-        }
-
-        var serviceInstanceId = request.params.instance_id;
-
-        var plan = null;
-        if (request.body.plan_id) {
-            plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
-        } else {
-            let service_id = this.serviceInstances[serviceInstanceId].service_id;
-            let plan_id = this.serviceInstances[serviceInstanceId].plan_id;
-            plan = this.serviceBroker.getPlanForService(service_id, plan_id);
-        }
-
-        // Validate serviceId and planId
-        if (!plan) {
-            this.sendResponse(response, 400, 'Could not find service %s, plan %s', request.body.service_id, request.body.plan_id);
-            return;
-        }
-
-        // Check if we only support asynchronous operations
-        if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
-            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
-            return;
-        }
-
-        // Validate any configuration parameters if we have a schema
-        var schema = null;
-        try {
-            schema = plan.schemas.service_instance.update.parameters;
-        }
-        catch (e) {
-            // No schema to validate with
-        }
-        if (schema) {
-            var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
-            if (validationErrors) {
-                this.sendResponse(response, 400, validationErrors);
-                return;
-            }
-        }
-
-        this.logger.debug(`Updating service ${serviceInstanceId}`);
-
-        // Check if an operation is in progress
-        var operation = this.instanceOperations[serviceInstanceId];
-        if (operation && operation.state == 'in progress') {
-            this.sendJSONResponse(response, 422,  { error: 'ConcurrencyError' });
-            return;
-        }
-
-        this.serviceInstances[serviceInstanceId].api_version = request.header('X-Broker-Api-Version'),
-        this.serviceInstances[serviceInstanceId].service_id = request.body.service_id;
-        this.serviceInstances[serviceInstanceId].plan_id = plan.id;
-        this.serviceInstances[serviceInstanceId].parameters = request.body.parameters || {};
-        this.serviceInstances[serviceInstanceId].context = request.body.context || {};
-        this.serviceInstances[serviceInstanceId].last_updated = moment().toString();
-
-        let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
-        let data = {
-            dashboard_url: dashboardUrl
-        };
-
-        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
-            // Set the end time for the operation to be one second from now
-            // unless an explicit delay was requested
-            var endTime = new Date();
-            if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
-                endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
-            }
-            else {
-                endTime.setSeconds(endTime.getSeconds() + 1);
-            }
-            this.instanceOperations[serviceInstanceId] = {
-                type: 'update',
-                state: 'in progress',
-                endTime: endTime
-            };
-            this.sendJSONResponse(response, 202, data);
-            return;
-        }
-
-        // Else return the data synchronously
-        this.sendJSONResponse(response, 200, data);
-    }
-
-    deleteServiceInstance(request, response) {
-        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
-        request.checkQuery('service_id', 'Missing service_id').notEmpty();
-        request.checkQuery('plan_id', 'Missing plan_id').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            this.sendResponse(response, 400, errors);
-            return;
-        }
-
-        // Validate serviceId and planId
-        var plan = this.serviceBroker.getPlanForService(request.query.service_id, request.query.plan_id);
-        if (!plan) {
-            // Just throw a warning in case the broker was restarted so the IDs changed
-            console.warn('Could not find service %s, plan %s', request.query.service_id, request.query.plan_id);
-        }
-
-        // Check if we only support asynchronous operations
-        if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
-            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
-            return;
-        }
-
-        var serviceInstanceId = request.params.instance_id;
-        this.logger.debug(`Deleting service ${serviceInstanceId}`);
-
-        // Check if an operation is in progress
-        var operation = this.instanceOperations[serviceInstanceId];
-        if (operation && operation.state == 'in progress') {
-            // If a provision is in progress, we can cancel it
-            if (operation.type == 'provision') {
-                delete this.instanceOperations[serviceInstanceId];
-            }
-            // Else it must be an update so we should fail
-            else {
-                this.sendJSONResponse(response, 422,  { error: 'ConcurrencyError' });
-                return;
-            }
-        }
-
-        // Delete the service instance from memory
-        if (serviceInstanceId in this.serviceInstances) {
-           delete this.serviceInstances[serviceInstanceId];
-        } else {
-            this.sendJSONResponse(response, 410, {});
-            return;
-        }
-
-        // Perform asynchronous deprovision
-        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
-            // Set the end time for the operation to be one second from now
-            // unless an explicit delay was requested
-            var endTime = new Date();
-            if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
-                endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
-            }
-            else {
-                endTime.setSeconds(endTime.getSeconds() + 1);
-            }
-            this.instanceOperations[serviceInstanceId] = {
-                type: 'deprovision',
-                state: 'in progress',
-                endTime: endTime
-            };
-            this.sendJSONResponse(response, 202, {});
-            return;
-        }
-
-        // Perform synchronous deprovision
-        this.sendJSONResponse(response, 200, {});
-    }
-
-    createServiceBinding(request, response) {
-        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
-        request.checkParams('binding_id', 'Missing binding_id').notEmpty();
-        request.checkBody('service_id', 'Missing service_id').notEmpty();
-        request.checkBody('plan_id', 'Missing plan_id').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            this.sendResponse(response, 400, errors);
-            return;
-        }
-
-        // Validate serviceId and planId
-        var service = this.serviceBroker.getService(request.body.service_id);
-        if (!service) {
-            this.sendResponse(response, 400, `Could not find service ${request.body.service_id}`);
-            return;
-        }
-        var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
-        if (!plan) {
-            this.sendResponse(response, 400, `Could not find service/plan ${request.body.service_id}/${request.body.plan_id}`);
-            return;
-        }
-
-        // Check if we only support asynchronous operations
-        if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
-            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
-            return;
-        }
-
-        // Validate any configuration parameters if we have a schema
-        var schema = null;
-        try {
-            schema = plan.schemas.service_binding.create.parameters;
-        }
-        catch (e) {
-            // No schema to validate with
-        }
-        if (schema) {
-            var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
-            if (validationErrors) {
-                this.sendResponse(response, 400, validationErrors);
-                return;
-            }
-        }
-
-        var serviceInstanceId = request.params.instance_id;
-        var bindingId = request.params.binding_id;
-
-        this.logger.debug(`Creating service binding ${bindingId} for service ${serviceInstanceId}`);
-
-        // Generate the binding info depending on the type of binding
-        var data = {};
-        if (!service.requires || service.requires.length == 0) {
-            data = {
-                credentials: {
-                    username: 'admin',
-                    password: randomstring.generate(16)
+    createServiceInstance() {
+        return [
+            param('instance_id', 'Missing instance_id').exists(),
+            body('service_id', 'Missing service_id').exists(),
+            body('plan_id', 'Missing plan_id').exists(),
+            body('organization_guid', 'Missing organization_guid').exists(),
+            body('space_guid', 'Missing space_guid').exists(),
+            (request, response) => {
+                const errors = validationResult(request);
+                if (!errors.isEmpty()) {
+                    this.sendResponse(response, 400, errors);
+                    return;
                 }
-            };
-        }
-        else if (service.requires && service.requires.indexOf('syslog_drain') > -1) {
-            data = {
-                syslog_drain_url: process.env.SYSLOG_DRAIN_URL
-            };
-        }
-        else if (service.requires && service.requires.indexOf('volume_mount') > -1) {
-            data = {
-                volume_mounts: [{
-                    driver: 'nfs',
-                    container_dir: '/tmp',
-                    mode: 'r',
-                    device_type: 'shared',
-                    device: {
-                        volume_id: '1'
+
+                // Check if we only support asynchronous operations
+                if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
+                    this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
+                    return;
+                }
+
+                // Validate serviceId and planId
+                var service = this.serviceBroker.getService(request.body.service_id);
+                var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
+                if (!plan) {
+                    this.sendResponse(response, 400, `Could not find service ${request.body.service_id}, plan ${request.body.plan_id}`);
+                    return;
+                }
+
+                // Validate any configuration parameters if we have a schema
+                var schema = null;
+                try {
+                    schema = plan.schemas.service_instance.create.parameters;
+                }
+                catch (e) {
+                    // No schema to validate with
+                }
+                if (schema) {
+                    var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
+                    if (validationErrors) {
+                        this.sendResponse(response, 400, validationErrors);
+                        return;
                     }
-                }]
-            };
-        }
+                }
 
-        // Check if a bind is already in progress
-        var operation = this.bindingOperations[bindingId];
-        if (operation && operation.type == 'binding' && operation.state == 'in progress') {
-            this.sendJSONResponse(response, 202, data);
-            return;
-        }
+                // Create the service instance
+                var serviceInstanceId = request.params.instance_id;
 
-        // Check if the instance already exists
-        if (!this.serviceInstances[serviceInstanceId]) {
-            this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
-            return;
-        }
+                this.logger.debug(`Creating service instance ${serviceInstanceId}`);
 
-        // Check if the binding already exists
-        if (serviceInstanceId in this.serviceInstances && bindingId in this.serviceInstances[serviceInstanceId].bindings) {
-            this.sendJSONResponse(response, 200, data);
-            return;
-        }
+                let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
+                let data = {
+                    dashboard_url: dashboardUrl
+                };
 
-        // Save the binding to memory
-        this.serviceInstances[serviceInstanceId].bindings[bindingId] = {
-            api_version: request.header('X-Broker-Api-Version'),
-            service_id: request.body.service_id,
-            plan_id: request.body.plan_id,
-            app_guid: request.body.app_guid,
-            bind_resource: request.body.bind_resource,
-            parameters: request.body.parameters,
-            data: data
-        };
+                // Check if a provision is already in progress
+                var operation = this.instanceOperations[serviceInstanceId];
+                if (operation && operation.type == 'provision' && operation.state == 'in progress') {
+                    this.sendJSONResponse(response, 202, data);
+                    return;
+                }
 
-        // Perform asynchronous binding
-        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
-            // Set the end time for the operation to be one second from now
-            // unless an explicit delay was requested
-            var endTime = new Date();
-            if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
-                endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
+                // Check if the instance already exists
+                if (serviceInstanceId in this.serviceInstances) {
+                    this.sendJSONResponse(response, 200, data);
+                    return;
+                }
+
+                this.serviceInstances[serviceInstanceId] = {
+                    created: moment().toString(),
+                    last_updated: 'never',
+                    api_version: request.header('X-Broker-Api-Version'),
+                    service_id: request.body.service_id,
+                    service_name: service.name,
+                    plan_id: request.body.plan_id,
+                    plan_name: plan.name,
+                    parameters: request.body.parameters || {},
+                    accepts_incomplete: (request.query.accepts_incomplete == 'true'),
+                    organization_guid: request.body.organization_guid,
+                    space_guid: request.body.space_guid,
+                    context: request.body.context || {},
+                    bindings: {},
+                    data: data
+                };
+
+                if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
+                    // Set the end time for the operation to be one second from now
+                    // unless an explicit delay was requested
+                    var endTime = new Date();
+                    if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
+                        endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
+                    }
+                    else {
+                        endTime.setSeconds(endTime.getSeconds() + 1);
+                    }
+                    this.instanceOperations[serviceInstanceId] = {
+                        type: 'provision',
+                        state: 'in progress',
+                        endTime: endTime
+                    };
+                    this.sendJSONResponse(response, 202, data);
+                    return;
+                }
+
+                // Else return the data synchronously
+                this.sendJSONResponse(response, 201, data);
             }
-            else {
-                endTime.setSeconds(endTime.getSeconds() + 1);
-            }
-            this.bindingOperations[bindingId] = {
-                type: 'binding',
-                state: 'in progress',
-                endTime: endTime
-            };
-            this.sendJSONResponse(response, 202, {});
-            return;
-        }
-
-        // Perform synchronous binding
-        this.sendJSONResponse(response, 201, data);
+        ]
     }
 
-    deleteServiceBinding(request, response) {
-        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
-        request.checkParams('binding_id', 'Missing binding_id').notEmpty();
-        request.checkQuery('service_id', 'Missing service_id').notEmpty();
-        request.checkQuery('plan_id', 'Missing plan_id').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            this.sendResponse(response, 400, errors);
-            return;
-        }
+    updateServiceInstance() {
+        return [
+            param('instance_id', 'Missing instance_id').exists(),
+            body('service_id', 'Missing service_id').exists(),
+            (request, response, next) => {
+                const errors = validationResult(request);
+                if (!errors.isEmpty()) {
+                    this.sendResponse(response, 400, errors);
+                    return;
+                }
 
-        var serviceInstanceId = request.params.instance_id;
-        var bindingId = request.params.binding_id;
+                var serviceInstanceId = request.params.instance_id;
 
-        // Check if we only support asynchronous operations
-        if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
-            this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
-            return;
-        }
+                var plan = null;
+                if (request.body.plan_id) {
+                    plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
+                } else {
+                    let service_id = this.serviceInstances[serviceInstanceId].service_id;
+                    let plan_id = this.serviceInstances[serviceInstanceId].plan_id;
+                    plan = this.serviceBroker.getPlanForService(service_id, plan_id);
+                }
 
-        // Check if an operation is in progress
-        var operation = this.bindingOperations[bindingId];
-        if (operation && operation.state == 'in progress') {
-            this.sendJSONResponse(response, 422,  { error: 'ConcurrencyError' });
-            return;
-        }
+                // Validate serviceId and planId
+                if (!plan) {
+                    this.sendResponse(response, 400, 'Could not find service %s, plan %s', request.body.service_id, request.body.plan_id);
+                    return;
+                }
 
-        this.logger.debug(`Deleting service binding ${bindingId} for service ${serviceInstanceId}`);
+                // Check if we only support asynchronous operations
+                if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
+                    this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
+                    return;
+                }
 
-        // Delete the service instance from memory
-        if (serviceInstanceId in this.serviceInstances && bindingId in this.serviceInstances[serviceInstanceId].bindings) {
-            delete this.serviceInstances[serviceInstanceId].bindings[bindingId];
-        }
-        else {
-            this.sendJSONResponse(response, 410, {});
-            return;
-        }
+                // Validate any configuration parameters if we have a schema
+                var schema = null;
+                try {
+                    schema = plan.schemas.service_instance.update.parameters;
+                }
+                catch (e) {
+                    // No schema to validate with
+                }
+                if (schema) {
+                    var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
+                    if (validationErrors) {
+                        this.sendResponse(response, 400, validationErrors);
+                        return;
+                    }
+                }
 
-        // Perform asynchronous deprovision
-        if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
-            // Set the end time for the operation to be one second from now
-            // unless an explicit delay was requested
-            var endTime = new Date();
-            if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
-                endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
+                this.logger.debug(`Updating service ${serviceInstanceId}`);
+
+                // Check if an operation is in progress
+                var operation = this.instanceOperations[serviceInstanceId];
+                if (operation && operation.state == 'in progress') {
+                    this.sendJSONResponse(response, 422,  { error: 'ConcurrencyError' });
+                    return;
+                }
+
+                this.serviceInstances[serviceInstanceId].api_version = request.header('X-Broker-Api-Version'),
+                this.serviceInstances[serviceInstanceId].service_id = request.body.service_id;
+                this.serviceInstances[serviceInstanceId].plan_id = plan.id;
+                this.serviceInstances[serviceInstanceId].parameters = request.body.parameters || {};
+                this.serviceInstances[serviceInstanceId].context = request.body.context || {};
+                this.serviceInstances[serviceInstanceId].last_updated = moment().toString();
+
+                let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
+                let data = {
+                    dashboard_url: dashboardUrl
+                };
+
+                if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
+                    // Set the end time for the operation to be one second from now
+                    // unless an explicit delay was requested
+                    var endTime = new Date();
+                    if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
+                        endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
+                    }
+                    else {
+                        endTime.setSeconds(endTime.getSeconds() + 1);
+                    }
+                    this.instanceOperations[serviceInstanceId] = {
+                        type: 'update',
+                        state: 'in progress',
+                        endTime: endTime
+                    };
+                    this.sendJSONResponse(response, 202, data);
+                    return;
+                }
+
+                // Else return the data synchronously
+                this.sendJSONResponse(response, 200, data);
             }
-            else {
-                endTime.setSeconds(endTime.getSeconds() + 1);
-            }
-            this.bindingOperations[bindingId] = {
-                type: 'unbinding',
-                state: 'in progress',
-                endTime: endTime
-            };
-            this.sendJSONResponse(response, 202, {});
-            return;
-        }
-
-        // Perform synchronous deprovision
-        this.sendJSONResponse(response, 200, {});
+        ]
     }
 
-    getLastServiceInstanceOperation(request, response) {
-        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            this.sendResponse(response, 400, errors);
-            return;
-        }
-        var serviceInstanceId = request.params.instance_id;
-        var operation = this.instanceOperations[serviceInstanceId];
-        this.getLastOperation(operation, serviceInstanceId, request, response);
+    deleteServiceInstance() {
+        return [
+            param('instance_id', 'Missing instance_id').exists(),
+            query('service_id', 'Missing service_id').exists(),
+            query('plan_id', 'Missing plan_id').exists(),
+                (request, response, next) => {
+                const errors = validationResult(request);
+                if (!errors.isEmpty()) {
+                    this.sendResponse(response, 400, errors);
+                    return;
+                }
+
+                // Validate serviceId and planId
+                var plan = this.serviceBroker.getPlanForService(request.query.service_id, request.query.plan_id);
+                if (!plan) {
+                    // Just throw a warning in case the broker was restarted so the IDs changed
+                    console.warn('Could not find service %s, plan %s', request.query.service_id, request.query.plan_id);
+                }
+
+                // Check if we only support asynchronous operations
+                if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
+                    this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
+                    return;
+                }
+
+                var serviceInstanceId = request.params.instance_id;
+                this.logger.debug(`Deleting service ${serviceInstanceId}`);
+
+                // Check if an operation is in progress
+                var operation = this.instanceOperations[serviceInstanceId];
+                if (operation && operation.state == 'in progress') {
+                    // If a provision is in progress, we can cancel it
+                    if (operation.type == 'provision') {
+                        delete this.instanceOperations[serviceInstanceId];
+                    }
+                    // Else it must be an update so we should fail
+                    else {
+                        this.sendJSONResponse(response, 422,  { error: 'ConcurrencyError' });
+                        return;
+                    }
+                }
+
+                // Delete the service instance from memory
+                if (serviceInstanceId in this.serviceInstances) {
+                   delete this.serviceInstances[serviceInstanceId];
+                } else {
+                    this.sendJSONResponse(response, 410, {});
+                    return;
+                }
+
+                // Perform asynchronous deprovision
+                if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
+                    // Set the end time for the operation to be one second from now
+                    // unless an explicit delay was requested
+                    var endTime = new Date();
+                    if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
+                        endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
+                    }
+                    else {
+                        endTime.setSeconds(endTime.getSeconds() + 1);
+                    }
+                    this.instanceOperations[serviceInstanceId] = {
+                        type: 'deprovision',
+                        state: 'in progress',
+                        endTime: endTime
+                    };
+                    this.sendJSONResponse(response, 202, {});
+                    return;
+                }
+
+                // Perform synchronous deprovision
+                this.sendJSONResponse(response, 200, {});
+            }
+        ]
     }
 
-    getLastServiceBindingOperation(request, response) {
-        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
-        request.checkParams('binding_id', 'Missing binding_id').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            this.sendResponse(response, 400, errors);
-            return;
-        }
-        var bindingId = request.params.binding_id;
-        var operation = this.bindingOperations[bindingId];
-        this.getLastOperation(operation, bindingId, request, response);
+    createServiceBinding() {
+        return [
+            param('instance_id', 'Missing instance_id').exists(),
+            body('service_id', 'Missing service_id').exists(),
+            body('plan_id', 'Missing plan_id').exists(),
+            (request, response, next) => {
+                const errors = validationResult(request);
+                if (!errors.isEmpty()) {
+                    this.sendResponse(response, 400, errors);
+                    return;
+                }
+
+                // Validate serviceId and planId
+                var service = this.serviceBroker.getService(request.body.service_id);
+                if (!service) {
+                    this.sendResponse(response, 400, `Could not find service ${request.body.service_id}`);
+                    return;
+                }
+                var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
+                if (!plan) {
+                    this.sendResponse(response, 400, `Could not find service/plan ${request.body.service_id}/${request.body.plan_id}`);
+                    return;
+                }
+
+                // Check if we only support asynchronous operations
+                if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
+                    this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
+                    return;
+                }
+
+                // Validate any configuration parameters if we have a schema
+                var schema = null;
+                try {
+                    schema = plan.schemas.service_binding.create.parameters;
+                }
+                catch (e) {
+                    // No schema to validate with
+                }
+                if (schema) {
+                    var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
+                    if (validationErrors) {
+                        this.sendResponse(response, 400, validationErrors);
+                        return;
+                    }
+                }
+
+                var serviceInstanceId = request.params.instance_id;
+                var bindingId = request.params.binding_id;
+
+                this.logger.debug(`Creating service binding ${bindingId} for service ${serviceInstanceId}`);
+
+                // Generate the binding info depending on the type of binding
+                var data = {};
+                if (!service.requires || service.requires.length == 0) {
+                    data = {
+                        credentials: {
+                            username: 'admin',
+                            password: randomstring.generate(16)
+                        }
+                    };
+                }
+                else if (service.requires && service.requires.indexOf('syslog_drain') > -1) {
+                    data = {
+                        syslog_drain_url: process.env.SYSLOG_DRAIN_URL
+                    };
+                }
+                else if (service.requires && service.requires.indexOf('volume_mount') > -1) {
+                    data = {
+                        volume_mounts: [{
+                            driver: 'nfs',
+                            container_dir: '/tmp',
+                            mode: 'r',
+                            device_type: 'shared',
+                            device: {
+                                volume_id: '1'
+                            }
+                        }]
+                    };
+                }
+
+                // Check if a bind is already in progress
+                var operation = this.bindingOperations[bindingId];
+                if (operation && operation.type == 'binding' && operation.state == 'in progress') {
+                    this.sendJSONResponse(response, 202, data);
+                    return;
+                }
+
+                // Check if the instance already exists
+                if (!this.serviceInstances[serviceInstanceId]) {
+                    this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
+                    return;
+                }
+
+                // Check if the binding already exists
+                if (serviceInstanceId in this.serviceInstances && bindingId in this.serviceInstances[serviceInstanceId].bindings) {
+                    this.sendJSONResponse(response, 200, data);
+                    return;
+                }
+
+                // Save the binding to memory
+                this.serviceInstances[serviceInstanceId].bindings[bindingId] = {
+                    api_version: request.header('X-Broker-Api-Version'),
+                    service_id: request.body.service_id,
+                    plan_id: request.body.plan_id,
+                    app_guid: request.body.app_guid,
+                    bind_resource: request.body.bind_resource,
+                    parameters: request.body.parameters,
+                    data: data
+                };
+
+                // Perform asynchronous binding
+                if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
+                    // Set the end time for the operation to be one second from now
+                    // unless an explicit delay was requested
+                    var endTime = new Date();
+                    if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
+                        endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
+                    }
+                    else {
+                        endTime.setSeconds(endTime.getSeconds() + 1);
+                    }
+                    this.bindingOperations[bindingId] = {
+                        type: 'binding',
+                        state: 'in progress',
+                        endTime: endTime
+                    };
+                    this.sendJSONResponse(response, 202, {});
+                    return;
+                }
+
+                // Perform synchronous binding
+                this.sendJSONResponse(response, 201, data);
+            }
+        ]
+    }
+
+    deleteServiceBinding() {
+        return [
+            param('instance_id', 'Missing instance_id').exists(),
+            param('binding_id', 'Missing binding_id').exists(),
+            query('service_id', 'Missing service_id').exists(),
+            query('plan_id', 'Missing plan_id').exists(),
+            (request, response, next) => {
+                const errors = validationResult(request);
+                if (!errors.isEmpty()) {
+                    this.sendResponse(response, 400, errors);
+                    return;
+                }
+
+                var serviceInstanceId = request.params.instance_id;
+                var bindingId = request.params.binding_id;
+
+                // Check if we only support asynchronous operations
+                if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
+                    this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
+                    return;
+                }
+
+                // Check if an operation is in progress
+                var operation = this.bindingOperations[bindingId];
+                if (operation && operation.state == 'in progress') {
+                    this.sendJSONResponse(response, 422,  { error: 'ConcurrencyError' });
+                    return;
+                }
+
+                this.logger.debug(`Deleting service binding ${bindingId} for service ${serviceInstanceId}`);
+
+                // Delete the service instance from memory
+                if (serviceInstanceId in this.serviceInstances && bindingId in this.serviceInstances[serviceInstanceId].bindings) {
+                    delete this.serviceInstances[serviceInstanceId].bindings[bindingId];
+                }
+                else {
+                    this.sendJSONResponse(response, 410, {});
+                    return;
+                }
+
+                // Perform asynchronous deprovision
+                if ((request.query.accepts_incomplete == 'true' && (process.env.responseMode == 'default') || process.env.responseMode == 'async')) {
+                    // Set the end time for the operation to be one second from now
+                    // unless an explicit delay was requested
+                    var endTime = new Date();
+                    if (parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS)) {
+                        endTime.setSeconds(endTime.getSeconds() + parseInt(process.env.ASYNCHRONOUS_DELAY_IN_SECONDS));
+                    }
+                    else {
+                        endTime.setSeconds(endTime.getSeconds() + 1);
+                    }
+                    this.bindingOperations[bindingId] = {
+                        type: 'unbinding',
+                        state: 'in progress',
+                        endTime: endTime
+                    };
+                    this.sendJSONResponse(response, 202, {});
+                    return;
+                }
+
+                // Perform synchronous deprovision
+                this.sendJSONResponse(response, 200, {});
+            }
+        ]
+    }
+
+    getLastServiceInstanceOperation() {
+        return [
+            param('instance_id', 'Missing instance_id').exists(),
+            (request, response, next) => {
+                const errors = validationResult(request);
+                if (!errors.isEmpty()) {
+                    this.sendResponse(response, 400, errors);
+                    return;
+                }
+                var serviceInstanceId = request.params.instance_id;
+                var operation = this.instanceOperations[serviceInstanceId];
+                this.getLastOperation(operation, serviceInstanceId, request, response);
+            }
+        ]
+    }
+
+    getLastServiceBindingOperation() {
+        return [
+            param('instance_id', 'Missing instance_id').exists(),
+            param('binding_id', 'Missing binding_id').exists(),
+            (request, response, next) => {
+                const errors = validationResult(request);
+                if (!errors.isEmpty()) {
+                    this.sendResponse(response, 400, errors);
+                    return;
+                }
+                var bindingId = request.params.binding_id;
+                var operation = this.bindingOperations[bindingId];
+                this.getLastOperation(operation, bindingId, request, response);
+            }
+        ]
     }
 
     checkAsyncOperations() {
@@ -576,52 +609,60 @@ class ServiceBrokerInterface {
         });
     }
 
-    getServiceInstance(request, response) {
-        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            this.sendResponse(response, 400, errors);
-            return;
-        }
+    getServiceInstance() {
+        return [
+            param('instance_id', 'Missing instance_id').exists(),
+            (request, response, next) => {
+                const errors = validationResult(request);
+                if (!errors.isEmpty()) {
+                    this.sendResponse(response, 400, errors);
+                    return;
+                }
 
-        let serviceInstanceId = request.params.instance_id;
-        if (!this.serviceInstances[serviceInstanceId]) {
-            this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
-            return;
-        }
+                let serviceInstanceId = request.params.instance_id;
+                if (!this.serviceInstances[serviceInstanceId]) {
+                    this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
+                    return;
+                }
 
-        var data = Object.assign({}, this.serviceInstances[serviceInstanceId].data);
-        data.service_id = this.serviceInstances[serviceInstanceId].service_id;
-        data.plan_id = this.serviceInstances[serviceInstanceId].plan_id;
-        data.parameters = this.serviceInstances[serviceInstanceId].parameters;
+                var data = Object.assign({}, this.serviceInstances[serviceInstanceId].data);
+                data.service_id = this.serviceInstances[serviceInstanceId].service_id;
+                data.plan_id = this.serviceInstances[serviceInstanceId].plan_id;
+                data.parameters = this.serviceInstances[serviceInstanceId].parameters;
 
-        this.sendJSONResponse(response, 200, data);
+                this.sendJSONResponse(response, 200, data);
+            }
+        ]
     }
 
-    getServiceBinding(request, response) {
-        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
-        request.checkParams('binding_id', 'Missing binding_id').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            this.sendResponse(response, 400, errors);
-            return;
-        }
+    getServiceBinding() {
+        return [
+            param('instance_id', 'Missing instance_id').exists(),
+            param('binding_id', 'Missing binding_id').exists(),
+            (request, response, next) => {
+                const errors = validationResult(request);
+                if (!errors.isEmpty()) {
+                    this.sendResponse(response, 400, errors);
+                    return;
+                }
 
-        let serviceInstanceId = request.params.instance_id;
-        let bindingId = request.params.binding_id;
-        if (!this.serviceInstances[serviceInstanceId]) {
-            this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
-            return;
-        }
-        if (!this.serviceInstances[serviceInstanceId].bindings[bindingId]) {
-            this.sendResponse(response, 404, `Could not find service binding ${bindingId}`);
-            return;
-        }
+                let serviceInstanceId = request.params.instance_id;
+                let bindingId = request.params.binding_id;
+                if (!this.serviceInstances[serviceInstanceId]) {
+                    this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
+                    return;
+                }
+                if (!this.serviceInstances[serviceInstanceId].bindings[bindingId]) {
+                    this.sendResponse(response, 404, `Could not find service binding ${bindingId}`);
+                    return;
+                }
 
-        var data = Object.assign({}, this.serviceInstances[serviceInstanceId].bindings[bindingId].data);
-        data.parameters = this.serviceInstances[serviceInstanceId].bindings[bindingId].parameters;
+                var data = Object.assign({}, this.serviceInstances[serviceInstanceId].bindings[bindingId].data);
+                data.parameters = this.serviceInstances[serviceInstanceId].bindings[bindingId].parameters;
 
-        this.sendJSONResponse(response, 200, data);
+                this.sendJSONResponse(response, 200, data);
+            }
+        ]
     }
 
     getDashboardData() {
@@ -647,43 +688,51 @@ class ServiceBrokerInterface {
         };
     }
 
-    getHealth(request, response) {
-        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            this.sendResponse(response, 400, errors);
-            return;
-        }
+    getHealth() {
+        return [
+            param('instance_id', 'Missing instance_id').exists(),
+            (request, response, next) => {
+                const errors = validationResult(request);
+                if (!errors.isEmpty()) {
+                    this.sendResponse(response, 400, errors);
+                    return;
+                }
 
-        let serviceInstanceId = request.params.instance_id;
-        if (!this.serviceInstances[serviceInstanceId]) {
-            this.sendJSONResponse(response, 200, { alive: false });
-            return;
-        }
+                let serviceInstanceId = request.params.instance_id;
+                if (!this.serviceInstances[serviceInstanceId]) {
+                    this.sendJSONResponse(response, 200, { alive: false });
+                    return;
+                }
 
-        this.sendJSONResponse(response, 200, { alive: true });
+                this.sendJSONResponse(response, 200, { alive: true });
+            }
+        ]
     }
 
-    getInfo(request, response) {
-        request.checkParams('instance_id', 'Missing instance_id').notEmpty();
-        var errors = request.validationErrors();
-        if (errors) {
-            this.sendResponse(response, 400, errors);
-            return;
-        }
+    getInfo() {
+        return [
+            param('instance_id', 'Missing instance_id').exists(),
+            (request, response, next) => {
+                const errors = validationResult(request);
+                if (!errors.isEmpty()) {
+                    this.sendResponse(response, 400, errors);
+                    return;
+                }
 
-        let serviceInstanceId = request.params.instance_id;
-        if (!this.serviceInstances[serviceInstanceId]) {
-            this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
-            return;
-        }
+                let serviceInstanceId = request.params.instance_id;
+                if (!this.serviceInstances[serviceInstanceId]) {
+                    this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
+                    return;
+                }
 
-        let data = {
-            server_url: cfenv.getAppEnv().url,
-            npm_config_node_version: process.env.npm_config_node_version,
-            npm_package_version: process.env.npm_package_version,
-        };
-        this.sendJSONResponse(response, 200, data);
+                let data = {
+                    server_url: cfenv.getAppEnv().url,
+                    npm_config_node_version: process.env.npm_config_node_version,
+                    npm_package_version: process.env.npm_package_version,
+                };
+                this.sendJSONResponse(response, 200, data);
+            }
+        ]
     }
 
     getLogs(request, response) {
