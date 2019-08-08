@@ -2,10 +2,10 @@
 
 | Job | Status |
 | :-: | :----: |
-| Unit | ![Unit status](http://ism.ci.cf-app.com/api/v1/teams/main/pipelines/best-broker/jobs/absolute-unit/badge) |
-| Conformance | ![Conformance status](http://ism.ci.cf-app.com/api/v1/teams/main/pipelines/best-broker/jobs/conformance/badge) |
-| Deploy | ![Deploy status](http://ism.ci.cf-app.com/api/v1/teams/main/pipelines/best-broker/jobs/deploy-best-broker/badge) |
-| [Dockerhub](https://hub.docker.com/r/ismteam/overview-broker) | ![Dockerhub status](http://ism.ci.cf-app.com/api/v1/teams/main/pipelines/best-broker/jobs/push-to-dockerhub/badge) |
+| Unit | ![Unit status](https://hush-house.pivotal.io/api/v1/teams/marketplace/pipelines/best-broker/jobs/absolute-unit/badge) |
+| Conformance | ![Conformance status](https://hush-house.pivotal.io/api/v1/teams/marketplace/pipelines/best-broker/jobs/conformance/badge) |
+| Deploy | ![Deploy status](https://hush-house.pivotal.io/api/v1/teams/marketplace/pipelines/best-broker/jobs/deploy-best-broker/badge) |
+| [Dockerhub](https://hub.docker.com/r/ismteam/overview-broker) | ![Dockerhub status](https://hush-house.pivotal.io/api/v1/teams/marketplace/pipelines/best-broker/jobs/push-to-dockerhub/badge) |
 
 A simple service broker conforming to the [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker/)
 specification that hosts a dashboard showing information on service instances
