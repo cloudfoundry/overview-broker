@@ -22,6 +22,7 @@
     "pug": "latest",
     "randomstring": "^1.1.5",
     "request": "^2.88.0",
+    "lodash": ">=4.17.13",
     "sha256": "latest",
     "uuid": "latest"
   },
