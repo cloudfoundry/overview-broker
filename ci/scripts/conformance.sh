@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/sh
 
 cd overview-broker
 npm install
