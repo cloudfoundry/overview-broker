@@ -217,6 +217,7 @@ class ServiceBrokerInterface {
                 this.serviceInstances[serviceInstanceId].api_version = request.header('X-Broker-Api-Version'),
                 this.serviceInstances[serviceInstanceId].service_id = request.body.service_id;
                 this.serviceInstances[serviceInstanceId].plan_id = plan.id;
+                this.serviceInstances[serviceInstanceId].plan_name = plan.name;
                 this.serviceInstances[serviceInstanceId].parameters = request.body.parameters || {};
                 this.serviceInstances[serviceInstanceId].context = request.body.context || {};
                 this.serviceInstances[serviceInstanceId].last_updated = moment().toString();
