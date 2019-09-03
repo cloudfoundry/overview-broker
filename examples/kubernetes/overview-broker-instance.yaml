@@ -1,7 +1,0 @@
-apiVersion: servicecatalog.k8s.io/v1beta1
-kind: ServiceInstance
-metadata:
-  name: overview-broker-instance
-spec:
-  clusterServiceClassExternalName: overview-broker
-  clusterServicePlanExternalName: small

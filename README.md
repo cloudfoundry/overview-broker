@@ -108,6 +108,10 @@ npm test
     wget https://raw.githubusercontent.com/mattmcneeney/overview-broker/master/examples/cloudfoundry/manifest.yaml
     cf push
     ```
+* The overview broker dashboard should now be accessible:
+    ```bash
+    open "https://$(cf app the-best-broker | awk '/routes:/{ print $2 }')/dashboard"
+    ```
 
 ##### 2. Registering the broker
 
@@ -117,8 +121,11 @@ npm test
     ```
     The basic auth credentials "admin" and "password" can be specified if needed
     (see [Configuration](#configuration)).
-* The overview broker dashboard should now be accessible at
-`https://<url-of-deployed-broker>/dashboard`.
+* The services and plans provided by this broker should now be available in the
+  marketplace:
+  ```bash
+  cf marketplace
+  ```
 
 
 ##### 3. Creating a service instance
@@ -133,114 +140,121 @@ npm test
     cf create-service overview-service small my-instance -c '{ "name": "My Service Instance" }'
     ```
 * If you now head back to the dashboard, you should see your new service
-instance information.
+  instance!
+
+##### 4. Creating a service binding
+
+* To bind the service instance to your application, you will need to first push
+  an application to Cloud Foundry with `cf push`. You can then create a new
+  binding with:
+    ```bash
+    cf bind-service <app-name> my-instance
+    ```
 
 #### Kubernetes
 
 ##### 1. Deploying the broker
 
-* If you want to deploy the broker on Kubernetes, you will first need to build an
-image for the container. If you're using
-[minikube](https://kubernetes.io/docs/getting-started-guides/minikube/), you
-don't need to push the image to a registry. Instead you can just build the
-image using the same Docker host as the minikube VM. To build a container using
-the example [Dockerfile](/examples/kubernetes/Dockerfile) provided, run:
+* Deploy the broker and a load balancer that will be used to access it:
     ```bash
-    wget https://raw.githubusercontent.com/mattmcneeney/overview-broker/master/examples/kubernetes/Dockerfile
-    eval $(minikube docker-env)
-    docker build -t overview-broker:v1 .
+    wget https://raw.githubusercontent.com/mattmcneeney/overview-broker/master/examples/kubernetes/overview-broker-app.yaml
+    wget https://raw.githubusercontent.com/mattmcneeney/overview-broker/master/examples/kubernetes/overview-broker-service.yaml
+    kubectl create -f overview-broker-app.yaml
+    kubectl create -f overview-broker-service.yaml
     ```
-    If you already have Docker installed and running on your machine and want to
-    use that daemon again, just run:
+    You can check this has succeeded by running `kubectl get deployments` and
+    `kubectl get services`.
+* Once the load balancer is up and running, he overview broker dashboard should
+  be accessible:
     ```bash
-    eval $(minikube docker-env -u)
-    ```
-* Now it's time to create a deployment. A Kubernetes deployment manages a pod,
-which we want to run our `overview-broker` image:
-    ```bash
-    kubectl run overview-broker --image=overview-broker:v1 --port=8080 --env="PORT=8080"
-    ```
-    You can check the deployment has succeeded by running `kubectl get deployments`
-    and `kubectl get pods`.
-* In order to access the Pod from outside of the Kubernetes virtual network, you
-need to create a service. You can create a load balancer to do this easily:
-    ```bash
-    kubectl expose deployment overview-broker --type=LoadBalancer
-    ```
-* Check your service has been created successfully using `kubectl get services`.
-    You should now be able to access the broker dashboard by running:
-    ```bash
-    minikube service overview-broker
+    open "http://$(kubectl get service overview-broker-service -o json | jq -r .status.loadBalancer.ingress[0].ip)/dashboard"
     ```
 
 ##### 2. Registering the broker
 
-To register the broker, you first need to install the Service Catalog using
-Helm. _The instructions to do this are likely to change, so if anything below
-breaks, then check out the [official guide](https://github.com/kubernetes-incubator/service-catalog/blob/master/docs/walkthrough.md)._
-
-* If you don't already have Helm, then follow [these](https://github.com/kubernetes/helm/blob/master/docs/install.md)
-installation instructions to install both Helm and Tiller. If you're on macOS,
-the quickest way to do this is:
+* To register the broker, you first need to install the Service Catalog. The
+  instructions to do this can be found
+  [here](https://github.com/kubernetes-sigs/service-catalog/blob/master/docs/install.md).
+  If service catalog fails to install due to permissions, you might want to look
+  at [this guide](https://helm.sh/docs/using_helm/#tiller-and-role-based-access-control).
+* You should now be able to register the service broker you deployed earlier
+  by creating a `clusterservicebrokers` custom resource:
     ```bash
-    brew install kubernetes-helm
-    helm init
-    ```
-* The service catalog then needs to be installed and configured with:
-    ```bash
-    helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
-    kubectl create clusterrolebinding tiller-cluster-admin \
-        --clusterrole=cluster-admin \
-        --serviceaccount=kube-system:default
-
-    # The helm install will fail if we run this immediately. Give tiller
-    # some time to get ready...
-    sleep 30
-    helm install svc-cat/catalog \
-        --name catalog --namespace catalog --set insecure=true
-    ```
-    If everything installed successfully, then you should see the following:
-    ```bash
-    $ kubectl get clusterservicebrokers
-    No resources found.
-    ```
-* Finally, you need to register a broker server with the catalog by creating
-a new Broker resource. Download the provided manifest (`overview-broker.yaml`)
-to do this, but be sure to edit the file to update the URL of the broker you
-have deployed (use the IP address returned by
-`minikube service overview-broker --url`):
-    ```bash
-    wget https://raw.githubusercontent.com/mattmcneeney/overview-broker/master/examples/kubernetes/overview-broker.yaml
-    # Update <URL> to the output of 'minikube service overview-broker --url'
-    ```
-    Now create the resource with:
-    ```bash
-    kubectl create -f overview-broker.yaml
-    ```
-    Check the status of the broker with:
-    ```bash
-    kubectl get clusterservicebrokers overview-broker -o yaml
-    ```
-    Your broker should also appear in the output from:
+    BROKER_URL="http://$(kubectl get service overview-broker-service -o json | jq -r .status.loadBalancer.ingress[0].ip)"
+    cat <<EOF | kubectl create -f -
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: overview-broker-secret
+      namespace: default
+    type: Opaque
+    stringData:
+      username: admin
+      password: password
+    EOF
+    cat <<EOF | kubectl create -f -
+    apiVersion: servicecatalog.k8s.io/v1beta1
+    kind: ClusterServiceBroker
+    metadata:
+      name: overview-broker
+      namespace: default
+    spec:
+      url: ${BROKER_URL}
+      authInfo:
+        basic:
+          secretRef:
+            name: overview-broker-secret
+            namespace: default
+    EOF
+   ```
+  Note that if you changed the default basic auth credentials (see
+  [Configuration](#configuration)), then you will need to change the Secret
+  defined above.
+* The services and plans provided by this broker should now be available:
     ```bash
     kubectl get clusterserviceclasses
+    kubectl get clusterserviceplans
     ```
 
 ##### 3. Creating a service instance
 
-Now that we have the `overview-broker` ServiceClass within our cluster's service
-catalog, we can provision a new Instance resource.
+* Now for the exciting part... it's time to create a new service instance:
+    ```bash
+    cat <<EOF | kubectl create -f -
+    apiVersion: servicecatalog.k8s.io/v1beta1
+    kind: ServiceInstance
+    metadata:
+      name: my-instance
+      namespace: default
+    spec:
+      clusterServiceClassExternalName: overview-service
+      clusterServicePlanExternalName: small
+    EOF
+    ```
+* If you now head back to the dashboard, you should see your new service
+  instance!
 
-* Download the provided manfifest (`overview-broker-instance.yaml`) and create
-a new instance with:
+##### 4. Creating a service binding
+
+* Creating a service binding with service-catalog will result in a new Secret
+  being created which represents the information returned from the service
+  broker for the binding. To create a new service binding, you can run:
     ```bash
-    wget https://raw.githubusercontent.com/mattmcneeney/overview-broker/master/examples/kubernetes/overview-broker-instance.yaml
-    kubectl create -f overview-broker-instance.yaml
+    cat <<EOF | kubectl create -f -
+    apiVersion: servicecatalog.k8s.io/v1beta1
+    kind: ServiceBinding
+    metadata:
+      name: my-instance-binding
+      namespace: default
+    spec:
+      instanceRef:
+        name: my-instance
+      secretName: my-instance-secret
+    EOF
     ```
-    Check everything has worked with:
+  To see the contents of the service binding, you can get the associated secret
+  with:
     ```bash
-    kubectl get serviceinstances overview-broker-instance -o yaml
+    kubectl get secret my-instance-secret -o yaml
     ```
-    You should see a message saying `"The instance was provisioned successfully"`.
-* If you now head back to the dashboard (run `minikube service overview-broker`),
-you should see your new service instance information!
+  Note that the data shown will be base64 encoded.
