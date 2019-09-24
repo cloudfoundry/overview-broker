@@ -93,6 +93,15 @@ function start(callback) {
         console.log(`Response mode is now ${process.env.responseMode}`);
         response.json({});
     });
+    app.post('/admin/setAsynchronousDelayInSeconds', function(request, response) {
+        if (!Number.isInteger(request.body.delay)) {
+            response.status(400).send('Invalid delay');
+            return;
+        }
+        process.env.ASYNCHRONOUS_DELAY_IN_SECONDS = request.body.delay;
+        console.log(`Asynchronous delay is now ${process.env.ASYNCHRONOUS_DELAY_IN_SECONDS} seconds`);
+        response.json({});
+    });
     app.use('/images', express.static('images'));
 
     /* Extensions (unauthenticated) */
@@ -171,7 +180,7 @@ function start(callback) {
         serviceBrokerInterface.listInstances(request, response);
     });
 
-    var port = process.env.PORT || 3000;
+    var port = process.env.PORT || 0;
     var server = app.listen(port, function() {
         logger.debug(`Overview broker running on port ${server.address().port}`);
         callback(server, serviceBrokerInterface);

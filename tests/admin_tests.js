@@ -143,4 +143,27 @@ describe('Admin', function() {
 
     });
 
+    describe('asynchronous delay', function() {
+
+        it('should set it', function (done) {
+            request(server)
+                .post('/admin/setAsynchronousDelayInSeconds')
+                .send({delay: 1})
+                .expect(200)
+                .then(response => {
+                    done();
+                });
+        });
+
+        it('should fail when the delay is not a number', function (done) {
+            request(server)
+                .post('/admin/setAsynchronousDelayInSeconds')
+                .send({delay: "schism"})
+                .expect(400)
+                .then(response => {
+                    done();
+                });
+        });
+    });
+
 });
