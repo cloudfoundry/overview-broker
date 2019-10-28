@@ -48,7 +48,7 @@ docker run ismteam/overview-broker
 
 #### Build it
 ```bash
-git clone git@github.com:mattmcneeney/overview-broker.git
+git clone git@github.com:cloudfoundry/overview-broker.git
 cd overview-broker
 npm install
 
@@ -105,7 +105,7 @@ npm test
 * You can also use an application manifest to deploy the broker as an
     application:
     ```bash
-    wget https://raw.githubusercontent.com/mattmcneeney/overview-broker/master/examples/cloudfoundry/manifest.yaml
+    wget https://raw.githubusercontent.com/cloudfoundry/overview-broker/master/examples/cloudfoundry/manifest.yaml
     cf push
     ```
 * The overview broker dashboard should now be accessible:
@@ -157,8 +157,8 @@ npm test
 
 * Deploy the broker and a load balancer that will be used to access it:
     ```bash
-    wget https://raw.githubusercontent.com/mattmcneeney/overview-broker/master/examples/kubernetes/overview-broker-app.yaml
-    wget https://raw.githubusercontent.com/mattmcneeney/overview-broker/master/examples/kubernetes/overview-broker-service.yaml
+    wget https://raw.githubusercontent.com/cloudfoundry/overview-broker/master/examples/kubernetes/overview-broker-app.yaml
+    wget https://raw.githubusercontent.com/cloudfoundry/overview-broker/master/examples/kubernetes/overview-broker-service.yaml
     kubectl create -f overview-broker-app.yaml
     kubectl create -f overview-broker-service.yaml
     ```

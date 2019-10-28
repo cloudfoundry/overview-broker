@@ -8,7 +8,7 @@
     "test": "NODE_ENV=testing mocha --recursive --timeout 10000 --exit tests"
   },
   "author": "Matthew McNeeney <mmcneeney@pivotal.io>",
-  "repository": "https://github.com/mattmcneeney/overview-broker",
+  "repository": "https://github.com/cloudfoundry/overview-broker",
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "body-parser": "latest",

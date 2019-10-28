@@ -39,7 +39,7 @@ resources:
 - name: overview-broker
   type: git
   source:
-    uri: https://github.com/mattmcneeney/overview-broker
+    uri: https://github.com/cloudfoundry/overview-broker
     branch: master
 
 - name: osb-checker-kotlin
