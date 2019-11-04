@@ -24,4 +24,4 @@ config:
       name: instance-name
 """ > application.yml
 
-java -jar build/libs/osb-checker-kotlin-1.0.jar -cat -provision -bind -auth -con
+java -jar build/libs/*.jar -cat -provision -bind -auth -con
