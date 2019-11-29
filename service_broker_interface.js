@@ -117,6 +117,12 @@ class ServiceBrokerInterface {
 
                 // Check if the instance already exists
                 if (serviceInstanceId in this.serviceInstances) {
+                    // Check if different sevice or plan ID
+                    if (request.body.service_id != this.serviceInstances[serviceInstanceId].service_id ||
+                    request.body.plan_id != this.serviceInstances[serviceInstanceId].plan_id) {
+                        this.sendResponse(response, 409, 'Service or plan ID does not match');
+                        return;
+                    }
                     this.sendJSONResponse(response, 200, data);
                     return;
                 }
@@ -439,6 +445,12 @@ class ServiceBrokerInterface {
 
                 // Check if the binding already exists
                 if (serviceInstanceId in this.serviceInstances && bindingId in this.serviceInstances[serviceInstanceId].bindings) {
+                    // Check if different sevice or plan ID
+                    if (request.body.service_id != this.serviceInstances[serviceInstanceId].bindings[bindingId].service_id ||
+                    request.body.plan_id != this.serviceInstances[serviceInstanceId].bindings[bindingId].plan_id) {
+                        this.sendResponse(response, 409, 'Service or plan ID does not match');
+                        return;
+                    }
                     this.sendJSONResponse(response, 200, data);
                     return;
                 }
