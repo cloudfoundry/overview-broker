@@ -135,7 +135,11 @@ class ServiceBroker {
         plans.push({
             name: 'small',
             description: 'A small instance of the service.',
-            free: true
+            free: true,
+            maintenance_info: {
+               version: 'v1.0',
+               description: 'Hello version 1'
+            }
         });
 
         // Add a large plan with a schema
@@ -179,6 +183,10 @@ class ServiceBroker {
             name: 'large',
             description: 'A large instance of the service.',
             free: true,
+            maintenance_info: {
+               version: 'v1.0',
+               description: 'Hello version 1'
+            },
             schemas: {
                 service_instance: {
                     create: {

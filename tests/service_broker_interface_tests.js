@@ -17,6 +17,8 @@ describe('Service Broker Interface', function() {
     var brokerServiceId = null;
     var smallPlanId = null;
     var largePlanId = null;
+    var smallPlanMaintenanceInfoVersion = null;
+    var largePlanMaintenanceInfoVersion = null;
 
     var brokerUsername = null;
     var brokerPassword = null;
@@ -38,9 +40,11 @@ describe('Service Broker Interface', function() {
                 switch (plan.name) {
                     case 'small':
                         smallPlanId = plan.id;
+                        smallPlanMaintenanceInfoVersion = plan.maintenance_info.version;
                         break;
                     case 'large':
                         largePlanId = plan.id;
+                        largePlanMaintenanceInfoVersion = plan.maintenance_info.version;
                         break;
                     default:
                         break;
@@ -301,6 +305,60 @@ describe('Service Broker Interface', function() {
                 });
         });
 
+        it('should succeed with valid maintenance info', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: smallPlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {},
+                    maintenance_info: {
+                        version: smallPlanMaintenanceInfoVersion
+                    }
+                 })
+                .expect(201)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.be.type('object');
+                    response.body.should.have.property('dashboard_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail with invalid maintenance info', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: smallPlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {},
+                    maintenance_info: {
+                        version: 'v10000'
+                    }
+                 })
+                .expect(422)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
     });
 
     describe('updating service instances', function() {
@@ -516,6 +574,53 @@ describe('Service Broker Interface', function() {
                     context: {}
                  })
                 .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should succeed with valid maintenance info', function(done) {
+            request(server)
+                .patch(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: smallPlanId,
+                    parameters: {},
+                    maintenance_info: {
+                        version: smallPlanMaintenanceInfoVersion
+                    }
+                 })
+                .expect(200)
+                .then(response => {
+                    should.exist(response.body);
+                    response.body.should.have.property('dashboard_url');
+                    done();
+                })
+                .catch(error => {
+                    done(error);
+                });
+        });
+
+        it('should fail with invalid maintenance info', function(done) {
+            request(server)
+                .patch(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: smallPlanId,
+                    parameters: {},
+                    maintenance_info: {
+                        version: 'v10000'
+                    }
+                 })
+                .expect(422)
                 .then(response => {
                     should.exist(response.body);
                     done();

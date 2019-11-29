@@ -90,6 +90,14 @@ class ServiceBrokerInterface {
                     }
                 }
 
+                // Validate maintenance info we were provided it
+                if (request.body.maintenance_info) {
+                    if (request.body.maintenance_info.version != plan.maintenance_info.version) {
+                        this.sendJSONResponse(response, 422, { error: 'MaintenanceInfoConflict' } );
+                        return;
+                    }
+                }
+
                 // Create the service instance
                 var serviceInstanceId = request.params.instance_id;
 
@@ -201,6 +209,14 @@ class ServiceBrokerInterface {
                     var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
                     if (validationErrors) {
                         this.sendResponse(response, 400, validationErrors);
+                        return;
+                    }
+                }
+
+                // Validate maintenance info we were provided it
+                if (request.body.maintenance_info) {
+                    if (request.body.maintenance_info.version != plan.maintenance_info.version) {
+                        this.sendJSONResponse(response, 422, { error: 'MaintenanceInfoConflict' } );
                         return;
                     }
                 }
@@ -812,7 +828,7 @@ class ServiceBrokerInterface {
     }
 
     sendResponse(response, httpCode, data) {
-        response.status(httpCode).send(data);
+        response.status(httpCode).json({ error: data.toString() });
         this.saveResponse(httpCode, data, response.getHeaders());
     }
 
