@@ -33,7 +33,7 @@ class ServiceBrokerInterface {
             (request, response, next) => {
                 const errors = validationResult(request);
                 if (!errors.isEmpty()) {
-                    this.sendResponse(response, 412, errors);
+                    this.sendJSONResponse(response, 412, { error: JSON.stringify(errors) });
                     return;
                 }
                 next();
@@ -56,7 +56,7 @@ class ServiceBrokerInterface {
             (request, response) => {
                 const errors = validationResult(request);
                 if (!errors.isEmpty()) {
-                    this.sendResponse(response, 400, errors);
+                    this.sendJSONResponse(response, 400, { error: JSON.stringify(errors) });
                     return;
                 }
 
@@ -70,7 +70,7 @@ class ServiceBrokerInterface {
                 var service = this.serviceBroker.getService(request.body.service_id);
                 var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
                 if (!plan) {
-                    this.sendResponse(response, 400, `Could not find service ${request.body.service_id}, plan ${request.body.plan_id}`);
+                    this.sendJSONResponse(response, 400, { error: `Could not find service ${request.body.service_id}, plan ${request.body.plan_id}` });
                     return;
                 }
 
@@ -85,7 +85,7 @@ class ServiceBrokerInterface {
                 if (schema) {
                     var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
                     if (validationErrors) {
-                        this.sendResponse(response, 400, validationErrors);
+                        this.sendJSONResponse(response, 400, { error: JSON.stringify(validationErrors) });
                         return;
                     }
                 }
@@ -101,7 +101,7 @@ class ServiceBrokerInterface {
                 // Create the service instance
                 var serviceInstanceId = request.params.instance_id;
 
-                this.logger.debug(`Creating service instance ${serviceInstanceId}`);
+                this.logger.debug(`Creating service instance ${serviceInstanceId} using service ${request.body.service_id} and plan ${request.body.plan_id}`);
 
                 let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
                 let data = {
@@ -120,7 +120,7 @@ class ServiceBrokerInterface {
                     // Check if different sevice or plan ID
                     if (request.body.service_id != this.serviceInstances[serviceInstanceId].service_id ||
                     request.body.plan_id != this.serviceInstances[serviceInstanceId].plan_id) {
-                        this.sendResponse(response, 409, 'Service or plan ID does not match');
+                        this.sendJSONResponse(response, 409, { error: 'Service or plan ID does not match' });
                         return;
                     }
                     this.sendJSONResponse(response, 200, data);
@@ -176,7 +176,7 @@ class ServiceBrokerInterface {
             (request, response, next) => {
                 const errors = validationResult(request);
                 if (!errors.isEmpty()) {
-                    this.sendResponse(response, 400, errors);
+                    this.sendJSONResponse(response, 400, { error: JSON.stringify(errors) });
                     return;
                 }
 
@@ -193,7 +193,7 @@ class ServiceBrokerInterface {
 
                 // Validate serviceId and planId
                 if (!plan) {
-                    this.sendResponse(response, 400, 'Could not find service %s, plan %s', request.body.service_id, request.body.plan_id);
+                    this.sendJSONResponse(response, 400, { error: `Could not find service ${request.body.service_id}, plan ${request.body.planid}` });
                     return;
                 }
 
@@ -214,7 +214,7 @@ class ServiceBrokerInterface {
                 if (schema) {
                     var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
                     if (validationErrors) {
-                        this.sendResponse(response, 400, validationErrors);
+                        this.sendJSONResponse(response, 400, { error: JSON.stringify(validationErrors) });
                         return;
                     }
                 }
@@ -282,7 +282,7 @@ class ServiceBrokerInterface {
                 (request, response, next) => {
                 const errors = validationResult(request);
                 if (!errors.isEmpty()) {
-                    this.sendResponse(response, 400, errors);
+                    this.sendJSONResponse(response, 400, { error: JSON.stringify(errors) });
                     return;
                 }
 
@@ -358,19 +358,19 @@ class ServiceBrokerInterface {
             (request, response, next) => {
                 const errors = validationResult(request);
                 if (!errors.isEmpty()) {
-                    this.sendResponse(response, 400, errors);
+                    this.sendJSONResponse(response, 400, { error: JSON.stringify(errors) });
                     return;
                 }
 
                 // Validate serviceId and planId
                 var service = this.serviceBroker.getService(request.body.service_id);
                 if (!service) {
-                    this.sendResponse(response, 400, `Could not find service ${request.body.service_id}`);
+                    this.sendJSONResponse(response, 400, { error: `Could not find service ${request.body.service_id}` });
                     return;
                 }
                 var plan = this.serviceBroker.getPlanForService(request.body.service_id, request.body.plan_id);
                 if (!plan) {
-                    this.sendResponse(response, 400, `Could not find service/plan ${request.body.service_id}/${request.body.plan_id}`);
+                    this.sendJSONResponse(response, 400, { error: `Could not find service/plan ${request.body.service_id}/${request.body.plan_id}`});
                     return;
                 }
 
@@ -391,7 +391,7 @@ class ServiceBrokerInterface {
                 if (schema) {
                     var validationErrors = this.serviceBroker.validateParameters(schema, (request.body.parameters || {}));
                     if (validationErrors) {
-                        this.sendResponse(response, 400, validationErrors);
+                        this.sendJSONResponse(response, 400, { error: JSON.stringify(validationErrors) });
                         return;
                     }
                 }
@@ -439,7 +439,7 @@ class ServiceBrokerInterface {
 
                 // Check if the instance already exists
                 if (!this.serviceInstances[serviceInstanceId]) {
-                    this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
+                    this.sendJSONResponse(response, 404, { error: `Could not find service instance ${serviceInstanceId}` });
                     return;
                 }
 
@@ -448,7 +448,7 @@ class ServiceBrokerInterface {
                     // Check if different sevice or plan ID
                     if (request.body.service_id != this.serviceInstances[serviceInstanceId].bindings[bindingId].service_id ||
                     request.body.plan_id != this.serviceInstances[serviceInstanceId].bindings[bindingId].plan_id) {
-                        this.sendResponse(response, 409, 'Service or plan ID does not match');
+                        this.sendJSONResponse(response, 409, { error: 'Service or plan ID does not match' });
                         return;
                     }
                     this.sendJSONResponse(response, 200, data);
@@ -501,7 +501,7 @@ class ServiceBrokerInterface {
             (request, response, next) => {
                 const errors = validationResult(request);
                 if (!errors.isEmpty()) {
-                    this.sendResponse(response, 400, errors);
+                    this.sendJSONResponse(response, 400, { error: JSON.stringify(errors) });
                     return;
                 }
 
@@ -564,7 +564,7 @@ class ServiceBrokerInterface {
             (request, response, next) => {
                 const errors = validationResult(request);
                 if (!errors.isEmpty()) {
-                    this.sendResponse(response, 400, errors);
+                    this.sendJSONResponse(response, 400, { error: JSON.stringify(errors) });
                     return;
                 }
                 var serviceInstanceId = request.params.instance_id;
@@ -581,7 +581,7 @@ class ServiceBrokerInterface {
             (request, response, next) => {
                 const errors = validationResult(request);
                 if (!errors.isEmpty()) {
-                    this.sendResponse(response, 400, errors);
+                    this.sendJSONResponse(response, 400, { error: JSON.stringify(errors) });
                     return;
                 }
                 var bindingId = request.params.binding_id;
@@ -644,13 +644,13 @@ class ServiceBrokerInterface {
             (request, response, next) => {
                 const errors = validationResult(request);
                 if (!errors.isEmpty()) {
-                    this.sendResponse(response, 400, errors);
+                    this.sendJSONResponse(response, 400, { error: JSON.stringify(errors) });
                     return;
                 }
 
                 let serviceInstanceId = request.params.instance_id;
                 if (!this.serviceInstances[serviceInstanceId]) {
-                    this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
+                    this.sendJSONResponse(response, 404, { error: `Could not find service instance ${serviceInstanceId}` });
                     return;
                 }
 
@@ -671,18 +671,18 @@ class ServiceBrokerInterface {
             (request, response, next) => {
                 const errors = validationResult(request);
                 if (!errors.isEmpty()) {
-                    this.sendResponse(response, 400, errors);
+                    this.sendJSONResponse(response, 400, { error: JSON.stringify(errors) });
                     return;
                 }
 
                 let serviceInstanceId = request.params.instance_id;
                 let bindingId = request.params.binding_id;
                 if (!this.serviceInstances[serviceInstanceId]) {
-                    this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
+                    this.sendJSONResponse(response, 404, { error: `Could not find service instance ${serviceInstanceId}` });
                     return;
                 }
                 if (!this.serviceInstances[serviceInstanceId].bindings[bindingId]) {
-                    this.sendResponse(response, 404, `Could not find service binding ${bindingId}`);
+                    this.sendJSONResponse(response, 404, { error: `Could not find service binding ${bindingId}` });
                     return;
                 }
 
@@ -723,7 +723,7 @@ class ServiceBrokerInterface {
             (request, response, next) => {
                 const errors = validationResult(request);
                 if (!errors.isEmpty()) {
-                    this.sendResponse(response, 400, errors);
+                    this.sendJSONResponse(response, 400, { error: JSON.stringify(errors) });
                     return;
                 }
 
@@ -744,13 +744,13 @@ class ServiceBrokerInterface {
             (request, response, next) => {
                 const errors = validationResult(request);
                 if (!errors.isEmpty()) {
-                    this.sendResponse(response, 400, errors);
+                    this.sendJSONResponse(response, 400, { error: JSON.stringify(errors) });
                     return;
                 }
 
                 let serviceInstanceId = request.params.instance_id;
                 if (!this.serviceInstances[serviceInstanceId]) {
-                    this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
+                    this.sendJSONResponse(response, 404, { error: `Could not find service instance ${serviceInstanceId}` });
                     return;
                 }
 
@@ -768,13 +768,13 @@ class ServiceBrokerInterface {
         request.checkParams('instance_id', 'Missing instance_id').notEmpty();
         var errors = request.validationErrors();
         if (errors) {
-            this.sendResponse(response, 400, errors);
+            this.sendJSONResponse(response, 400, { error: JSON.stringify(errors) });
             return;
         }
 
         let serviceInstanceId = request.params.instance_id;
         if (!this.serviceInstances[serviceInstanceId]) {
-            this.sendResponse(response, 404, `Could not find service instance ${serviceInstanceId}`);
+            this.sendJSONResponse(response, 404, { error: `Could not find service instance ${serviceInstanceId}` });
             return;
         }
 
@@ -804,7 +804,7 @@ class ServiceBrokerInterface {
         let data = request.body.catalog;
         let error = this.serviceBroker.setCatalog(data);
         if (error) {
-            this.sendResponse(response, 400, error);
+            this.sendJSONResponse(response, 400, { error: JSON.stringify(error) });
             return;
         }
         this.sendJSONResponse(response, 200, {});
@@ -837,11 +837,6 @@ class ServiceBrokerInterface {
         if (this.latestResponses.length > this.numResponsesToSave) {
             this.latestResponses.shift();
         }
-    }
-
-    sendResponse(response, httpCode, data) {
-        response.status(httpCode).json({ error: data.toString() });
-        this.saveResponse(httpCode, data, response.getHeaders());
     }
 
     sendJSONResponse(response, httpCode, data) {
