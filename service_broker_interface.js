@@ -631,7 +631,17 @@ class ServiceBrokerInterface {
             }
         }
 
-        // Return the operation status
+        // If this was a deprovision or delete binding operation that succeeded, return 410
+        if (operation.state == 'succeeded' &&
+        (operation.type == 'deprovision' || operation.type == 'unbinding')) {
+            this.sendJSONResponse(response, 410, {
+                state: operation.state,
+                description: `Operation ${operation.state}`
+            });
+            return;
+        }
+
+        // Else return 200
         this.sendJSONResponse(response, 200, {
             state: operation.state,
             description: `Operation ${operation.state}`

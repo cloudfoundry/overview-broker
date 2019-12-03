@@ -749,7 +749,7 @@ describe('Service Broker Interface', function() {
                                        service_id: brokerServiceId,
                                        plan_id: smallPlanId
                                     })
-                                    .expect(200)
+                                    .expect(410)
                                     .then(response => {
                                         should.exist(response.body);
                                         response.body.should.be.type('object');
@@ -1251,7 +1251,7 @@ describe('Service Broker Interface', function() {
                                        service_id: brokerServiceId,
                                        plan_id: smallPlanId
                                     })
-                                    .expect(200)
+                                    .expect(410)
                                     .then(response => {
                                         should.exist(response.body);
                                         response.body.should.be.type('object');
