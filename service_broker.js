@@ -137,8 +137,7 @@ class ServiceBroker {
             description: 'A small instance of the service.',
             free: true,
             maintenance_info: {
-               version: 'v1.0',
-               description: 'Hello version 1'
+               version: require('./package.json').version
             }
         });
 
@@ -184,8 +183,7 @@ class ServiceBroker {
             description: 'A large instance of the service.',
             free: true,
             maintenance_info: {
-               version: 'v1.0',
-               description: 'Hello version 1'
+               version: require('./package.json').version
             },
             schemas: {
                 service_instance: {
