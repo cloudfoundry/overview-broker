@@ -841,6 +841,98 @@ describe('Service Broker Interface', function() {
                 });
         });
 
+        it('should fail if different service id', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: 'xxx',
+                    plan_id: smallPlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                 .expect(409)
+                 .then(response => {
+                     should.exist(response.body);
+                     done();
+                 })
+                 .catch(error => {
+                     done(error);
+                 });
+        });
+
+        it('should fail if different plan id', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: largePlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                 .expect(409)
+                 .then(response => {
+                     should.exist(response.body);
+                     done();
+                 })
+                 .catch(error => {
+                     done(error);
+                 });
+        });
+
+        it('should fail if different org guid', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: smallPlanId,
+                    parameters: {},
+                    organization_guid: '12345',
+                    space_guid: spaceGuid,
+                    context: {}
+                 })
+                 .expect(409)
+                 .then(response => {
+                     should.exist(response.body);
+                     done();
+                 })
+                 .catch(error => {
+                     done(error);
+                 });
+        });
+
+        it('should fail if different space guid', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: smallPlanId,
+                    parameters: {},
+                    organization_guid: organizationGuid,
+                    space_guid: '12345',
+                    context: {}
+                 })
+                 .expect(409)
+                 .then(response => {
+                     should.exist(response.body);
+                     done();
+                 })
+                 .catch(error => {
+                     done(error);
+                 });
+         });
+
     });
 
     describe('binding', function() {
@@ -1358,6 +1450,50 @@ describe('Service Broker Interface', function() {
                 .catch(error => {
                     done(error);
                 });
+        });
+
+        it('should fail if different service id', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: 'xxx',
+                    plan_id: smallPlanId,
+                    app_guid: appGuid,
+                    bind_resource: {},
+                    parameters: {}
+                 })
+                 .expect(409)
+                 .then(response => {
+                     should.exist(response.body);
+                     done();
+                 })
+                 .catch(error => {
+                     done(error);
+                 });
+        });
+
+        it('should fail if different plan id', function(done) {
+            request(server)
+                .put(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
+                .send({
+                    service_id: brokerServiceId,
+                    plan_id: largePlanId,
+                    app_guid: appGuid,
+                    bind_resource: {},
+                    parameters: {}
+                 })
+                 .expect(409)
+                 .then(response => {
+                     should.exist(response.body);
+                     done();
+                 })
+                 .catch(error => {
+                     done(error);
+                 });
         });
 
     });

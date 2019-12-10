@@ -60,9 +60,36 @@ class ServiceBrokerInterface {
                     return;
                 }
 
+                var serviceInstanceId = request.params.instance_id;
+                let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
+                let data = {
+                    dashboard_url: dashboardUrl
+                };
+
                 // Check if we only support asynchronous operations
                 if (process.env.responseMode == 'async' && request.query.accepts_incomplete != 'true') {
                     this.sendJSONResponse(response, 422, { error: 'AsyncRequired' } );
+                    return;
+                }
+
+                // Check if the instance already exists
+                if (serviceInstanceId in this.serviceInstances) {
+                    // Check if different sevice or plan ID
+                    if (
+                        request.body.service_id != this.serviceInstances[serviceInstanceId].service_id ||
+                        request.body.plan_id != this.serviceInstances[serviceInstanceId].plan_id ||
+                        request.body.organization_guid != this.serviceInstances[serviceInstanceId].organization_guid ||
+                        request.body.space_guid != this.serviceInstances[serviceInstanceId].space_guid) {
+                        this.sendJSONResponse(response, 409, { error: 'Service or plan ID does not match' });
+                        return;
+                    }
+                    // Check if a provision is already in progress
+                    var operation = this.instanceOperations[serviceInstanceId];
+                    if (operation && operation.type == 'provision' && operation.state == 'in progress') {
+                        this.sendJSONResponse(response, 202, data);
+                        return;
+                    }
+                    this.sendJSONResponse(response, 200, data);
                     return;
                 }
 
@@ -99,33 +126,7 @@ class ServiceBrokerInterface {
                 }
 
                 // Create the service instance
-                var serviceInstanceId = request.params.instance_id;
-
                 this.logger.debug(`Creating service instance ${serviceInstanceId} using service ${request.body.service_id} and plan ${request.body.plan_id}`);
-
-                let dashboardUrl = `${this.serviceBroker.getDashboardUrl()}?time=${new Date().toISOString()}`;
-                let data = {
-                    dashboard_url: dashboardUrl
-                };
-
-                // Check if a provision is already in progress
-                var operation = this.instanceOperations[serviceInstanceId];
-                if (operation && operation.type == 'provision' && operation.state == 'in progress') {
-                    this.sendJSONResponse(response, 202, data);
-                    return;
-                }
-
-                // Check if the instance already exists
-                if (serviceInstanceId in this.serviceInstances) {
-                    // Check if different sevice or plan ID
-                    if (request.body.service_id != this.serviceInstances[serviceInstanceId].service_id ||
-                    request.body.plan_id != this.serviceInstances[serviceInstanceId].plan_id) {
-                        this.sendJSONResponse(response, 409, { error: 'Service or plan ID does not match' });
-                        return;
-                    }
-                    this.sendJSONResponse(response, 200, data);
-                    return;
-                }
 
                 this.serviceInstances[serviceInstanceId] = {
                     created: moment().toString(),
@@ -362,6 +363,33 @@ class ServiceBrokerInterface {
                     return;
                 }
 
+                var serviceInstanceId = request.params.instance_id;
+                var bindingId = request.params.binding_id;
+
+                // Check that the instance already exists
+                if (!this.serviceInstances[serviceInstanceId]) {
+                    this.sendJSONResponse(response, 404, { error: `Could not find service instance ${serviceInstanceId}` });
+                    return;
+                }
+
+                // Check if the binding already exists
+                if (serviceInstanceId in this.serviceInstances && bindingId in this.serviceInstances[serviceInstanceId].bindings) {
+                    // Check if different sevice or plan ID
+                    if (request.body.service_id != this.serviceInstances[serviceInstanceId].bindings[bindingId].service_id ||
+                    request.body.plan_id != this.serviceInstances[serviceInstanceId].bindings[bindingId].plan_id) {
+                        this.sendJSONResponse(response, 409, { error: 'Service or plan ID does not match' });
+                        return;
+                    }
+                    // Check if a bind is already in progress
+                    var operation = this.bindingOperations[bindingId];
+                    if (operation && operation.type == 'binding' && operation.state == 'in progress') {
+                        this.sendJSONResponse(response, 202, data);
+                        return;
+                    }
+                    this.sendJSONResponse(response, 200, this.serviceInstances[serviceInstanceId].bindings[bindingId].data);
+                    return;
+                }
+
                 // Validate serviceId and planId
                 var service = this.serviceBroker.getService(request.body.service_id);
                 if (!service) {
@@ -396,9 +424,6 @@ class ServiceBrokerInterface {
                     }
                 }
 
-                var serviceInstanceId = request.params.instance_id;
-                var bindingId = request.params.binding_id;
-
                 this.logger.debug(`Creating service binding ${bindingId} for service ${serviceInstanceId}`);
 
                 // Generate the binding info depending on the type of binding
@@ -428,31 +453,6 @@ class ServiceBrokerInterface {
                             }
                         }]
                     };
-                }
-
-                // Check if a bind is already in progress
-                var operation = this.bindingOperations[bindingId];
-                if (operation && operation.type == 'binding' && operation.state == 'in progress') {
-                    this.sendJSONResponse(response, 202, data);
-                    return;
-                }
-
-                // Check if the instance already exists
-                if (!this.serviceInstances[serviceInstanceId]) {
-                    this.sendJSONResponse(response, 404, { error: `Could not find service instance ${serviceInstanceId}` });
-                    return;
-                }
-
-                // Check if the binding already exists
-                if (serviceInstanceId in this.serviceInstances && bindingId in this.serviceInstances[serviceInstanceId].bindings) {
-                    // Check if different sevice or plan ID
-                    if (request.body.service_id != this.serviceInstances[serviceInstanceId].bindings[bindingId].service_id ||
-                    request.body.plan_id != this.serviceInstances[serviceInstanceId].bindings[bindingId].plan_id) {
-                        this.sendJSONResponse(response, 409, { error: 'Service or plan ID does not match' });
-                        return;
-                    }
-                    this.sendJSONResponse(response, 200, data);
-                    return;
                 }
 
                 // Save the binding to memory
