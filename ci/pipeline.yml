@@ -45,8 +45,8 @@ resources:
 - name: osb-checker-kotlin
   type: git
   source:
-    uri: https://github.com/mattmcneeney/osb-checker-kotlin.git
-    branch: fix-auth-check
+    uri: https://github.com/evoila/osb-checker-kotlin.git
+    branch: master
 
 - name: cf
   type: cf
