@@ -4,7 +4,7 @@ info:
   description: Fetch health information about a service instance
   version: 0.1.0
 paths:
-  /info:
+  /health:
     get:
       summary: Returns health information for the service instance
       responses:

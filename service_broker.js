@@ -98,25 +98,22 @@ class ServiceBroker {
         });
     }
 
-    // getServiceInstanceExtensionAPIs(serviceId) {
-    //     return [
-    //         {
-    //             discovery_url: '/logs',
-    //             server_url: `${cfenv.getAppEnv().url}/v2/service_instances/${serviceId}`,
-    //             adheres_to: 'http://broker.sapi.life/logs'
-    //         },
-    //         {
-    //             discovery_url: '/health',
-    //             server_url: `${cfenv.getAppEnv().url}/v2/service_instances/${serviceId}`,
-    //             adheres_to: 'http://broker.sapi.life/health'
-    //         },
-    //         {
-    //             discovery_url: '/info',
-    //             server_url: `${cfenv.getAppEnv().url}/v2/service_instances/${serviceId}`,
-    //             adheres_to: 'http://broker.sapi.life/info'
-    //         }
-    //     ]
-    // };
+    getServiceInstanceExtensionAPIs() {
+        return [
+            {
+                "id": "urn:osbext:health:v1",
+                "path": "/health-extension",
+                "description": "Obtains the health of a service instance",
+                "openapi_url": "extensions/health.yaml"
+            },
+            {
+                "id": "urn:osbext:overviewbroker-info:v1",
+                "path": "/info-extension",
+                "description": "Gets information about the service instance",
+                "openapi_url": "/extensions/info.yaml"
+            }
+        ]
+    };
 
     validateParameters(schema, parameters) {
         var result = validate(parameters, schema);
@@ -199,7 +196,8 @@ class ServiceBroker {
                         parameters: largePlanSchema
                     }
                 }
-            }
+            },
+            extensions: this.getServiceInstanceExtensionAPIs()
         });
 
         // Load example schemas if requested and generate a plan for each
