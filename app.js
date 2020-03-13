@@ -60,10 +60,10 @@ function start(callback) {
         data.responseMode = process.env.responseMode;
         response.json(data);
     });
-    app.get('/health', function(request, response) {
+    app.get('/extensions/health.yaml', function(request, response) {
         response.sendFile('health.yaml', { root: 'extensions' });
     });
-    app.get('/info', function(request, response) {
+    app.get('/extensions/info.yaml', function(request, response) {
         response.sendFile('info.yaml', { root: 'extensions' });
     });
     app.get('/logs', function(request, response) {
@@ -95,9 +95,6 @@ function start(callback) {
     });
     app.use('/images', express.static('images'));
 
-    /* Extensions (unauthenticated) */
-    app.get('/v2/service_instances/:instance_id/health', serviceBrokerInterface.getHealth());
-    app.get('/v2/service_instances/:instance_id/info', serviceBrokerInterface.getInfo());
 
     /* Authenticated routes (uses Basic Auth) */
     var users = {};
@@ -165,6 +162,10 @@ function start(callback) {
     app.get('/v2/service_instances/:instance_id/service_bindings/:binding_id/last_operation', serviceBrokerInterface.getLastServiceBindingOperation());
     app.get('/v2/service_instances/:instance_id', serviceBrokerInterface.getServiceInstance());
     app.get('/v2/service_instances/:instance_id/service_bindings/:binding_id', serviceBrokerInterface.getServiceBinding());
+
+    /* Extensions */
+    app.get('/v2/service_instances/:instance_id/health-extension/health', serviceBrokerInterface.getHealth());
+    app.get('/v2/service_instances/:instance_id/info-extension/info', serviceBrokerInterface.getInfo());
 
     /* Listing */
     app.get('/v2/service_instances', function(request, response) {

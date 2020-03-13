@@ -2107,21 +2107,26 @@ describe('Service Broker Interface', function() {
 
         it('should fetch health', function(done) {
             request(server)
-                .get(`/v2/service_instances/${instanceId}/health`)
+                .get(`/v2/service_instances/${instanceId}/health-extension/health`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);
                     response.body.should.have.property('alive');
                     done();
                 })
-                .catch(error => {
+                .catch((error, resp) => {
+                    console.log(resp);
                     done(error);
                 });
         });
 
         it('should fetch info', function(done) {
             request(server)
-                .get(`/v2/service_instances/${instanceId}/info`)
+                .get(`/v2/service_instances/${instanceId}/info-extension/info`)
+                .auth(brokerUsername, brokerPassword)
+                .set('X-Broker-Api-Version', apiVersion)
                 .expect(200)
                 .then(response => {
                     should.exist(response.body);
