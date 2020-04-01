@@ -26,7 +26,7 @@ describe('Extensions', function() {
 
         it('should fetch discovery doc', function(done) {
             request(server)
-                .get('/extensions/health.yaml')
+                .get('/health')
                 .expect(200)
                 .then(response => {
                     done();
@@ -36,13 +36,16 @@ describe('Extensions', function() {
     });
 
     describe('info', function() {
+
         it('should fetch discovery doc', function(done) {
             request(server)
-                .get('/extensions/info.yaml')
+                .get('/info')
                 .expect(200)
                 .then(response => {
                     done();
                 });
         });
+
     });
+
 });
