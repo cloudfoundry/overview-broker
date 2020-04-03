@@ -2,6 +2,7 @@ var fs = require('fs'),
     cfenv = require('cfenv'),
     sha256 = require('sha256'),
     validate = require ('jsonschema').validate,
+    GenerateUUID = require ('./uuid-generator'),
     Logger = require('./logger');
 
 class ServiceBroker {
@@ -14,7 +15,7 @@ class ServiceBroker {
                 {
                     name: serviceName,
                     description: process.env.SERVICE_DESCRIPTION || 'Provides an overview of any service instances and bindings that have been created by a platform.',
-                    id: sha256(serviceName).substring(0, 32),
+                    id: GenerateUUID(),
                     tags: [ 'overview-broker' ],
                     bindable: true,
                     plan_updateable: true,
@@ -31,7 +32,7 @@ class ServiceBroker {
             this.catalog.services.push({
                 name: serviceName + '-syslog-drain',
                 description: 'Provides an example syslog drain service.',
-                id: sha256(serviceName + '-syslog-drain').substring(0, 32),
+                id: GenerateUUID(),
                 tags: [ 'overview-broker' ],
                 requires: [ 'syslog_drain' ],
                 bindable: true,
@@ -48,7 +49,7 @@ class ServiceBroker {
             this.catalog.services.push({
                 name: serviceName + '-volume-mount',
                 description: 'Provides an example volume mount service.',
-                id: sha256(serviceName + '-volume-mount').substring(0, 32),
+                id: GenerateUUID(),
                 tags: [ 'overview-broker' ],
                 requires: [ 'volume_mount' ],
                 bindable: true,
@@ -137,7 +138,7 @@ class ServiceBroker {
             description: 'A small instance of the service.',
             free: true,
             maintenance_info: {
-               version: require('./package.json').version
+                version: require('./package.json').version
             }
         });
 
@@ -183,7 +184,7 @@ class ServiceBroker {
             description: 'A large instance of the service.',
             free: true,
             maintenance_info: {
-               version: require('./package.json').version
+                version: require('./package.json').version
             },
             schemas: {
                 service_instance: {
@@ -233,7 +234,7 @@ class ServiceBroker {
 
         // Add an id to each plan
         plans.forEach(function(plan) {
-            plan.id = sha256(`${serviceName}-${plan.name}`).substring(0, 32);
+            plan.id = GenerateUUID();
             if (parseInt(process.env.MAXIMUM_POLLING_DURATION_IN_SECONDS)) {
                 plan.maximum_polling_duration = parseInt(process.env.MAXIMUM_POLLING_DURATION_IN_SECONDS);
             }
