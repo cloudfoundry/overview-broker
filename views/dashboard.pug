@@ -59,13 +59,16 @@ html
                 select.form-control(id='errorModeSelect', onchange='errorModeChanged(this)')
                   option(code='', selected=(errorMode == '')) Disabled
                   option(code='servererror', selected=(errorMode == 'servererror')) Respond with HTTP 500
+                  option(code='badrequest', selected=(errorMode == 'badrequest')) Respond with HTTP 400
                   option(code='notfound', selected=(errorMode == 'notfound')) Respond with HTTP 404
                   option(code='gone', selected=(errorMode == 'gone')) Respond with HTTP 410
                   option(code='unprocessable', selected=(errorMode == 'unprocessable')) Respond with HTTP 422
                   option(code='concurrencyerror', selected=(errorMode == 'concurrencyerror')) Respond with HTTP 422 with ConcurencyError code
                   option(code='maintenanceinfoconflict', selected=(errorMode == 'maintenanceinfoconflict')) Respond with HTTP 422 with MaintenanceInfoConflict code
                   option(code='timeout', selected=(errorMode == 'timeout')) Do not respond (timeout)
-                  option(code='invalidjson', selected=(errorMode == 'invalidjson')) Respond with invalid JSON
+                  option(code='200invalidjson', selected=(errorMode == '200invalidjson')) Respond with 200 OK invalid JSON
+                  option(code='201invalidjson', selected=(errorMode == '201invalidjson')) Respond with 201 OK invalid JSON
+                  option(code='invalidsuccesscode', selected=(errorMode == 'invalidsuccesscode')) Respond with 204 No Contect invalid success
                   option(code='failasync', selected=(errorMode == 'failasync')) Fail asynchronous operations (after they have finished)
               div.form-group
                 label(for='responseModeSelect') Response mode:

@@ -81,6 +81,16 @@ describe('Admin', function() {
                 });
         });
 
+        it('should set to badrequest', function(done) {
+            request(server)
+                .post('/admin/setErrorMode')
+                .send({ mode: 'badrequest' })
+                .expect(200)
+                .then(response => {
+                    done();
+                });
+        });
+
         it('should set to notfound', function(done) {
             request(server)
                 .post('/admin/setErrorMode')
@@ -121,10 +131,30 @@ describe('Admin', function() {
                 });
         });
 
-        it('should set to invalidjson', function(done) {
+        it('should set to 200invalidjson', function(done) {
             request(server)
                 .post('/admin/setErrorMode')
-                .send({ mode: 'invalidjson' })
+                .send({ mode: '200invalidjson' })
+                .expect(200)
+                .then(response => {
+                    done();
+                });
+        });
+
+        it('should set to 201invalidjson', function(done) {
+            request(server)
+                .post('/admin/setErrorMode')
+                .send({ mode: '201invalidjson' })
+                .expect(200)
+                .then(response => {
+                    done();
+                });
+        });
+
+        it('should set to invalidsuccesscode', function(done) {
+            request(server)
+                .post('/admin/setErrorMode')
+                .send({ mode: 'invalidsuccesscode' })
                 .expect(200)
                 .then(response => {
                     done();

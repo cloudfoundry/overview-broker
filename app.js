@@ -27,12 +27,15 @@ function start(callback) {
         '', // Disabled
         'timeout', // Do not respond to any request
         'servererror', // Return HTTP 500 to every request
+        'badrequest', // Return HTTP 400 to every request
         'notfound', // Return HTTP 404 to every request
         'gone', // Return HTTP 410 to every request
         'unprocessable', // Return HTTP 422 to every request
         'concurrencyerror', // Return HTTP 422 with the "ConcurrencyError" error code
         'maintenanceinfoconflict', // Return HTTP 422 with the "MaintenanceInfoConflict" error code
-        'invalidjson', // Return invalid JSON to every request
+        '200invalidjson', // Return HTTP 200 OK and invalid JSON to every request
+        '201invalidjson', // Return HTTP 201 OK and invalid JSON to every request
+        'invalidsuccesscode', // Return HTTP 204 No Content to every request
         'failasync' // Fail asynchronous operations (after they have finished)
     ];
 
@@ -120,6 +123,9 @@ function start(callback) {
                         description: 'Error mode enabled (servererror)'
                     });
                     return;
+                case 'badrequest':
+                    serviceBrokerInterface.sendJSONResponse(response, 400, {});
+                    return;
                 case 'notfound':
                     serviceBrokerInterface.sendJSONResponse(response, 404, {});
                     return;
@@ -144,8 +150,14 @@ function start(callback) {
                         description: 'Error mode enabled (maintenanceinfoconflict)'
                     });
                     return;
-                case 'invalidjson':
-                    serviceBrokerInterface.sendResponse(response, 200, '{ "invalidjson error mode enabled" }');
+                case '200invalidjson':
+                    serviceBrokerInterface.sendResponse(response, 200, '{ "200 invalidjson error mode enabled" }');
+                    return;
+                case '201invalidjson':
+                    serviceBrokerInterface.sendResponse(response, 201, '{ "201 invalid json error mode enabled" }');
+                    return;
+                case 'invalidsuccesscode':
+                    serviceBrokerInterface.sendResponse(response, 204, '');
                     return;
                 default:
                     next();

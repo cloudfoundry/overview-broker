@@ -852,7 +852,11 @@ class ServiceBrokerInterface {
     sendJSONResponse(response, httpCode, data) {
         response.status(httpCode).json(data);
         this.saveResponse(httpCode, data, response.getHeaders());
+    }
 
+    sendResponse(response, httpCode, data) {
+        response.status(httpCode).send(data);
+        this.saveResponse(httpCode, data, response.getHeaders());
     }
 
     getServiceBroker() {
