@@ -1,10 +1,10 @@
 let should = require('should'),
     request = require('supertest'),
-    uuidv4 = require('uuid/v4'),
     app = require('./../app');
 
 describe('Service Broker Interface', function() {
 
+    const { v4: uuidv4 } = require('uuid');
     const instanceId = uuidv4();
     const bindingId = uuidv4();
     const organizationGuid = uuidv4();
