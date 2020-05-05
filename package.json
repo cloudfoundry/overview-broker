@@ -18,17 +18,17 @@
     "express-validator": "^6.4.0",
     "jsonschema": "latest",
     "lodash": ">=4.17.13",
-    "moment": "^2.24.0",
+    "moment": "^2.25.3",
     "morgan": "^1.10.0",
     "pug": "latest",
     "randomstring": "^1.1.5",
     "request": "^2.88.2",
     "sha256": "latest",
-    "uuid": "latest"
+    "uuid": "^8.0.0"
   },
   "devDependencies": {
     "assert": "latest",
-    "mocha": "^7.1.1",
+    "mocha": "^7.1.2",
     "should": "^13.2.3",
     "supertest": "^4.0.2"
   },
