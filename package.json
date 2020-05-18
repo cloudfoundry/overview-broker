@@ -15,7 +15,7 @@
     "cfenv": "^1.2.2",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
-    "express-validator": "^6.4.0",
+    "express-validator": "^6.5.0",
     "jsonschema": "latest",
     "lodash": ">=4.17.13",
     "moment": "^2.25.3",
