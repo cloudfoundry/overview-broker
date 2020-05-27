@@ -16,20 +16,10 @@ jobs:
     - task: conformance
       file: overview-broker/ci/tasks/conformance.yml
 
-- name: deploy-best-broker
-  plan:
-  - get: overview-broker
-    passed: [conformance]
-    trigger: true
-  - put: cf
-    params:
-      path: overview-broker
-      manifest: overview-broker/examples/cloudfoundry/manifest.yaml
-
 - name: push-to-dockerhub
   plan:
   - get: overview-broker
-    passed: [deploy-best-broker]
+    passed: [conformance]
     trigger: true
   - put: dockerhub
     params:
@@ -47,15 +37,6 @@ resources:
   source:
     uri: https://github.com/evoila/osb-checker-kotlin.git
     branch: master
-
-- name: cf
-  type: cf
-  source:
-    api: ((CF_API))
-    username: ((CF_USERNAME))
-    password: ((CF_PASSWORD))
-    organization: ((CF_ORGANIZATION))
-    space: ((CF_SPACE))
 
 - name: dockerhub
   type: docker-image
