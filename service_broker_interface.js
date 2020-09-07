@@ -454,6 +454,11 @@ class ServiceBrokerInterface {
                         }]
                     };
                 }
+                else if (service.requires && service.requires.indexOf('route_forwarding') > -1) {
+                    data = {
+                        route_service_url: process.env.ROUTE_URL
+                    };
+                }
 
                 // Save the binding to memory
                 this.serviceInstances[serviceInstanceId].bindings[bindingId] = {
@@ -716,6 +721,7 @@ class ServiceBrokerInterface {
                 BROKER_USERNAME: process.env.BROKER_USERNAME || 'admin',
                 BROKER_PASSWORD: process.env.BROKER_PASSWORD || 'password',
                 SYSLOG_DRAIN_URL: process.env.SYSLOG_DRAIN_URL,
+                ROUTE_URL: process.env.ROUTE_URL,
                 EXPOSE_VOLUME_MOUNT_SERVICE: process.env.EXPOSE_VOLUME_MOUNT_SERVICE,
                 ENABLE_EXAMPLE_SCHEMAS: process.env.ENABLE_EXAMPLE_SCHEMAS,
                 ASYNCHRONOUS_DELAY_IN_SECONDS: process.env.ASYNCHRONOUS_DELAY_IN_SECONDS,

@@ -62,6 +62,8 @@ npm test
 * To set the BasicAuth credentials, set the `BROKER_USERNAME` and
   `BROKER_PASSWORD` environmental variables. Otherwise the defaults of `admin`
   and `password` will be used.
+* To expose a route service, set the `ROUTE_URL`
+  environmental variable to a url. It must have https scheme.
 * To expose a syslog drain service, set the `SYSLOG_DRAIN_URL`
   environmental variable to a url.
 * To expose a volume mount service, set the `EXPOSE_VOLUME_MOUNT_SERVICE`

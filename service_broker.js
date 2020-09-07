@@ -60,6 +60,23 @@ class ServiceBroker {
                 metadata: { shareable: true }
             });
         };
+
+        // Expose a route service if requested
+        if (process.env.ROUTE_URL) {
+            this.catalog.services.push({
+                name: serviceName + '-route',
+                description: 'Provides an example route service.',
+                id: GenerateUUID(),
+                tags: [ 'overview-broker' ],
+                requires: [ 'route_forwarding' ],
+                bindable: true,
+                bindings_retrievable: true,
+                instances_retrievable: true,
+                plan_updateable: true,
+                plans: this.generatePlansForService(serviceName + '-route'),
+                metadata: { shareable: true }
+            });
+        }
         this.dashboardUrl = `${cfenv.getAppEnv().url}/dashboard`;
         logger.debug(`Service broker created. (${this.catalog.services.length} service${this.catalog.services.length == 1 ? '' : 's'} exposed)`);
     }
