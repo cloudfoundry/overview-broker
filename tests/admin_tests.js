@@ -171,6 +171,16 @@ describe('Admin', function() {
                 });
         });
 
+        it('should set to neverfinishasync', function(done) {
+            request(server)
+                .post('/admin/setErrorMode')
+                .send({ mode: 'neverfinishasync' })
+                .expect(200)
+                .then(response => {
+                    done();
+                });
+        });
+
     });
 
 });

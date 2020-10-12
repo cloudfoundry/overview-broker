@@ -36,7 +36,8 @@ function start(callback) {
         '200invalidjson', // Return HTTP 200 OK and invalid JSON to every request
         '201invalidjson', // Return HTTP 201 OK and invalid JSON to every request
         'invalidsuccesscode', // Return HTTP 204 No Content to every request
-        'failasync' // Fail asynchronous operations (after they have finished)
+        'failasync', // Fail asynchronous operations (after they have started)
+        'neverfinishasync' // Never finish asynchronous operations
     ];
 
     /* Response modes */

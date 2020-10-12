@@ -607,6 +607,11 @@ class ServiceBrokerInterface {
     }
 
     updateOperation(operation, id) {
+        // Exit early if should never finish
+        if (process.env.errorMode == 'neverfinishasync') {
+            return
+        }
+
         // Check if the operation has finished
         if (operation.state == 'in progress' && operation.endTime < new Date()) {
             // Check if we should fail the operation

@@ -69,7 +69,8 @@ html
                   option(code='200invalidjson', selected=(errorMode == '200invalidjson')) Respond with 200 OK invalid JSON
                   option(code='201invalidjson', selected=(errorMode == '201invalidjson')) Respond with 201 OK invalid JSON
                   option(code='invalidsuccesscode', selected=(errorMode == 'invalidsuccesscode')) Respond with 204 No Contect invalid success
-                  option(code='failasync', selected=(errorMode == 'failasync')) Fail asynchronous operations (after they have finished)
+                  option(code='failasync', selected=(errorMode == 'failasync')) Fail asynchronous operations (after they have started)
+                  option(code='neverfinishasync', selected=(errorMode == 'neverfinishasync')) Never finish asynchronous operations
               div.form-group
                 label(for='responseModeSelect') Response mode:
                 select.form-control(id='responseModeSelect', onchange='responseModeChanged(this)')
