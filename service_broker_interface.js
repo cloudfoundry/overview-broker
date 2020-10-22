@@ -7,6 +7,7 @@ var express = require('express'),
     ServiceBroker = require('./service_broker');
 
 const { header, body, param, query, validationResult } = require('express-validator');
+const { NIL } = require('uuid');
 
 class ServiceBrokerInterface {
 
@@ -594,6 +595,10 @@ class ServiceBrokerInterface {
                 }
                 var bindingId = request.params.binding_id;
                 var operation = this.bindingOperations[bindingId];
+                if (request.query.operation != null && request.query.operation != operation.id){
+                    this.sendJSONResponse(response, 400, { error: "Operation does not match" });
+                    return;
+                }
                 this.getLastOperation(operation, bindingId, request, response);
             }
         ]
