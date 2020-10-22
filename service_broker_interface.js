@@ -3,6 +3,7 @@ var express = require('express'),
     cfenv = require('cfenv'),
     randomstring = require('randomstring'),
     Logger = require('./logger'),
+    GenerateUUID = require ('./uuid-generator'),
     ServiceBroker = require('./service_broker');
 
 const { header, body, param, query, validationResult } = require('express-validator');
@@ -383,7 +384,7 @@ class ServiceBrokerInterface {
                     // Check if a bind is already in progress
                     var operation = this.bindingOperations[bindingId];
                     if (operation && operation.type == 'binding' && operation.state == 'in progress') {
-                        this.sendJSONResponse(response, 202, data);
+                        this.sendJSONResponse(response, 202, {operation: operation.id });
                         return;
                     }
                     this.sendJSONResponse(response, 200, this.serviceInstances[serviceInstanceId].bindings[bindingId].data);
@@ -485,9 +486,10 @@ class ServiceBrokerInterface {
                     this.bindingOperations[bindingId] = {
                         type: 'binding',
                         state: 'in progress',
-                        endTime: endTime
+                        endTime: endTime,
+                        id: GenerateUUID()
                     };
-                    this.sendJSONResponse(response, 202, {});
+                    this.sendJSONResponse(response, 202, { operation: this.bindingOperations[bindingId].id } );
                     return;
                 }
 
@@ -551,9 +553,10 @@ class ServiceBrokerInterface {
                     this.bindingOperations[bindingId] = {
                         type: 'unbinding',
                         state: 'in progress',
-                        endTime: endTime
+                        endTime: endTime,
+                        id: GenerateUUID()
                     };
-                    this.sendJSONResponse(response, 202, {});
+                    this.sendJSONResponse(response, 202, { operation: this.bindingOperations[bindingId].id });
                     return;
                 }
 

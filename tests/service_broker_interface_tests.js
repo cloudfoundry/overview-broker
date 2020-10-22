@@ -1059,22 +1059,29 @@ describe('Service Broker Interface', function() {
                     context: {}
                  })
                 .expect(202)
-                .then(response => {
+                .then(bindResponse => {
+                    should.exist(bindResponse.body);
+                    bindResponse.body.should.be.type('object');
+                    bindResponse.body.should.have.property('operation');
+                    return bindResponse
+                })
+                .then(bindResponse => {
                     request(server)
                         .get(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}/last_operation`)
                         .auth(brokerUsername, brokerPassword)
                         .set('X-Broker-Api-Version', apiVersion)
-                        .send({
+                        .query({
                             service_id: brokerServiceId,
-                            plan_id: smallPlanId
+                            plan_id: smallPlanId,
+                            operation: bindResponse.body.operation
                          })
                         .expect(200)
-                        .then(response => {
-                            should.exist(response.body);
-                            response.body.should.be.type('object');
-                            response.body.should.have.property('state');
-                            response.body.state.should.equal('in progress');
-                            response.headers.should.have.property('retry-after');
+                        .then(lastOpResponse => {
+                            should.exist(lastOpResponse.body);
+                            lastOpResponse.body.should.be.type('object');
+                            lastOpResponse.body.should.have.property('state');
+                            lastOpResponse.body.state.should.equal('in progress');
+                            lastOpResponse.headers.should.have.property('retry-after');
 
                             // The operation should finish after one second
                             setTimeout(function() {
@@ -1082,9 +1089,10 @@ describe('Service Broker Interface', function() {
                                     .get(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}/last_operation`)
                                     .auth(brokerUsername, brokerPassword)
                                     .set('X-Broker-Api-Version', apiVersion)
-                                    .send({
+                                    .query({
                                        service_id: brokerServiceId,
-                                       plan_id: smallPlanId
+                                       plan_id: smallPlanId,
+                                       operation: bindResponse.body.operation
                                     })
                                     .expect(200)
                                     .then(response => {
@@ -1093,6 +1101,9 @@ describe('Service Broker Interface', function() {
                                         response.body.should.have.property('state');
                                         response.body.state.should.equal('succeeded');
                                         done();
+                                    })
+                                    .catch(error => {
+                                        done(error);
                                     });
                             }, 1000);
                         })
@@ -1134,6 +1145,9 @@ describe('Service Broker Interface', function() {
                          })
                         .expect(202)
                         .then(response => {
+                            should.exist(response.body);
+                            response.body.should.be.type('object');
+                            response.body.should.have.property('operation');
                             done();
                         })
                         .catch(error => {
@@ -1316,22 +1330,29 @@ describe('Service Broker Interface', function() {
                     plan_id: smallPlanId
                  })
                 .expect(202)
-                .then(response => {
+                .then(unbindResponse => {
+                    should.exist(unbindResponse.body);
+                    unbindResponse.body.should.be.type('object');
+                    unbindResponse.body.should.have.property('operation');
+                    return unbindResponse
+                })
+                .then(unbindResponse => {
                     request(server)
                         .get(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}/last_operation`)
                         .auth(brokerUsername, brokerPassword)
                         .set('X-Broker-Api-Version', apiVersion)
-                        .send({
+                        .query({
                             service_id: brokerServiceId,
-                            plan_id: smallPlanId
+                            plan_id: smallPlanId,
+                            operation: unbindResponse.body.operation
                          })
                         .expect(200)
-                        .then(response => {
-                            should.exist(response.body);
-                            response.body.should.be.type('object');
-                            response.body.should.have.property('state');
-                            response.body.state.should.equal('in progress');
-                            response.headers.should.have.property('retry-after');
+                        .then(lastOpResponse => {
+                            should.exist(lastOpResponse.body);
+                            lastOpResponse.body.should.be.type('object');
+                            lastOpResponse.body.should.have.property('state');
+                            lastOpResponse.body.state.should.equal('in progress');
+                            lastOpResponse.headers.should.have.property('retry-after');
 
                             // The operation should finish after one second
                             setTimeout(function() {
@@ -1339,9 +1360,10 @@ describe('Service Broker Interface', function() {
                                     .get(`/v2/service_instances/${instanceId}/service_bindings/${bindingId}/last_operation`)
                                     .auth(brokerUsername, brokerPassword)
                                     .set('X-Broker-Api-Version', apiVersion)
-                                    .send({
+                                    .query({
                                        service_id: brokerServiceId,
-                                       plan_id: smallPlanId
+                                       plan_id: smallPlanId,
+                                       operation: unbindResponse.body.operation
                                     })
                                     .expect(410)
                                     .then(response => {
@@ -1350,6 +1372,9 @@ describe('Service Broker Interface', function() {
                                         response.body.should.have.property('state');
                                         response.body.state.should.equal('succeeded');
                                         done();
+                                    })
+                                    .catch(error => {
+                                        done(error);
                                     });
                             }, 1000);
                         })
@@ -1381,7 +1406,6 @@ describe('Service Broker Interface', function() {
                     done(error);
                 });
         });
-
     });
 
     describe('recreating binding', function() {
