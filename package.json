@@ -12,7 +12,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "body-parser": "latest",
-    "cfenv": "^1.2.3",
+    "cfenv": "^1.2.4",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
     "express-validator": "^6.6.1",
