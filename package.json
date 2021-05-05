@@ -16,7 +16,7 @@
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
     "express-validator": "^6.6.1",
-    "jsonschema": "^1.2.6",
+    "jsonschema": "^1.4.0",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
