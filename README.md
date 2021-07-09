@@ -101,7 +101,7 @@ npm test
 
 * First you will need to deploy the broker as an application:
     ```bash
-    cf push overview-broker -i 1 -m 256M -k 256M --random-route -b https://github.com/cloudfoundry/nodejs-buildpack
+    cf push overview-broker -i 1 -m 256M -k 256M --random-route -b https://github.com/cloudfoundry/nodejs-buildpack#v1.7.52
     ```
 * You can also use an application manifest to deploy the broker as an
     application:
