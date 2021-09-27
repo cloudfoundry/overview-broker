@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "assert": "latest",
-    "mocha": "^8.3.2",
+    "mocha": "^9.1.2",
     "should": "^13.2.3",
     "supertest": "^6.1.3"
   },
