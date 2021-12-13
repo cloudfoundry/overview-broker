@@ -14,7 +14,7 @@
     "body-parser": "latest",
     "cfenv": "^1.2.4",
     "express": "^4.17.1",
-    "express-basic-auth": "^1.2.0",
+    "express-basic-auth": "^1.2.1",
     "express-validator": "^6.10.1",
     "jsonschema": "^1.4.0",
     "lodash": "^4.17.21",
