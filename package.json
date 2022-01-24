@@ -21,7 +21,7 @@
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
     "pug": "^3.0.2",
-    "randomstring": "^1.1.5",
+    "randomstring": "^1.2.2",
     "request": "^2.88.2",
     "sha256": "latest",
     "uuid": "^8.3.2"
