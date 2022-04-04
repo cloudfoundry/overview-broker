@@ -18,7 +18,7 @@
     "express-validator": "^6.10.1",
     "jsonschema": "^1.4.0",
     "lodash": "^4.17.21",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "morgan": "^1.10.0",
     "pug": "^3.0.2",
     "randomstring": "^1.1.5",
